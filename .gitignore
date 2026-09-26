@@ -1,0 +1,30 @@
+# Dependencies and build output
+node_modules/
+.pnpm-store/
+dist/
+coverage/
+playwright-report/
+test-results/
+
+# Local configuration and generated data
+.env
+.env.*
+!.env.example
+data/
+logs/
+*.log
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+
+# Local historical and internship reference material (not project deliverables)
+docs/AI_Pipeline_Ops_Agent_项目展示计划.md
+docs/adr/组会分享/
+docs/adr/e2e_adverse_driving_behavior_*.md
+
+# OS files
+.DS_Store
+Thumbs.db
