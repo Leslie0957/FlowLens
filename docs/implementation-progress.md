@@ -9,7 +9,9 @@
 - 已检查本机 Node v24.14.1、pnpm 11.5.0、npm 11.12.1、Git 2.53.0.windows.2。
 - GitHub CLI 2.101.0 安装成功，GitHub 账号 Leslie0957 已授权登录。
 - 已准备 README 与忽略规则；历史及实习参考资料保留本地，不上传。
-- 已创建私有仓库 https://github.com/Leslie0957/FlowLens，本地 main 已初始化并关联 origin；首次推送和远端验证结果以本次交接最终报告为准。
+- 已创建并验证私有仓库 https://github.com/Leslie0957/FlowLens，默认分支 main；首次提交 12608df 已推送，GitHub API 返回的完整 SHA 与本地 HEAD 一致，工作区干净。
+- 本仓库使用 Leslie0957 和 GitHub noreply 邮箱作为提交身份；HTTPS 凭据通过本机 GitHub CLI 获取，仅配置当前仓库。
+- 首次提交仅含 PRD、Skill、README、忽略规则及本记录。新增文档的 diff 检查通过；原始 PRD 三处 Markdown 双空格换行被 Git 提示为尾随空格，保留原文。
 - 没有业务代码、workspace、锁文件、数据库或应用运行日志；未执行产品测试、构建和模型调用。
 - M0 尚未实施，也未通过验收；用户尚未确认 M0 实施方案。
 
