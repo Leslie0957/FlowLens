@@ -8,7 +8,7 @@
 2. [验收先行开发规范](skills/acceptance-first-development/SKILL.md)：决定测试、日志、实现和排错方式。
 3. [实施进度与交接](docs/implementation-progress.md)：记录实际状态和下一步。
 
-目标为 PRD 的 P0：固定任务数据 S00/S04/S05、真实模型与 Mock 双模式，以及诊断、证据展示、人工审批、模拟重试闭环。当前不实施 P1/P2。
+目标为 PRD 的 P0：固定任务数据 S00/S04/S05、真实模型与 Mock 双模式，以及诊断、证据展示、人工审批、模拟重试闭环。当前不实施 P1/P2。真实模型提供商已选择 DeepSeek；具体模型及 API 兼容性待 M0 验证，Mock 模式仍为 P0 必需。
 
 默认方案为 Windows 本地单用户、Vue3 + TypeScript、Node.js、SQLite 和 pnpm workspace。工程依赖尚未安装或锁定，没有可执行的应用启动、测试或构建脚本。
 
