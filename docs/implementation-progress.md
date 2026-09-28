@@ -1,48 +1,21 @@
-# FlowLens 实施进度
+# FlowLens 阶段进度
 
-## 2026-09-26：环境准备与交接
-
-### 范围及实际状态
-
-- 用户当前授权：安装 GitHub CLI、创建 GitHub 仓库、准备环境；业务实现交由后续 AI。
-- 已完整阅读 PRD v0.1-r2 与 acceptance-first-development Skill，未发现二者冲突。
-- 已检查本机 Node v24.14.1、pnpm 11.5.0、npm 11.12.1、Git 2.53.0.windows.2。
-- GitHub CLI 2.101.0 安装成功，GitHub 账号 Leslie0957 已授权登录。
-- 已准备 README 与忽略规则；历史及实习参考资料保留本地，不上传。
-- 已创建仓库，现已按用户明确要求改为公开并验证（PUBLIC）： https://github.com/Leslie0957/FlowLens，默认分支 main；首次提交 12608df 已推送，GitHub API 返回的完整 SHA 与本地 HEAD 一致，工作区干净。
-- 本仓库使用 Leslie0957 和 GitHub noreply 邮箱作为提交身份；HTTPS 凭据通过本机 GitHub CLI 获取，仅配置当前仓库。
-- 首次提交仅含 PRD、Skill、README、忽略规则及本记录。新增文档的 diff 检查通过；原始 PRD 三处 Markdown 双空格换行被 Git 提示为尾随空格，保留原文。
-- 没有业务代码、workspace、锁文件、数据库或应用运行日志；未执行产品测试、构建和模型调用。
-- M0 尚未实施，也未通过验收；用户尚未确认 M0 实施方案。
-
-### 检查与结果
-
-| 检查 | 结果 |
+| 阶段 | 当前结果 |
 |---|---|
-| node --version / pnpm --version / npm --version / git --version | 工具可执行，版本见上文 |
-| gh --version | 2.101.0 |
-| gh auth status / gh api user | 已登录 Leslie0957 |
-| 工程 typecheck / lint / test / build | 未执行，尚无工程和对应脚本 |
-| 真实模型 / 上游 Agent 源码许可证 | 未验证 |
+| M0 技术验证 | 已核对 miniClaude 来源与 MIT 许可，独立探针完成 DeepSeek 流式、只读工具、Mock 和失败路径验证。 |
+| M1 工程基础 | Vue 3 / Express / SQLite workspace、S00/S04/S05 合成任务、列表与详情已实现。 |
+| M2 诊断闭环 | 会话、Agent、只读工具、SSE、证据引用、人工审批及模拟重试已实现；用户已确认阶段验收。 |
+| M3 可靠性 | 断流续传、会话隔离、取消晚到、并发审批、重启恢复和可替换接口的自动化检查已通过；人工验收待完成。 |
+| M4 P0 交付 | 未开始；CI、正式 LIVE 评测、录屏和 P0 验收报告尚未交付。 |
 
-当前终端可能尚未刷新 PATH，可使用 `& 'C:/Program Files/GitHub CLI/gh.exe' --version`；新开的 PowerShell 可尝试 `gh --version`。
+## 最近一次本地验证
 
-### 下一阶段入口：M0 验收规划（待用户确认）
+2026-09-27 运行 typecheck、lint、test、build、Chrome E2E 均通过：服务端 52/52、前端 14/14、浏览器 11/11。测试使用 MOCK 或注入模型网关，不代表真实 DeepSeek 多轮质量已经通过。详细场景见 [M3 验收记录](m3-acceptance-plan.md)。
 
-1. 核验 PRD 指定上游的源码、许可证及依赖，固定 commit，记录复用范围和适配边界。
-2. 验证 Windows 上所选运行时、关键依赖和 SQLite 的兼容性，固定实际验证版本。
-3. 真实模型完成流式输出和模型驱动的只读工具调用往返；记录耗时、模型、Prompt 版本、用量和错误。
-4. LIVE 与 MOCK 使用统一生命周期接口；MOCK 执行真实只读工具，LIVE 失败不得自动回退 MOCK。
-5. 关键协议、参数校验、错误、超时、取消和引用校验先写行为测试，再做最小实现；禁止削弱断言或以全量 Mock 绕过被测主体。
-6. 同步建立脱敏结构化日志与关联 ID，通过一个失败路径验证可定位性；记录日志查看方式。
-7. 将实际命令、通过/失败/未执行结果和限制写入 ADR 与本文件；M0 完成后等待用户确认进入 M1。
+## 已知问题与边界
 
-M0 不搭建整个项目；完整应用契约、迁移、页面和持久化闭环分别按 PRD M1—M4 推进。M0 探针通过不等于 P0 通过。
+- S05 信息不足场景的真实模型多轮回答曾重复建议获取演示数据中不存在的详细日志，并使重试资格表达不够明确。后端拒绝 S05 重试；M3 人工验收仍需收尾。
+- 真实 DeepSeek 多轮、断流及质量评测未完成正式验收。调用额度为进程内计数，重启会重置。
+- 当前仅用于 Windows 本地单用户演示。任务与日志均为独立合成数据，审批后的任务重试仍由模拟器执行；无真实业务连接、账户权限系统或公网部署。
 
-### 待提供配置与未验证风险
-
-- 用户已选择 DeepSeek 作为模型提供商（MODEL_PROVIDER=deepseek）。具体模型、官方 API 地址与流式/工具调用兼容性在 M0 核验后记录；当前尚未配置或调用 API。MODEL_API_KEY 仅在本机配置，不在聊天或日志中暴露。
-- 真实调用前需明确调用授权与预算上限；必要时提供代理或特殊协议要求。
-- APP_DB_PATH、MOCK_MODEL、DEMO_MODE 等工程配置由实现阶段提供模板，本轮不创建空工程。
-- 上游许可、依赖兼容性和真实 API 能力尚未验证，不据此承诺 M0 通过或预估全部开发工作量。
-- 当前没有应用日志可查询；仓库准备结果通过 Git/GitHub 命令人工检查，不代表产品验收。
+按 [README](../README.md) 启动并查看日志。阶段计划和架构记录保留在 [M3 方案](m3-acceptance-plan.md)、[M2 架构](m2-architecture.md)及 [PRD](FlowLens_PRD_v0.1.md)。

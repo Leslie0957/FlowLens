@@ -1,0 +1,20 @@
+{
+  "name": "flowlens",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.5.0",
+  "scripts": {
+    "dev": "pnpm --filter @flowlens/contracts build && pnpm --parallel --filter @flowlens/server --filter @flowlens/web dev",
+    "typecheck": "pnpm --filter @flowlens/contracts build && pnpm --filter @flowlens/server typecheck && pnpm --filter @flowlens/web typecheck",
+    "lint": "pnpm --filter @flowlens/server lint && pnpm --filter @flowlens/web lint",
+    "test": "pnpm --filter @flowlens/contracts build && pnpm --filter @flowlens/server test && pnpm --filter @flowlens/web test",
+    "test:e2e": "pnpm --filter @flowlens/contracts build && pnpm --filter @flowlens/server build && playwright test",
+    "build": "pnpm --filter @flowlens/contracts build && pnpm --filter @flowlens/server build && pnpm --filter @flowlens/web build",
+    "db:migrate": "pnpm --filter @flowlens/server db:migrate",
+    "db:seed": "pnpm --filter @flowlens/server db:seed",
+    "start": "pnpm --filter @flowlens/server start"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

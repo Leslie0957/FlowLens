@@ -1,0 +1,29 @@
+// Product adaptation of FlowLens M0 DeepSeek gateway; see docs/adr/0001-m0-technical-validation.md.
+import {decodeChatStream,type Completion} from './model-stream.js';
+import {ProbeError} from './model-error.js';
+import {toolDescriptions} from './diagnosis-tools.js';
+import type {ToolDescription} from './tool-registry.js';
+
+export interface ModelGateway {complete(messages:Record<string,unknown>[],signal:AbortSignal,onDelta?:(text:string)=>void):Promise<Completion>}
+export function deepSeekGateway(config:{apiKey:string;model:string;baseUrl:string;maxOutputTokens:number;tools?:ToolDescription[]}):ModelGateway{
+ const root=config.baseUrl.replace(/\/$/,'');
+ if(root!=='https://api.deepseek.com')throw new ProbeError('INVALID_CONFIG');
+ return {async complete(messages,signal,onDelta){
+  let response:Response;
+  try{response=await fetch(root+'/chat/completions',{method:'POST',signal,headers:{Authorization:`Bearer ${config.apiKey}`,'Content-Type':'application/json'},body:JSON.stringify({model:config.model,messages,tools:(config.tools??toolDescriptions).map(t=>({type:'function',function:t})),tool_choice:'auto',thinking:{type:'disabled'},max_tokens:config.maxOutputTokens,stream:true,stream_options:{include_usage:true}})});}
+  catch{throw new ProbeError(signal.aborted?'CANCELLED':'MODEL_NETWORK_ERROR');}
+  if(!response.ok)throw new ProbeError(response.status===401||response.status===403?'MODEL_AUTH_ERROR':response.status===429?'MODEL_RATE_LIMIT':response.status>=500?'MODEL_UNAVAILABLE':'MODEL_REQUEST_ERROR');
+  if(!response.body)throw new ProbeError('PROTOCOL_ERROR');
+  return decodeChatStream(response.body,undefined,onDelta);
+ }};
+}
+export function mockGateway(runId:string,status:string,errorCode:string|null):ModelGateway{
+ let stage=0;
+ return {async complete(messages){
+  if(stage++===0)return {text:'',calls:[{id:'mock-logs',name:'get_task_logs',arguments:{run_id:runId}},{id:'mock-runbook',name:'search_runbook',arguments:{query:status==='SUCCEEDED'?'任务总览':errorCode==='UPSTREAM_TIMEOUT'?'ReadTimeout':'信息不足'}}],finishReason:'tool_calls'};
+  const toolResults=messages.filter(m=>m.role==='tool').map(m=>{try{return JSON.parse(String(m.content)) as {evidence_ids?:string[]}}catch{return {}}});
+  const ids=toolResults.flatMap(x=>x.evidence_ids??[]);const timeout=errorCode==='UPSTREAM_TIMEOUT',normal=status==='SUCCEEDED';
+  const result={summary:normal?'运行成功，未发现失败（演示数据）':timeout?'读取阶段上游超时（演示数据）':'当前信息不足，无法确定根因（演示数据）',findings:[{cause:normal?'NONE':timeout?'UPSTREAM_TIMEOUT':'UNKNOWN',explanation:normal?'运行状态为成功':timeout?'读取阶段出现超时日志':'日志未给出可确认的具体原因',evidence_ids:ids.slice(0,timeout?2:1),evidence_status:normal||timeout?'SUPPORTED':'NEEDS_CONFIRMATION'}],missing_information:normal||timeout?[]:['需要更详细的错误日志和上游状态'],next_steps:normal?['无需重试']:timeout?['核查上游可用性，再决定是否申请模拟重试']:['补充错误详情'],proposed_action:timeout?{type:'RETRY_RUN',run_id:runId,reason:'已知暂时性上游超时',evidence_ids:ids.slice(0,2)}:null};
+  return {text:JSON.stringify(result),calls:[],finishReason:'stop'};
+ }};
+}
