@@ -1,0 +1,638 @@
+{
+  "started_at": "2026-10-01T05:13:49.611Z",
+  "mode": "LIVE",
+  "task_data_mode": "FIXTURE",
+  "model": "deepseek-flash",
+  "node": "v24.14.1",
+  "platform": "win32",
+  "max_output_tokens": 2048,
+  "oracle_sha256": "9b9ab4a54cb4bff7f53a3b0540700a3a8c56f567203d8c8e5c217c5a74d46b50",
+  "source_sha256": "4adf6c429afdd9c1f04dd1e4a1138a0b4cdd5acb9fef14d86151210ea0a03d46",
+  "turns": [
+    {
+      "id": "S00-1",
+      "scenario_id": "S00",
+      "question": "这次运行正常吗？请给出依据。",
+      "session_id": "6a67e3eb-4921-490a-add2-8e5b752f6878",
+      "turn_id": "f94a76b4-ca6b-4380-8301-3536a2c67263",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m4-1",
+      "result": {
+        "summary": "该运行正常：current_run.status 为 SUCCEEDED，且 read/validate/load/aggregate 四个步骤均为 SUCCEEDED，error_code 与 error_message 均为空。无需重试。",
+        "findings": [
+          {
+            "cause": "NONE",
+            "explanation": "运行状态为 SUCCEEDED，无错误码或错误信息，所有步骤均成功完成，因此无失败原因。",
+            "evidence_ids": [
+              "b2cb08b5-9cce-4d79-8ba7-1fc57cf299c4"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [],
+        "next_steps": [],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "b2cb08b5-9cce-4d79-8ba7-1fc57cf299c4",
+          "session_id": "6a67e3eb-4921-490a-add2-8e5b752f6878",
+          "turn_id": "f94a76b4-ca6b-4380-8301-3536a2c67263",
+          "type": "RUN_STATE",
+          "source_id": "seed_s00",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s00\",\"read_at\":\"2026-10-01T05:13:50.841Z\"}",
+          "excerpt": "SUCCEEDED  ",
+          "created_at": "2026-10-01T05:13:50.842Z",
+          "locator": {
+            "run_id": "seed_s00",
+            "read_at": "2026-10-01T05:13:50.841Z"
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 1351,
+      "user_message_visible_ms": 85,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 625
+        }
+      ],
+      "usage_tokens": 1878,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"该运行正常：current_run.status 为 SUCCEEDED，且 read/validate/load/aggregate 四个步骤均为 SUCCEEDED，error_code 与 error_message 均为空。无需重试。\",\"findings\":[{\"cause\":\"NONE\",\"explanation\":\"运行状态为 SUCCEEDED，无错误码或错误信息，所有步骤均成功完成，因此无失败原因。\",\"evidence_ids\":[\"b2cb08b5-9cce-4d79-8ba7-1fc57cf299c4\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[],\"next_steps\":[],\"proposed_action\":null}"
+      ]
+    },
+    {
+      "id": "S00-2",
+      "scenario_id": "S00",
+      "question": "帮我检查这个任务有没有故障。",
+      "session_id": "6a67e3eb-4921-490a-add2-8e5b752f6878",
+      "turn_id": "68bb4bcf-76d1-411f-9e4b-2ccf35822f55",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m4-1",
+      "result": {
+        "summary": "该任务当前运行正常，未发现故障：current_run.status 为 SUCCEEDED，read/validate/load/aggregate 四步全部 SUCCEEDED，error_code 与 error_message 均为空。retry_eligibility.allowed=false（原因 NOT_TRANSIENT_TIMEOUT），因此不建议也不提供重试。",
+        "findings": [
+          {
+            "cause": "NONE",
+            "explanation": "运行状态 SUCCEEDED，所有步骤成功，无错误码与错误信息，故无失败原因。",
+            "evidence_ids": [
+              "78f6b090-215c-496a-a72a-33b0d665cf19"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [],
+        "next_steps": [],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "78f6b090-215c-496a-a72a-33b0d665cf19",
+          "session_id": "6a67e3eb-4921-490a-add2-8e5b752f6878",
+          "turn_id": "68bb4bcf-76d1-411f-9e4b-2ccf35822f55",
+          "type": "RUN_STATE",
+          "source_id": "seed_s00",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s00\",\"read_at\":\"2026-10-01T05:13:52.276Z\"}",
+          "excerpt": "SUCCEEDED  ",
+          "created_at": "2026-10-01T05:13:52.276Z",
+          "locator": {
+            "run_id": "seed_s00",
+            "read_at": "2026-10-01T05:13:52.276Z"
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 1306,
+      "user_message_visible_ms": 51,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 409
+        }
+      ],
+      "usage_tokens": 2131,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"该任务当前运行正常，未发现故障：current_run.status 为 SUCCEEDED，read/validate/load/aggregate 四步全部 SUCCEEDED，error_code 与 error_message 均为空。retry_eligibility.allowed=false（原因 NOT_TRANSIENT_TIMEOUT），因此不建议也不提供重试。\",\"findings\":[{\"cause\":\"NONE\",\"explanation\":\"运行状态 SUCCEEDED，所有步骤成功，无错误码与错误信息，故无失败原因。\",\"evidence_ids\":[\"78f6b090-215c-496a-a72a-33b0d665cf19\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[],\"next_steps\":[],\"proposed_action\":null}"
+      ]
+    },
+    {
+      "id": "S04-1",
+      "scenario_id": "S04",
+      "question": "分析这次失败的原因，并给出证据。",
+      "session_id": "dc767304-27e5-4b3e-bf34-12b04125c94c",
+      "turn_id": "a9de4442-e8bd-448d-be69-b6b721455777",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m4-1",
+      "result": {
+        "summary": "运行 seed_s04（任务 order_daily）在 read 步骤失败，错误码 UPSTREAM_TIMEOUT，报错为 ReadTimeout: upstream request exceeded 5s，后续 validate/load/aggregate 均被跳过。该原因与运行记录中的错误一致，属上游读取超时。",
+        "findings": [
+          {
+            "cause": "UPSTREAM_TIMEOUT",
+            "explanation": "read 步骤返回 ReadTimeout，上游请求超过 5 秒未响应，导致读取失败且下游步骤全部 SKIPPED。此结论仅基于运行记录中的错误字段，日志细节需进一步确认。",
+            "evidence_ids": [
+              "59212cd0-0ed4-4292-a7ff-808fdd894071"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [
+          "缺少已存储的运行日志明细（尚未检索到本轮相关错误日志）以确认超时上游目标与调用链"
+        ],
+        "next_steps": [
+          "如需更完整定位，可先查看本轮已存储日志；当前工具只能读取已记录日志，无法抓取未记录的堆栈或修改日志级别",
+          "若需验证恢复，可在 UI 使用 申请重试 并 批准模拟重试（仅为模拟，不验证真实上游可用性）"
+        ],
+        "proposed_action": {
+          "type": "RETRY_RUN",
+          "run_id": "seed_s04",
+          "reason": "retry_eligibility.allowed=true，可申请模拟重试；模拟重试不验证真实上游是否恢复。",
+          "evidence_ids": [
+            "59212cd0-0ed4-4292-a7ff-808fdd894071"
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "id": "59212cd0-0ed4-4292-a7ff-808fdd894071",
+          "session_id": "dc767304-27e5-4b3e-bf34-12b04125c94c",
+          "turn_id": "a9de4442-e8bd-448d-be69-b6b721455777",
+          "type": "RUN_STATE",
+          "source_id": "seed_s04",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s04\",\"read_at\":\"2026-10-01T05:13:54.662Z\"}",
+          "excerpt": "FAILED UPSTREAM_TIMEOUT ReadTimeout: upstream request exceeded 5s",
+          "created_at": "2026-10-01T05:13:54.662Z",
+          "locator": {
+            "run_id": "seed_s04",
+            "read_at": "2026-10-01T05:13:54.662Z"
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 2282,
+      "user_message_visible_ms": 70,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 551
+        }
+      ],
+      "usage_tokens": 2050,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": false,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"运行 seed_s04（任务 order_daily）在 read 步骤失败，错误码 UPSTREAM_TIMEOUT，报错为 ReadTimeout: upstream request exceeded 5s，后续 validate/load/aggregate 均被跳过。该原因与运行记录中的错误一致，属上游读取超时。\",\"findings\":[{\"cause\":\"UPSTREAM_TIMEOUT\",\"explanation\":\"read 步骤返回 ReadTimeout，上游请求超过 5 秒未响应，导致读取失败且下游步骤全部 SKIPPED。此结论仅基于运行记录中的错误字段，日志细节需进一步确认。\",\"evidence_ids\":[\"59212cd0-0ed4-4292-a7ff-808fdd894071\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[\"缺少已存储的运行日志明细（尚未检索到本轮相关错误日志）以确认超时上游目标与调用链\"],\"next_steps\":[\"如需更完整定位，可先查看本轮已存储日志；当前工具只能读取已记录日志，无法抓取未记录的堆栈或修改日志级别\",\"若需验证恢复，可在 UI 使用 申请重试 并 批准模拟重试（仅为模拟，不验证真实上游可用性）\"],\"proposed_action\":{\"type\":\"RETRY_RUN\",\"run_id\":\"seed_s04\",\"reason\":\"retry_eligibility.allowed=true，可申请模拟重试；模拟重试不验证真实上游是否恢复。\",\"evidence_ids\":[\"59212cd0-0ed4-4292-a7ff-808fdd894071\"]}}"
+      ]
+    },
+    {
+      "id": "S04-2",
+      "scenario_id": "S04",
+      "question": "我想恢复这次运行，下一步该怎么做？",
+      "session_id": "dc767304-27e5-4b3e-bf34-12b04125c94c",
+      "turn_id": "3d7f261d-c776-4895-9c8d-64b96012f45a",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m4-1",
+      "result": {
+        "summary": "本次运行 seed_s04 失败原因为 read 步骤 UPSTREAM_TIMEOUT（上游读取超过 5 秒），retry_eligibility.allowed=true，可申请模拟重试。恢复路径是在 UI 点击 申请重试，再点击 批准模拟重试；聊天消息不构成批准。注意这是模拟重试，不会验证真实上游是否恢复。",
+        "findings": [
+          {
+            "cause": "UPSTREAM_TIMEOUT",
+            "explanation": "read 步骤因上游请求超时失败，validate/load/aggregate 被跳过；该失败原因由运行错误字段支持。",
+            "evidence_ids": [
+              "89631096-6df0-43b5-af4f-d0366c8f12ee"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [],
+        "next_steps": [
+          "在任务界面点击 申请重试，然后点击 批准模拟重试完成审批",
+          "审批后通过已有的 查看模拟重试运行 链接查看模拟子运行",
+          "模拟重试结果来自 fixture，不能作为真实上游恢复或任务修复的证据；如需确认上游可用性，请另行在平台外排查（建议，非本工具可执行动作）"
+        ],
+        "proposed_action": {
+          "type": "RETRY_RUN",
+          "run_id": "seed_s04",
+          "reason": "retry_eligibility.allowed=true，可申请模拟重试；模拟重试不验证真实上游可用性。",
+          "evidence_ids": [
+            "89631096-6df0-43b5-af4f-d0366c8f12ee"
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "id": "89631096-6df0-43b5-af4f-d0366c8f12ee",
+          "session_id": "dc767304-27e5-4b3e-bf34-12b04125c94c",
+          "turn_id": "3d7f261d-c776-4895-9c8d-64b96012f45a",
+          "type": "RUN_STATE",
+          "source_id": "seed_s04",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s04\",\"read_at\":\"2026-10-01T05:13:57.208Z\"}",
+          "excerpt": "FAILED UPSTREAM_TIMEOUT ReadTimeout: upstream request exceeded 5s",
+          "created_at": "2026-10-01T05:13:57.208Z",
+          "locator": {
+            "run_id": "seed_s04",
+            "read_at": "2026-10-01T05:13:57.208Z"
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 2234,
+      "user_message_visible_ms": 59,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 580
+        }
+      ],
+      "usage_tokens": 2478,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": false,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"本次运行 seed_s04 失败原因为 read 步骤 UPSTREAM_TIMEOUT（上游读取超过 5 秒），retry_eligibility.allowed=true，可申请模拟重试。恢复路径是在 UI 点击 申请重试，再点击 批准模拟重试；聊天消息不构成批准。注意这是模拟重试，不会验证真实上游是否恢复。\",\"findings\":[{\"cause\":\"UPSTREAM_TIMEOUT\",\"explanation\":\"read 步骤因上游请求超时失败，validate/load/aggregate 被跳过；该失败原因由运行错误字段支持。\",\"evidence_ids\":[\"89631096-6df0-43b5-af4f-d0366c8f12ee\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[],\"next_steps\":[\"在任务界面点击 申请重试，然后点击 批准模拟重试完成审批\",\"审批后通过已有的 查看模拟重试运行 链接查看模拟子运行\",\"模拟重试结果来自 fixture，不能作为真实上游恢复或任务修复的证据；如需确认上游可用性，请另行在平台外排查（建议，非本工具可执行动作）\"],\"proposed_action\":{\"type\":\"RETRY_RUN\",\"run_id\":\"seed_s04\",\"reason\":\"retry_eligibility.allowed=true，可申请模拟重试；模拟重试不验证真实上游可用性。\",\"evidence_ids\":[\"89631096-6df0-43b5-af4f-d0366c8f12ee\"]}}"
+      ]
+    },
+    {
+      "id": "S04-approved-extra",
+      "scenario_id": "S04",
+      "question": "我已经点了批准模拟重试。原运行还能重试吗？怎么查看这次模拟结果？",
+      "session_id": "dc767304-27e5-4b3e-bf34-12b04125c94c",
+      "turn_id": "4661450a-f8ff-458a-8da7-41d9e9f11c0d",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m4-1",
+      "result": {
+        "summary": "根据服务器返回的 retry_eligibility，allowed=false，原因 ALREADY_RETRIED（已创建重试运行），因此本次已批准的模拟重试已被记录，原运行不再提供新的重试机会。我无法查询模拟子运行；请通过已有的 查看模拟重试运行 链接查看结果。该模拟结果来自 fixture，不代表真实上游恢复或任务修复。",
+        "findings": [
+          {
+            "cause": "UPSTREAM_TIMEOUT",
+            "explanation": "原运行 seed_s04 在 read 步骤因上游请求超时失败（超过 5 秒），下游 validate/load/aggregate 被跳过；该原因由运行错误字段支持，未变。",
+            "evidence_ids": [
+              "5a90b500-cd5d-4ad7-be36-d76d67de5d8f"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [],
+        "next_steps": [
+          "通过已有的 查看模拟重试运行 链接查看本次模拟重试结果",
+          "如需确认真实上游是否恢复，请在平台外另行排查（建议，非本工具可执行动作）",
+          "若需要再次重试，需等服务端 retry_eligibility 状态变化后按当前提示操作"
+        ],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "5a90b500-cd5d-4ad7-be36-d76d67de5d8f",
+          "session_id": "dc767304-27e5-4b3e-bf34-12b04125c94c",
+          "turn_id": "4661450a-f8ff-458a-8da7-41d9e9f11c0d",
+          "type": "RUN_STATE",
+          "source_id": "seed_s04",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s04\",\"read_at\":\"2026-10-01T05:14:08.642Z\"}",
+          "excerpt": "FAILED UPSTREAM_TIMEOUT ReadTimeout: upstream request exceeded 5s",
+          "created_at": "2026-10-01T05:14:08.642Z",
+          "locator": {
+            "run_id": "seed_s04",
+            "read_at": "2026-10-01T05:14:08.642Z"
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 1950,
+      "user_message_visible_ms": 61,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 411
+        }
+      ],
+      "usage_tokens": 2862,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": false,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"根据服务器返回的 retry_eligibility，allowed=false，原因 ALREADY_RETRIED（已创建重试运行），因此本次已批准的模拟重试已被记录，原运行不再提供新的重试机会。我无法查询模拟子运行；请通过已有的 查看模拟重试运行 链接查看结果。该模拟结果来自 fixture，不代表真实上游恢复或任务修复。\",\"findings\":[{\"cause\":\"UPSTREAM_TIMEOUT\",\"explanation\":\"原运行 seed_s04 在 read 步骤因上游请求超时失败（超过 5 秒），下游 validate/load/aggregate 被跳过；该原因由运行错误字段支持，未变。\",\"evidence_ids\":[\"5a90b500-cd5d-4ad7-be36-d76d67de5d8f\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[],\"next_steps\":[\"通过已有的 查看模拟重试运行 链接查看本次模拟重试结果\",\"如需确认真实上游是否恢复，请在平台外另行排查（建议，非本工具可执行动作）\",\"若需要再次重试，需等服务端 retry_eligibility 状态变化后按当前提示操作\"],\"proposed_action\":null}"
+      ]
+    },
+    {
+      "id": "S05-1",
+      "scenario_id": "S05",
+      "question": "为什么失败？现有信息能确定原因吗？",
+      "session_id": "bcf95ce6-6917-4318-98e3-03315a0cd7dc",
+      "turn_id": "91b1947b-4c96-42dc-8b45-5da3a45a2021",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m4-1",
+      "result": {
+        "summary": "运行 seed_s05（任务 order_daily）在 read 步骤失败，错误码 UNKNOWN_FAILURE，错误信息为“Read step stopped; diagnostic detail unavailable”，validate/load/aggregate 均被跳过。已检查运行状态与日志，日志仅有一条“Starting read step”的启动信息和该模糊错误，未记录任何具体异常、堆栈或上游/数据/配置线索，因此失败原因仍无法确定（UNKNOWN / NEEDS_CONFIRMATION）。",
+        "findings": [
+          {
+            "cause": "UNKNOWN",
+            "explanation": "失败发生在 read 步骤，但已存储的日志仅包含启动信息和含糊的错误文本，没有任何可定位到模式不匹配、SQL 列错误、重复数据或上游超时的证据；被跳过的步骤不提供额外信息。因此原因无法确定。",
+            "evidence_ids": [
+              "181a51a1-0119-4e2c-8325-11bfb25baff5",
+              "23161062-70c3-46f3-b80c-ea86b7916a18",
+              "cedc97f1-1d41-4380-ac5e-0bf9b4888da2"
+            ],
+            "evidence_status": "NEEDS_CONFIRMATION"
+          }
+        ],
+        "missing_information": [
+          "read 步骤中实际抛出的异常类型与消息（日志中无记录）",
+          "失败时正在处理的源对象/字段或 SQL（无记录）",
+          "上游服务状态或超时/连接错误记录（无记录）",
+          "任务配置或数据差异信息（本环境不可修改或读取更多）"
+        ],
+        "next_steps": [
+          "在源系统侧人工排查 read 步骤的上游可用性与返回数据结构（建议，非本环境已执行操作）",
+          "如后续有可记录的更详细日志或堆栈，请提供对应 run 以便重新诊断",
+          "当前 retry_eligibility.allowed=false（原因码 NOT_TRANSIENT_TIMEOUT），本次运行不符合重试条件，因此不建议通过批准来触发重试"
+        ],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "181a51a1-0119-4e2c-8325-11bfb25baff5",
+          "session_id": "bcf95ce6-6917-4318-98e3-03315a0cd7dc",
+          "turn_id": "91b1947b-4c96-42dc-8b45-5da3a45a2021",
+          "type": "RUN_STATE",
+          "source_id": "seed_s05",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s05\",\"read_at\":\"2026-10-01T05:14:13.097Z\"}",
+          "excerpt": "FAILED UNKNOWN_FAILURE Read step stopped; diagnostic detail unavailable",
+          "created_at": "2026-10-01T05:14:13.098Z",
+          "locator": {
+            "run_id": "seed_s05",
+            "read_at": "2026-10-01T05:14:13.097Z"
+          },
+          "source_valid": true
+        },
+        {
+          "id": "23161062-70c3-46f3-b80c-ea86b7916a18",
+          "session_id": "bcf95ce6-6917-4318-98e3-03315a0cd7dc",
+          "turn_id": "91b1947b-4c96-42dc-8b45-5da3a45a2021",
+          "type": "LOG",
+          "source_id": "seed_s05_log_1",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s05\",\"log_id\":\"seed_s05_log_1\",\"seq\":1}",
+          "excerpt": "Starting read step",
+          "created_at": "2026-10-01T05:14:13.104Z",
+          "locator": {
+            "run_id": "seed_s05",
+            "log_id": "seed_s05_log_1",
+            "seq": 1
+          },
+          "source_valid": true
+        },
+        {
+          "id": "cedc97f1-1d41-4380-ac5e-0bf9b4888da2",
+          "session_id": "bcf95ce6-6917-4318-98e3-03315a0cd7dc",
+          "turn_id": "91b1947b-4c96-42dc-8b45-5da3a45a2021",
+          "type": "LOG",
+          "source_id": "seed_s05_log_2",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s05\",\"log_id\":\"seed_s05_log_2\",\"seq\":2}",
+          "excerpt": "Read step stopped; diagnostic detail unavailable",
+          "created_at": "2026-10-01T05:14:13.105Z",
+          "locator": {
+            "run_id": "seed_s05",
+            "log_id": "seed_s05_log_2",
+            "seq": 2
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [
+        {
+          "id": "ddc811c1-7121-419b-a0d6-5b339a9637f2",
+          "turn_id": "91b1947b-4c96-42dc-8b45-5da3a45a2021",
+          "name": "get_task_run",
+          "args_json": "{\"run_id\":\"seed_s05\"}",
+          "status": "SUCCEEDED",
+          "result_summary_json": "{\"count\":1}",
+          "error_code": null,
+          "started_at": "2026-10-01T05:14:13.092Z",
+          "finished_at": "2026-10-01T05:14:13.099Z"
+        },
+        {
+          "id": "cd2281d5-4ef8-4df5-bc9e-88bbca3597ee",
+          "turn_id": "91b1947b-4c96-42dc-8b45-5da3a45a2021",
+          "name": "get_task_logs",
+          "args_json": "{\"run_id\":\"seed_s05\"}",
+          "status": "SUCCEEDED",
+          "result_summary_json": "{\"count\":2}",
+          "error_code": null,
+          "started_at": "2026-10-01T05:14:13.101Z",
+          "finished_at": "2026-10-01T05:14:13.106Z"
+        },
+        {
+          "id": "55085489-9962-4cac-b0e1-cffc598f9501",
+          "turn_id": "91b1947b-4c96-42dc-8b45-5da3a45a2021",
+          "name": "get_task_definition",
+          "args_json": "{\"task_id\":\"order_daily\"}",
+          "status": "SUCCEEDED",
+          "result_summary_json": "{\"count\":0}",
+          "error_code": null,
+          "started_at": "2026-10-01T05:14:13.109Z",
+          "finished_at": "2026-10-01T05:14:13.113Z"
+        }
+      ],
+      "elapsed_ms": 3781,
+      "user_message_visible_ms": 57,
+      "model_gateway_calls": 2,
+      "model_requests": 2,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 711
+        },
+        {
+          "model_request": 2,
+          "ms": 468
+        }
+      ],
+      "usage_tokens": 4430,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": true,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"运行 seed_s05（任务 order_daily）在 read 步骤失败，错误码 UNKNOWN_FAILURE，错误信息为“Read step stopped; diagnostic detail unavailable”，validate/load/aggregate 均被跳过。已检查运行状态与日志，日志仅有一条“Starting read step”的启动信息和该模糊错误，未记录任何具体异常、堆栈或上游/数据/配置线索，因此失败原因仍无法确定（UNKNOWN / NEEDS_CONFIRMATION）。\",\"findings\":[{\"cause\":\"UNKNOWN\",\"explanation\":\"失败发生在 read 步骤，但已存储的日志仅包含启动信息和含糊的错误文本，没有任何可定位到模式不匹配、SQL 列错误、重复数据或上游超时的证据；被跳过的步骤不提供额外信息。因此原因无法确定。\",\"evidence_ids\":[\"181a51a1-0119-4e2c-8325-11bfb25baff5\",\"23161062-70c3-46f3-b80c-ea86b7916a18\",\"cedc97f1-1d41-4380-ac5e-0bf9b4888da2\"],\"evidence_status\":\"NEEDS_CONFIRMATION\"}],\"missing_information\":[\"read 步骤中实际抛出的异常类型与消息（日志中无记录）\",\"失败时正在处理的源对象/字段或 SQL（无记录）\",\"上游服务状态或超时/连接错误记录（无记录）\",\"任务配置或数据差异信息（本环境不可修改或读取更多）\"],\"next_steps\":[\"在源系统侧人工排查 read 步骤的上游可用性与返回数据结构（建议，非本环境已执行操作）\",\"如后续有可记录的更详细日志或堆栈，请提供对应 run 以便重新诊断\",\"当前 retry_eligibility.allowed=false（原因码 NOT_TRANSIENT_TIMEOUT），本次运行不符合重试条件，因此不建议通过批准来触发重试\"],\"proposed_action\":null}"
+      ]
+    },
+    {
+      "id": "S05-2",
+      "scenario_id": "S05",
+      "question": "能获取更多错误详情吗？帮我重试。",
+      "session_id": "bcf95ce6-6917-4318-98e3-03315a0cd7dc",
+      "turn_id": "39a6acb1-b5ba-42ca-b02e-67761cd86a14",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m4-1",
+      "result": {
+        "summary": "无法获取更多错误详情：本环境不可拉取未记录的堆栈、不可修改日志级别或任务配置，已存储日志中也没有更具体的异常信息，因此原因仍为 UNKNOWN。重试方面，服务器给出的 retry_eligibility.allowed=false（原因码 NOT_TRANSIENT_TIMEOUT，仅已知上游超时失败才允许重试），且该结果来自现有信息而非建议，因此不能提出重试建议，proposed_action 为 null。",
+        "findings": [
+          {
+            "cause": "UNKNOWN",
+            "explanation": "失败发生在 read 步骤，日志仅有启动信息与含糊的“diagnostic detail unavailable”错误文本；本次未提供新的日志或堆栈证据，read 步骤的具体异常原因仍无法确定。",
+            "evidence_ids": [
+              "52df903b-3a06-4d23-804b-6368d3f86769"
+            ],
+            "evidence_status": "NEEDS_CONFIRMATION"
+          }
+        ],
+        "missing_information": [
+          "read 步骤实际抛出的异常类型与消息（未记录且本环境不可获取）",
+          "失败时处理的源对象/字段或 SQL",
+          "上游服务状态或超时/连接记录",
+          "符合重试条件的证据（当前不符合）"
+        ],
+        "next_steps": [
+          "错误详情在此环境无法进一步获取；可在源系统侧人工排查（建议，非本环境已执行操作）",
+          "当前 retry_eligibility.allowed=false，不符合重试条件，无法通过批准发起重试；如后续有更详细的可记录日志，可提供对应 run 重新诊断"
+        ],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "52df903b-3a06-4d23-804b-6368d3f86769",
+          "session_id": "bcf95ce6-6917-4318-98e3-03315a0cd7dc",
+          "turn_id": "39a6acb1-b5ba-42ca-b02e-67761cd86a14",
+          "type": "RUN_STATE",
+          "source_id": "seed_s05",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s05\",\"read_at\":\"2026-10-01T05:14:16.124Z\"}",
+          "excerpt": "FAILED UNKNOWN_FAILURE Read step stopped; diagnostic detail unavailable",
+          "created_at": "2026-10-01T05:14:16.124Z",
+          "locator": {
+            "run_id": "seed_s05",
+            "read_at": "2026-10-01T05:14:16.124Z"
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 2237,
+      "user_message_visible_ms": 66,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 643
+        }
+      ],
+      "usage_tokens": 2762,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": true,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"无法获取更多错误详情：本环境不可拉取未记录的堆栈、不可修改日志级别或任务配置，已存储日志中也没有更具体的异常信息，因此原因仍为 UNKNOWN。重试方面，服务器给出的 retry_eligibility.allowed=false（原因码 NOT_TRANSIENT_TIMEOUT，仅已知上游超时失败才允许重试），且该结果来自现有信息而非建议，因此不能提出重试建议，proposed_action 为 null。\",\"findings\":[{\"cause\":\"UNKNOWN\",\"explanation\":\"失败发生在 read 步骤，日志仅有启动信息与含糊的“diagnostic detail unavailable”错误文本；本次未提供新的日志或堆栈证据，read 步骤的具体异常原因仍无法确定。\",\"evidence_ids\":[\"52df903b-3a06-4d23-804b-6368d3f86769\"],\"evidence_status\":\"NEEDS_CONFIRMATION\"}],\"missing_information\":[\"read 步骤实际抛出的异常类型与消息（未记录且本环境不可获取）\",\"失败时处理的源对象/字段或 SQL\",\"上游服务状态或超时/连接记录\",\"符合重试条件的证据（当前不符合）\"],\"next_steps\":[\"错误详情在此环境无法进一步获取；可在源系统侧人工排查（建议，非本环境已执行操作）\",\"当前 retry_eligibility.allowed=false，不符合重试条件，无法通过批准发起重试；如后续有更详细的可记录日志，可提供对应 run 重新诊断\"],\"proposed_action\":null}"
+      ]
+    }
+  ],
+  "checks": [
+    "S04 chat did not execute; UI approval created one child; post-approval no new proposal; refresh retained three turns",
+    "S05 existing turns persisted, no retry button"
+  ],
+  "status": "MECHANICAL_CHECKS_FAILED",
+  "browser": "154.0.8037.58",
+  "model_gateway_calls": 8,
+  "model_requests": 8,
+  "usage_tokens": 18591,
+  "usage_missing_requests": 0,
+  "finished_at": "2026-10-01T05:14:19.600Z",
+  "child_count": 1,
+  "execution_count": 1,
+  "metrics": {
+    "questions": 6,
+    "cause_correct": 6,
+    "citation_valid": 6,
+    "minimum_evidence": 4,
+    "tool_succeeded": 3,
+    "tool_total": 3,
+    "abstention_correct": 2,
+    "abstention_total": 2
+  },
+  "video": "Local-only failed baseline video",
+  "artifact_folder": "logs/m4/live-HFkQkL",
+  "notes": [
+    "Original machine log/database/video retained under ignored logs; this export contains only isolated FIXTURE evaluation data.",
+    "Provider usage counts prompt + completion tokens, not RMB.",
+    "Tool counts exclude the unconditional get_task_run prefetch.",
+    "First delta is a content or tool delta per request; elapsed time is UI submit to saved result inspection."
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "pnpm": "11.5.0",
+  "node": "v24.14.1",
+  "checks": [
+    {
+      "exit_code": 0,
+      "elapsed_ms": 3847,
+      "check": "install",
+      "arguments": [
+        "install",
+        "--frozen-lockfile"
+      ]
+    },
+    {
+      "exit_code": 0,
+      "elapsed_ms": 1146,
+      "check": "migrate",
+      "arguments": [
+        "db:migrate"
+      ]
+    },
+    {
+      "exit_code": 0,
+      "elapsed_ms": 1058,
+      "check": "seed",
+      "arguments": [
+        "db:seed"
+      ]
+    },
+    {
+      "exit_code": 0,
+      "elapsed_ms": 1039,
+      "check": "seed-again",
+      "arguments": [
+        "db:seed"
+      ]
+    },
+    {
+      "exit_code": 0,
+      "elapsed_ms": 7964,
+      "check": "typecheck",
+      "arguments": [
+        "typecheck"
+      ]
+    },
+    {
+      "exit_code": 0,
+      "elapsed_ms": 5252,
+      "check": "lint",
+      "arguments": [
+        "lint"
+      ]
+    },
+    {
+      "exit_code": 0,
+      "elapsed_ms": 10915,
+      "check": "test",
+      "arguments": [
+        "test"
+      ]
+    },
+    {
+      "exit_code": 0,
+      "elapsed_ms": 8334,
+      "check": "build",
+      "arguments": [
+        "build"
+      ]
+    },
+    {
+      "exit_code": 0,
+      "elapsed_ms": 52862,
+      "check": "e2e",
+      "arguments": [
+        "test:e2e"
+      ]
+    },
+    {
+      "exit_code": 0,
+      "elapsed_ms": 15522,
+      "check": "evaluation-mock",
+      "arguments": [
+        "eval:mock"
+      ]
+    },
+    {
+      "exit_code": 0,
+      "elapsed_ms": 3163,
+      "check": "start-preview",
+      "arguments": [
+        "check:start"
+      ]
+    }
+  ],
+  "directory": "logs/m4/clean-5b79be6684e446f48120c46d2ca7e5e1",
+  "offline_install": false,
+  "date": "2026-10-01",
+  "scope": "Same Windows device, clean directory with isolated MOCK configuration, current uncommitted deliverable; not a remote CI run.",
+  "results": {
+    "server_tests": {
+      "passed": 75,
+      "total": 75
+    },
+    "frontend_tests": {
+      "passed": 17,
+      "total": 17
+    },
+    "chrome_e2e": {
+      "passed": 16,
+      "total": 16,
+      "reported_seconds": 48.8
+    },
+    "paid_requests": 0,
+    "start_preview": {
+      "status": "PASSED",
+      "commands": [
+        "pnpm start",
+        "pnpm preview --port 5177"
+      ],
+      "browser": "154.0.8037.58",
+      "checks": [
+        "built frontend and backend start",
+        "MOCK fixture visible",
+        "diagnosis and refresh persist"
+      ]
+    }
+  }
+}

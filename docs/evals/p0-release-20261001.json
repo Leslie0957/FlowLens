@@ -1,0 +1,161 @@
+{
+  "date": "2026-10-01",
+  "scope": "Accepted P0/M4 release; isolated MOCK verification on the same Windows device.",
+  "directory": "logs/m4/clean-0b85747e69314dd08661e3fe757df27f",
+  "node": "v24.14.1",
+  "pnpm": "11.5.0",
+  "browser": "154.0.8037.58",
+  "checks": [
+    {
+      "elapsed_ms": 4402,
+      "check": "install",
+      "exit_code": 0,
+      "arguments": [
+        "install",
+        "--frozen-lockfile"
+      ]
+    },
+    {
+      "elapsed_ms": 1112,
+      "check": "migrate",
+      "exit_code": 0,
+      "arguments": [
+        "db:migrate"
+      ]
+    },
+    {
+      "elapsed_ms": 1053,
+      "check": "seed",
+      "exit_code": 0,
+      "arguments": [
+        "db:seed"
+      ]
+    },
+    {
+      "elapsed_ms": 1047,
+      "check": "seed-again",
+      "exit_code": 0,
+      "arguments": [
+        "db:seed"
+      ]
+    },
+    {
+      "elapsed_ms": 7402,
+      "check": "typecheck",
+      "exit_code": 0,
+      "arguments": [
+        "typecheck"
+      ]
+    },
+    {
+      "elapsed_ms": 4904,
+      "check": "lint",
+      "exit_code": 0,
+      "arguments": [
+        "lint"
+      ]
+    },
+    {
+      "elapsed_ms": 10412,
+      "check": "test",
+      "exit_code": 0,
+      "arguments": [
+        "test"
+      ]
+    },
+    {
+      "elapsed_ms": 8208,
+      "check": "build",
+      "exit_code": 0,
+      "arguments": [
+        "build"
+      ]
+    },
+    {
+      "elapsed_ms": 61927,
+      "check": "e2e",
+      "exit_code": 0,
+      "arguments": [
+        "test:e2e"
+      ]
+    },
+    {
+      "check": "evaluation-mock",
+      "arguments": [
+        "eval:mock"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 19985,
+      "output": "evaluation-mock-fixed.txt"
+    },
+    {
+      "check": "start-preview",
+      "arguments": [
+        "check:start"
+      ],
+      "exit_code": 0,
+      "output": "start-preview.txt"
+    }
+  ],
+  "tests": {
+    "server": 75,
+    "frontend": 21,
+    "chrome_e2e": 17,
+    "chrome_reported_seconds": 58
+  },
+  "mock": {
+    "metrics": {
+      "questions": 6,
+      "cause_correct": 6,
+      "citation_valid": 6,
+      "minimum_evidence": 6,
+      "tool_succeeded": 12,
+      "tool_total": 12,
+      "abstention_correct": 2,
+      "abstention_total": 2
+    },
+    "provider_requests": 0,
+    "usage_tokens": 0,
+    "checks": [
+      "S04 chat did not execute; UI approval created one child; post-approval no new proposal; refresh retained three turns",
+      "S05 existing turns persisted, no retry button"
+    ]
+  },
+  "start_preview": {
+    "status": "PASSED",
+    "commands": [
+      "pnpm start",
+      "pnpm preview --port 5177"
+    ],
+    "browser": "154.0.8037.58",
+    "checks": [
+      "built frontend and backend start",
+      "MOCK fixture visible",
+      "diagnosis and refresh persist"
+    ]
+  },
+  "source_sha256": {
+    "apps/server/src/diagnosis-agent.ts": "2857c48a4c5540cf47b42f698e3a62d02927f9cca81f192ec1df0e1968e853c4",
+    "apps/web/src/DiagnosisAnswer.vue": "35d1c78499864a38f43295b446c18f0b738f96a699a1e23790adb9d686f7fe26",
+    "playwright.config.ts": "b007d196504a9e75db6ec54869806889a47829d4a3707b0e98796074ccb3d6e1",
+    "scripts/eval-p0.mjs": "5a9be18953abf0eafb7beb89afc573ba03e1712e48d39862d07300b3e222aac6"
+  },
+  "initial_failures": [
+    {
+      "directory": "logs/m4/clean-f0b4807977a344f6a96fa8bddbad9a6f",
+      "issue": "External outbound socket bound port 5174; Vite silently changed ports; no test cases ran."
+    },
+    {
+      "directory": "logs/m4/clean-605fd0ec325a446e811860efc32d56d5",
+      "issue": "First dynamic-port configuration was reloaded by workers; 17 actual connection failures; fixed port inheritance."
+    },
+    {
+      "directory": "logs/m4/clean-0b85747e69314dd08661e3fe757df27f",
+      "check": "evaluation-mock",
+      "issue": "Earlier-turn citation selected while current answer was still revealing; fixed wait for current validated card and turn-scoped citation. Initial verification.json remains unchanged."
+    }
+  ],
+  "remote_ci": {
+    "status": "PENDING_PUSH"
+  }
+}

@@ -1,0 +1,35 @@
+name: P0 offline checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows-mock:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      MODEL_MODE: MOCK
+      MODEL_API_KEY: ''
+      FLOWLENS_LIVE_APPROVED: '0'
+      FLOWLENS_LIVE_MAX_REQUESTS: '0'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.14.1'
+          package-manager-cache: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: '11.5.0'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install chrome ffmpeg
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm test:e2e
+      - run: pnpm eval:mock

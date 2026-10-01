@@ -19,7 +19,8 @@ export function applyAgentEvent(state:SessionState,raw:unknown):boolean{
   if(typeof p.tool_call_id!=='string'||typeof p.name!=='string')throw new Error('EVENT_PROTOCOL_ERROR');
   if(!state.tool_calls.some(x=>x.id===p.tool_call_id))state.tool_calls.push({id:p.tool_call_id,turn_id:e.turn_id,name:p.name,args_json:JSON.stringify(p.args??{}),status:'RUNNING',result_summary_json:null,error_code:null,started_at:e.timestamp,finished_at:null});
  }else if(['tool.completed','tool.failed','tool.cancelled'].includes(e.type)){
-  const tool=state.tool_calls.find(x=>x.id===p.tool_call_id);if(tool){tool.status=e.type==='tool.completed'?'SUCCEEDED':e.type==='tool.cancelled'?'CANCELLED':'FAILED';tool.finished_at=e.timestamp;tool.error_code=typeof p.code==='string'?p.code:null;tool.result_summary_json=JSON.stringify({summary:p.summary??null,evidence_ids:p.evidence_ids??[]});}
+  if(p.output!==undefined&&(p.output===null||typeof p.output!=='object'||Array.isArray(p.output)))throw new Error('EVENT_PROTOCOL_ERROR');
+  const tool=state.tool_calls.find(x=>x.id===p.tool_call_id);if(tool){tool.status=e.type==='tool.completed'?'SUCCEEDED':e.type==='tool.cancelled'?'CANCELLED':'FAILED';tool.finished_at=e.timestamp;tool.error_code=typeof p.code==='string'?p.code:null;tool.result_summary_json=JSON.stringify({summary:p.summary??null,output:p.output,evidence_ids:p.evidence_ids??[]});}
  }else if(e.type==='turn.started'){if(t)t.status='RUNNING';}
  else if(e.type==='diagnosis.completed'){
   const result=diagnosisResultSchema.parse(p.result);

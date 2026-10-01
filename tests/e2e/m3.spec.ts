@@ -37,6 +37,7 @@ test('a lost submit response can be retried without creating a second user messa
 
 test('a log citation outside the visible log slice opens context with the exact log highlighted',async({page})=>{
  await page.goto('/runs/seed_s04');await page.getByRole('button',{name:'新建会话'}).click();
+ await expect(page.getByText('本机消息通道已连接',{exact:true})).toBeVisible();
  await page.getByRole('textbox',{name:'诊断问题'}).fill('这次为什么失败？');await page.getByRole('button',{name:'发送'}).click();
  await expect(page.locator('.diagnosis-result')).toBeVisible();
  await page.locator('.evidence-links button').nth(1).click();
@@ -59,4 +60,38 @@ test('refresh from an in-progress snapshot replays the completed turn once',asyn
  await expect(page.locator('.diagnosis-message.user')).toHaveCount(1);
  await expect(page.locator('.diagnosis-message.assistant')).toHaveCount(1);
  expect(delivered).toBe(true);
+});
+
+test('information-poor demo makes unavailable diagnostics and retry eligibility explicit',async({page})=>{
+ await page.goto('/runs/seed_s05');
+ const scope=page.getByRole('note',{name:'诊断能力范围'});
+ await expect(scope).toContainText('不能提高日志级别');
+ await expect(scope).toContainText('不能调取未记录的堆栈');
+ await expect(scope).toContainText('S05 演示数据没有更详细的日志或堆栈');
+ await expect(scope).toContainText('当前运行不支持模拟重试');
+});
+
+test('citation button toggles its popover and a closed loading response cannot reopen it',async({page})=>{
+ await page.goto('/runs/seed_s04');await page.getByRole('button',{name:'新建会话'}).click();
+ await expect(page.getByText('本机消息通道已连接',{exact:true})).toBeVisible();
+ await page.getByRole('textbox',{name:'诊断问题'}).fill('这次为什么失败？');await page.getByRole('button',{name:'发送'}).click();
+ await expect(page.locator('.diagnosis-result')).toBeVisible();
+ const first=page.locator('.evidence-links button').first(),second=page.locator('.evidence-links button').nth(1);
+ const dialog=page.getByRole('dialog',{name:'证据详情'});
+ await first.click();await expect(dialog.getByRole('heading',{name:/证据 ·/})).toBeVisible();
+ await first.click();await expect(dialog).toHaveCount(0);
+ await expect(page.locator('.diagnosis-result')).toBeVisible();await expect(page.locator('.diagnosis-message.user')).toHaveCount(1);
+ await first.click();await expect(dialog.getByRole('heading',{name:/证据 ·/})).toBeVisible();
+ await second.click();await expect(dialog.locator('.highlight')).toContainText('ReadTimeout');
+ await expect(dialog).toHaveCount(1);await page.getByRole('button',{name:'关闭引用',exact:true}).click();await expect(dialog).toHaveCount(0);
+ await first.click();await expect(dialog).toBeVisible();await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
+
+ let release!:()=>void,requested=false;const gate=new Promise<void>(resolve=>release=resolve);
+ await page.route('**/api/v1/sessions/*/evidence/*',async route=>{requested=true;await gate;await route.continue();});
+ try{
+  await first.click();await expect.poll(()=>requested).toBe(true);await expect(dialog.getByRole('status')).toHaveText('正在加载证据…');
+  await first.click();await expect(dialog).toHaveCount(0);
+  const response=page.waitForResponse(r=>r.url().includes('/evidence/'));release();await response;
+  await expect(dialog).toHaveCount(0);await expect(page.locator('.diagnosis-result')).toBeVisible();
+ }finally{release();}
 });

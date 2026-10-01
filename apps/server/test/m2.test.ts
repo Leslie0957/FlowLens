@@ -21,6 +21,8 @@ it('allows two retries in a recovery chain and refuses a third',async()=>{
   runId=approval.child_run_id as string;
   // Controlled fixture: a retry also suffers a transient upstream timeout.
   db.prepare("UPDATE task_run SET status='FAILED',error_code='UPSTREAM_TIMEOUT' WHERE id=?").run(runId);
+  // A known failure diagnosis must now cite an actual stored error log.
+  db.prepare('INSERT INTO task_log VALUES (?,?,?,?,?,?,?)').run(runId+'_timeout',runId,1,new Date().toISOString(),'ERROR','read','ReadTimeout: upstream request exceeded 5s');
  }
  expect(retryEligibility(db,runId)).toMatchObject({allowed:false,reason_code:'RECOVERY_LIMIT'});db.close();
 });

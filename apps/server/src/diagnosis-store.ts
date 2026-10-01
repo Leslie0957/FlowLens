@@ -2,6 +2,7 @@ import {createHash,randomUUID} from 'node:crypto';
 import type {DatabaseSync} from 'node:sqlite';
 import {transaction} from './db.js';
 import {getRun} from './store.js';
+import {PROMPT_VERSION} from './prompt-version.js';
 
 export class DomainError extends Error {constructor(public code:string,public status=409){super(code);}}
 const iso=(now:number)=>new Date(now).toISOString();
@@ -58,7 +59,7 @@ export function submitMessage(db:DatabaseSync,sessionId:string,content:string,ke
   const allActive=(db.prepare("SELECT count(*) n FROM diagnosis_turn WHERE status IN ('QUEUED','RUNNING')").get() as {n:number}).n;
   if(allActive>=2)throw new DomainError('TURN_LIMIT',429);
   const turnId=randomUUID(),messageId=randomUUID(),stamp=iso(now);
-  db.prepare('INSERT INTO diagnosis_turn VALUES (?,?,?,?,?,?,?,?,?,?)').run(turnId,sessionId,'QUEUED',mode,model,'m2-2',null,stamp,null,null);
+  db.prepare('INSERT INTO diagnosis_turn VALUES (?,?,?,?,?,?,?,?,?,?)').run(turnId,sessionId,'QUEUED',mode,model,PROMPT_VERSION,null,stamp,null,null);
   db.prepare('INSERT INTO message VALUES (?,?,?,?,?,?,?)').run(messageId,sessionId,turnId,'user',clean,0,stamp);
   db.prepare('UPDATE diagnosis_session SET updated_at=?,title=CASE WHEN title=? THEN ? ELSE title END WHERE id=?').run(stamp,'新诊断',clean.slice(0,30),sessionId);
   return {user_message_id:messageId,turn_id:turnId};

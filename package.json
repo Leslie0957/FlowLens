@@ -12,7 +12,11 @@
     "build": "pnpm --filter @flowlens/contracts build && pnpm --filter @flowlens/server build && pnpm --filter @flowlens/web build",
     "db:migrate": "pnpm --filter @flowlens/server db:migrate",
     "db:seed": "pnpm --filter @flowlens/server db:seed",
-    "start": "pnpm --filter @flowlens/server start"
+    "start": "pnpm --filter @flowlens/server start",
+    "preview": "pnpm --filter @flowlens/web exec vite preview --host 127.0.0.1 --port 5173 --strictPort",
+    "eval:live": "node --env-file-if-exists=.env.local scripts/eval-p0.mjs",
+    "eval:mock": "node scripts/eval-p0.mjs --mock",
+    "check:start": "node scripts/check-start.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0"
