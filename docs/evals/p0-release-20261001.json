@@ -156,6 +156,13 @@
     }
   ],
   "remote_ci": {
-    "status": "PENDING_PUSH"
+    "status": "PASSED",
+    "commit": "087da3b56de8c89ebec0b870f59ccc3da4a301e0",
+    "run_id": 36830111674,
+    "url": "https://github.com/Leslie0957/FlowLens/actions/runs/36830111674",
+    "runner": "windows-latest",
+    "tests": {"server": 75, "frontend": 21, "chrome_e2e": 17},
+    "mock": {"questions": 6, "cause_correct": 6, "citation_valid": 6, "minimum_evidence": 6, "tool_succeeded": 12, "tool_total": 12, "abstention_correct": 2, "abstention_total": 2, "model_requests": 0, "usage_tokens": 0},
+    "local_raw_log": "logs/maintenance/p0-github-ci-36830111674.txt"
   }
 }

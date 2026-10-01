@@ -1,6 +1,6 @@
 # P0 / M4 验收报告
 
-日期：2026-10-01。M3 已获用户人工确认，用户随后授权“先按原有的 M4 做”。用户在最终答案展示调整后明确回复“m4通过”，**M4 / P0 本地演示人工验收已通过**；未提交、未推送，GitHub 托管 CI 尚未运行。验收沿用本文实际证据及已知限制，不代表未测真实环境已经通过。Continue / Agent checkpoint 按用户要求暂缓；无 P1/P2、真实业务连接或真实任务执行。
+日期：2026-10-01。M3 已获用户人工确认，用户随后授权“先按原有的 M4 做”。用户在最终答案展示调整后明确回复“m4通过”，**M4 / P0 本地演示人工验收已通过**；代码087da3b已推送main，[GitHub托管CI](https://github.com/Leslie0957/FlowLens/actions/runs/36830111674)全部通过。验收沿用本文实际证据及已知限制，不代表未测真实环境已经通过。Continue / Agent checkpoint 按用户要求暂缓；无 P1/P2、真实业务连接或真实任务执行。
 
 ## 环境与可复核产物
 
@@ -33,7 +33,7 @@
 
 已有用户 M3 diff 保留。恢复链测试原来只改 child 的错误状态，没有对应错误日志；新增 LOG 门槛后它实际失败，现补齐该测试自建的 ReadTimeout 日志，保留两次恢复与第三次拒绝的原断言。没有改正式场景或评测答案。
 
-[GitHub Actions](../.github/workflows/p0.yml) 固定 Windows、Node 和 pnpm，执行上述核心离线检查及 eval:mock。明确 MOCK / 空 Key / APPROVED=0，不让 CI 依赖 LIVE。配置使用官方 [checkout](https://github.com/actions/checkout)、[setup-node](https://github.com/actions/setup-node)、[pnpm action](https://github.com/pnpm/action-setup) 和 [Playwright 安装流程](https://playwright.dev/docs/ci)。本地相同检查已执行；**GitHub 托管运行未执行**，需交付代码推送后核对。
+[GitHub Actions](../.github/workflows/p0.yml) 固定 Windows、Node 和 pnpm，执行上述核心离线检查及 eval:mock。明确 MOCK / 空 Key / APPROVED=0，不让 CI 依赖 LIVE。配置使用官方 [checkout](https://github.com/actions/checkout)、[setup-node](https://github.com/actions/setup-node)、[pnpm action](https://github.com/pnpm/action-setup) 和 [Playwright 安装流程](https://playwright.dev/docs/ci)。代码087da3b对应 [GitHub托管运行](https://github.com/Leslie0957/FlowLens/actions/runs/36830111674) 实际通过，服务端75/75、前端21/21、Chrome17/17，六问MOCK原因/来源/最低证据6/6、工具12/12、UNKNOWN2/2，模型请求和usage均0。该结果与本地最终复核分开记录在版本导出中。
 
 ## 真实 DeepSeek 六问
 
@@ -114,7 +114,7 @@ M0 探针的字节解析测试属于历史证据；本轮共享的 model-stream 
 - 最终 S04 仍依赖输出修复才查询日志；LOG 类型门槛保证来源存在，不是通用的自然语言事实校验。追问有重复清单和内部 eligibility 术语，后续可在开发集改善，不能再把同六问调参结果当独立保留集准确率。
 - 工具轨迹已补齐 PRD §5.5 的元数据与参数/结果展开；旧历史只有计数摘要时保留摘要，不编造缺失输出。SSE 原始事件目前保留全部，未实现清理后游标 410 的策略，不宣传完整生产底座。
 - 模拟器、会话/事件恢复已实现；模型 loop 不保存 plan/working_memory/checkpoint，不提供中断后的 Continue。运行错误后可以新 turn 提问，不能冒称从失败执行步骤续跑。
-- CI 文件与本地等价检查齐备，远端运行待推送；所有 M3 本地修改保留。用户已人工确认 M4/P0，本次没有实施 P1/P2 或真实执行器。
+- CI 文件、本地等价检查与代码087da3b的实际远端通过结果齐备；所有 M3 本地修改已保留在交付提交中。用户已人工确认 M4/P0，本次没有实施 P1/P2 或真实执行器。
 
 人工复核入口保留：观看录屏、查看最终六问回答与失败基线；亲自操作时使用新建演示 S04，提问、点击引用两次展开/收起、申请和批准模拟重试、打开新运行、刷新；S05 提问/请求重试应保持 UNKNOWN 且无按钮。用户已确认上述本地演示与边界，真实上游恢复未纳入此次验收。
 
