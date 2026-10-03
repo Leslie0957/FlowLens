@@ -65,7 +65,7 @@ M5 第一批扩展使用独立的 `fixtures/evals/m5-p1.json`，六场景各两�
 
 [正式记录与失败基线](docs/evals) 和 [35.64 秒 LIVE 浏览器录屏](docs/demos/p0-live-20261001.webm) 已保留。三个阶段实际共 30 次 DeepSeek 请求、73,557 usage tokens（输入+输出）；最终六问及额外追问为 14 次、37,821 tokens，每次输出最多 2048。固定样本最终 6/6 根因与最低证据检查通过，S05 2/2 合理保留判断；不宣称生产准确率。
 
-[离线 CI](.github/workflows/p0.yml) 在 push/PR/手动触发时执行 typecheck、lint、test、build、Chrome MOCK E2E、P0六问eval:mock及M5十二问eval:mock --m5；不使用模型密钥或调用 LIVE。M5新增步骤尚未推送运行，远端已有P0结果见 [GitHub Actions](https://github.com/Leslie0957/FlowLens/actions/workflows/p0.yml)。本机可用 `powershell -NoProfile -File scripts/verify-clean.ps1` 复制当前交付到不含 node_modules、密钥或数据库的新目录，执行锁定安装及全套检查，并验证实际 start/preview；产物保留在 logs/m4/clean-*。这是同一 Windows 设备上的干净目录验证，不冒充另一台机器实测。E2E 前端使用系统分配的可用本机端口并启用 strictPort；需要固定端口时可设置 FLOWLENS_E2E_WEB_PORT，API 测试端口仍为4174。
+[离线 CI](.github/workflows/p0.yml) 在 push/PR/手动触发时执行 typecheck、lint、test、build、Chrome MOCK E2E、P0六问eval:mock及M5十二问eval:mock --m5；不使用模型密钥或调用 LIVE。M5完整代码abe084f已推送main，[远端CI](https://github.com/Leslie0957/FlowLens/actions/runs/37099175510)全部通过，交付证据见[最终版本记录](docs/evals/m5-release-20261003.json)。本机可用 `powershell -NoProfile -File scripts/verify-clean.ps1` 复制当前交付到不含 node_modules、密钥或数据库的新目录，执行锁定安装及全套检查，并验证实际 start/preview；产物保留在 logs/m4/clean-*。这是同一 Windows 设备上的干净目录验证，不冒充另一台机器实测。E2E 前端使用系统分配的可用本机端口并启用 strictPort；需要固定端口时可设置 FLOWLENS_E2E_WEB_PORT，API 测试端口仍为4174。
 
 ## 当前边界
 
