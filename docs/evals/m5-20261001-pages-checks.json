@@ -1,0 +1,227 @@
+{
+  "date": "2026-10-01",
+  "status": "DEVELOPMENT_VERIFIED_AWAITING_USER_ACCEPTANCE",
+  "base_commit": "98242efcdfeeb3bc8780bb9b5abcc3e363140d5c",
+  "clean_directory": "logs/m4/clean-e321dae124fc4c47b6c39a962c6b5707",
+  "environment": {
+    "os": "Windows x64",
+    "cpu": "Intel Core i7-14700F",
+    "ram_gib": 15.7,
+    "node": "v24.14.1",
+    "pnpm": "11.5.0",
+    "chrome": "154.0.8037.58"
+  },
+  "checks": [
+    {
+      "exit_code": 0,
+      "arguments": [
+        "install",
+        "--frozen-lockfile",
+        "--offline"
+      ],
+      "elapsed_ms": 4508,
+      "check": "install"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "db:migrate"
+      ],
+      "elapsed_ms": 2159,
+      "check": "migrate"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "db:seed"
+      ],
+      "elapsed_ms": 1994,
+      "check": "seed"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "db:seed"
+      ],
+      "elapsed_ms": 2032,
+      "check": "seed-again"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "typecheck"
+      ],
+      "elapsed_ms": 7642,
+      "check": "typecheck"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "lint"
+      ],
+      "elapsed_ms": 5014,
+      "check": "lint"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "test"
+      ],
+      "elapsed_ms": 10705,
+      "check": "test"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "build"
+      ],
+      "elapsed_ms": 8592,
+      "check": "build"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "test:e2e"
+      ],
+      "elapsed_ms": 122689,
+      "check": "e2e"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "eval:mock"
+      ],
+      "elapsed_ms": 20859,
+      "check": "evaluation-mock"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "eval:mock",
+        "--m5"
+      ],
+      "elapsed_ms": 33751,
+      "check": "evaluation-m5-mock"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "check:start"
+      ],
+      "elapsed_ms": 3681,
+      "check": "start-preview"
+    }
+  ],
+  "server_tests": {
+    "passed": 86,
+    "total": 86
+  },
+  "frontend_tests": {
+    "passed": 23,
+    "total": 23
+  },
+  "e2e": {
+    "startTime": "2026-10-01T09:03:34.896Z",
+    "duration": 118239.784,
+    "expected": 25,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "e2e_report": "logs/m4/clean-e321dae124fc4c47b6c39a962c6b5707/logs/m5/e2e-2026-10-01T09-03-34-893Z.json",
+  "pressure": {
+    "stored_logs": 10000,
+    "stored_tools": 200,
+    "elapsed_ms": 764,
+    "log_rows": 200,
+    "tool_cards": 20,
+    "dom_nodes": 2141,
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "stored_tool_events": 400,
+    "storage": "isolated real SQLite",
+    "model_execution": "synthetic trace; zero paid calls"
+  },
+  "layout": {
+    "widths": [
+      360,
+      768,
+      1440
+    ],
+    "pages": [
+      "/runs",
+      "/diagnoses",
+      "/demo",
+      "/runs/seed_s04"
+    ],
+    "overflow": "all measured document widths <= viewport+1",
+    "visual_review": "360 demo and 1440 history screenshots inspected"
+  },
+  "start_preview": {
+    "status": "PASSED",
+    "commands": [
+      "pnpm start",
+      "pnpm preview --port 5177"
+    ],
+    "browser": "154.0.8037.58",
+    "checks": [
+      "built frontend and backend start",
+      "MOCK fixture visible",
+      "diagnosis and refresh persist",
+      "history restores exact session",
+      "six demo scenarios in built frontend"
+    ]
+  },
+  "additional_paid_requests": 0,
+  "previous_live_evaluation": "m5-20261001-fixed.json (prompt unchanged)",
+  "docker": "UNAVAILABLE_NOT_TESTED",
+  "cross_browser": "NOT_TESTED",
+  "remote_ci": "NOT_PUSHED_PENDING_USER_ACCEPTANCE",
+  "source_sha256": {
+    "package.json": "939140f63a7fcb7d28efdcac8856b5eaf9fe626d0eb23261307cf6c886636724",
+    "packages/contracts/src/index.ts": "2457880365416d1b7a8a4da1f157b5cb356674ac7f042ff87de75e2675de432b",
+    "apps/server/src/http.ts": "a39e0a96f9ce9190931354c98aa4f7c86c3d954816487b4705df8383a42ee9d9",
+    "apps/server/src/store.ts": "0994b72a689ac202da7d11598f4d99539cbfea64b8e704b0e3184ffc891be56b",
+    "apps/server/src/diagnosis-store.ts": "312f60ae6ebb7ab2554c1c1258411bf2e9b1edf06fc111811e7404b5cd3569c8",
+    "apps/web/src/pages/HistoryPage.vue": "b56dd40db5746b11d397b7887dee80b6172eb0cd561157f7eb9baea8001d7dde",
+    "apps/web/src/pages/DemoPage.vue": "02f005cf9a4723b048ce815f1c9a43e8dc42d83d8aa76a61fd19863569464ff1",
+    "apps/web/src/pages/RunsPage.vue": "4d6c60781c4b6e812eb92fcf464c13e6ab53e282f13ea97ea2b885bebb2c1849",
+    "apps/web/src/pages/RunDetailPage.vue": "b53139dd7c9de8f641a4a981f765b0de7ca3d333580f158fe79b365181d52366",
+    "apps/web/src/pages/DiagnosisPanel.vue": "c1c53e8e3d730cd5d562cd00515538912f0590633fa31fc26fc8c42bca9a58df",
+    "apps/web/src/ToolTraceList.vue": "e06824d870fa71b26176ba1ff24308bef74444be38431dfc7967b5cfb9380f20",
+    "scripts/check-start.mjs": "24e6068359c4162eefc4efa729a49371aff397ef644ad727569cbb4f51945045",
+    "scripts/verify-clean.ps1": "39b9c943ad9ffd509fca3691020b8f15469b03a9723d6c24d4ac185cf7c37dfd",
+    "tests/fixtures/m5-pressure.mjs": "64353420b4e1b9f931fcaa5d36e8924150089161acee55fbacadc0f5dc6afbba",
+    "tests/e2e/m5-pages.spec.ts": "45d1237882d2d87297e5078c04b9a6cda2a172ef31314d3c440278635159c8b2"
+  },
+  "failures_retained": [
+    {
+      "log": "logs/maintenance/m5-pages-red.txt",
+      "reason": "missing history API and time filtering",
+      "kind": "product missing capability"
+    },
+    {
+      "log": "logs/maintenance/m5-pages-e2e.txt",
+      "reason": "native datetime automation fill format",
+      "kind": "test script"
+    },
+    {
+      "log": "logs/maintenance/m5-final-e2e.txt",
+      "reason": "S04 selector matched both pressure run and seed run",
+      "kind": "test selector"
+    },
+    {
+      "log": "logs/maintenance/m5-clean.txt",
+      "reason": "PowerShell 5 stderr treated as NativeCommandError",
+      "kind": "verification harness"
+    },
+    {
+      "log": "logs/maintenance/m5-clean-fixed.txt",
+      "reason": "contracts dist absent before first migrate",
+      "kind": "first-install regression"
+    }
+  ]
+}

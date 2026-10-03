@@ -100,7 +100,11 @@ it('continues to accept NONE for a successful run',async()=>{
  try{
   const sent=submitMessage(db,session.id,'运行正常吗','m3-none-normal-turn','MOCK','mock');
   await runDiagnosis(db,{turnId:sent.turn_id,sessionId:session.id,runId:'seed_s00',question:'运行正常吗',mode:'MOCK',model:'mock',
-   gateway:{async complete(){return {text:findingAnswer('NONE'),calls:[],finishReason:'stop'};}},logSink:()=>{}});
+   gateway:{async complete(messages){
+    const context=JSON.parse(String(messages.find(m=>m.role==='user')?.content)) as {current_run_evidence_ids:string[]};
+    const answer=JSON.parse(findingAnswer('NONE'));answer.findings[0].evidence_ids=context.current_run_evidence_ids;answer.findings[0].evidence_status='SUPPORTED';
+    return {text:JSON.stringify(answer),calls:[],finishReason:'stop'};
+   }},logSink:()=>{}});
   const state=snapshot(db,session.id);
   expect(state.turns[0]).toMatchObject({status:'COMPLETED'});
   expect(JSON.parse(String(state.results[0]?.findings_json))[0].cause).toBe('NONE');

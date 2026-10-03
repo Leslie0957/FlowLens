@@ -2,11 +2,12 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
+import {SCENARIO_IDS,scenarioIdSchema} from '@flowlens/contracts';
 
 const event=z.object({offset_ms:z.number().int().min(0),step:z.enum(['read','validate','load','aggregate']),step_status:z.enum(['RUNNING','SUCCEEDED','FAILED']),run_status:z.enum(['RUNNING','SUCCEEDED','FAILED']).optional(),logs:z.array(z.object({level:z.enum(['INFO','WARN','ERROR']),message:z.string().min(1)})),error_code:z.string().optional(),error_message:z.string().optional(),summary:z.record(z.string(),z.unknown()).optional()});
-const fixtureSchema=z.object({scenario_id:z.enum(['S00','S04','S05']),version:z.string(),display_name:z.string(),description:z.string(),task_id:z.literal('order_daily'),params:z.record(z.string(),z.unknown()),timeline:z.array(event).min(1),retry_timeline:z.array(event).optional()});
+const fixtureSchema=z.object({scenario_id:scenarioIdSchema,version:z.string(),display_name:z.string(),description:z.string(),task_id:z.literal('order_daily'),params:z.record(z.string(),z.unknown()),timeline:z.array(event).min(1),retry_timeline:z.array(event).optional()});
 export type Fixture=z.infer<typeof fixtureSchema>;
-export const SCENARIOS=['S00','S04','S05'] as const;
+export const SCENARIOS=SCENARIO_IDS;
 export function loadFixture(id:typeof SCENARIOS[number],dir=fileURLToPath(new URL('../../../fixtures/scenarios/',import.meta.url))):Fixture {
   const fixture=fixtureSchema.parse(JSON.parse(readFileSync(resolve(dir,id+'.json'),'utf8')));
   if(fixture.scenario_id!==id)throw new Error('FIXTURE_ID_MISMATCH');

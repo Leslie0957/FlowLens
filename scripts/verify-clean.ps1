@@ -36,8 +36,15 @@ $checks = [Collections.Generic.List[object]]::new()
 $reportPath = Join-Path $cleanRoot 'verification.json'
 function Invoke-Verification([string]$Label, [string[]]$Arguments) {
     $started = Get-Date
-    & pnpm @Arguments *> (Join-Path $cleanRoot ($Label + '.txt'))
-    $code = $LASTEXITCODE
+    # Windows PowerShell 5 wraps native stderr (including successful pnpm
+    # progress/Node SQLite warnings) as NativeCommandError. Check the actual
+    # process exit code instead of treating every stderr line as a failure.
+    $previousErrorAction = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        & pnpm @Arguments *> (Join-Path $cleanRoot ($Label + '.txt'))
+        $code = $LASTEXITCODE
+    } finally { $ErrorActionPreference = $previousErrorAction }
     $checks.Add(@{ check = $Label; arguments = $Arguments; exit_code = $code; elapsed_ms = [int]((Get-Date) - $started).TotalMilliseconds })
     @{ directory = $cleanRoot; node = (& node --version); pnpm = (& pnpm --version); offline_install = [bool]$Offline; checks = @($checks.ToArray()) } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $reportPath -Encoding utf8
     Write-Output "$Label exit=$code"
@@ -56,6 +63,7 @@ try {
     Invoke-Verification 'build' @('build')
     Invoke-Verification 'e2e' @('test:e2e')
     Invoke-Verification 'evaluation-mock' @('eval:mock')
+    Invoke-Verification 'evaluation-m5-mock' @('eval:mock','--m5')
     Invoke-Verification 'start-preview' @('check:start')
     Write-Output "Clean verification passed: $reportPath"
 } finally { Pop-Location }

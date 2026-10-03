@@ -1,5 +1,19 @@
 import type {DatabaseSync} from 'node:sqlite';
 
+// Only previously registered evidence from the bound session/run. This does
+// not preload task logs or bypass the model's read-only tool calls.
+export function registeredLogEvidence(db:DatabaseSync,sessionId:string,runId:string){
+ const rows=db.prepare("SELECT id,source_id,source_version,locator_json,excerpt FROM evidence WHERE session_id=? AND type='LOG' ORDER BY created_at DESC,rowid DESC LIMIT 200").all(sessionId);
+ const seen=new Set<string>();const refs:{id:string;source_id:string;source_version:string;excerpt:string}[]=[];
+ for(const row of rows){
+  const locator=JSON.parse(String(row.locator_json)) as {run_id?:string};
+  if(locator.run_id!==runId||seen.has(String(row.source_id)))continue;
+  seen.add(String(row.source_id));refs.push({id:String(row.id),source_id:String(row.source_id),source_version:String(row.source_version),excerpt:String(row.excerpt).slice(0,500)});
+  if(refs.length===12)break;
+ }
+ return refs;
+}
+
 // PRD §7.5: only completed turns in the current run-bound session.
 // This query never reads filesystem documents, environment variables or other sessions.
 export function buildContext(db:DatabaseSync,sessionId:string,currentTurnId:string):Record<string,unknown>[] {

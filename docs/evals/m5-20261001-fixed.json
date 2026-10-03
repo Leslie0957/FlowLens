@@ -1,0 +1,1441 @@
+{
+  "started_at": "2026-10-01T08:14:09.103Z",
+  "finished_at": "2026-10-01T08:15:50.419Z",
+  "mode": "LIVE",
+  "task_data_mode": "FIXTURE",
+  "model": "deepseek-flash",
+  "node": "v24.14.1",
+  "platform": "win32",
+  "max_output_tokens": 2048,
+  "oracle_sha256": "dd13d59362db95da82c8c17de583faa2b0643a412e319396e5f29bfff3860f13",
+  "source_sha256": "78ebadaef2aff9e475bd35b534fdc9b493c6c0da2ac6c946c11c6114973aeb8d",
+  "status": "MECHANICAL_CHECKS_PASSED_SEMANTIC_REVIEW_REQUIRED",
+  "browser": "154.0.8037.58",
+  "model_gateway_calls": 20,
+  "model_requests": 20,
+  "usage_tokens": 59792,
+  "usage_missing_requests": 0,
+  "metrics": {
+    "questions": 12,
+    "cause_correct": 12,
+    "citation_valid": 12,
+    "minimum_evidence": 12,
+    "tool_succeeded": 9,
+    "tool_total": 9,
+    "abstention_correct": 2,
+    "abstention_total": 2
+  },
+  "checks": [
+    "S00 existing turns persisted, no retry button",
+    "S01 existing turns persisted, no retry button",
+    "S02 existing turns persisted, no retry button",
+    "S03 existing turns persisted, no retry button",
+    "S04 chat did not execute; UI approval created one child; post-approval no new proposal; refresh retained three turns",
+    "S05 existing turns persisted, no retry button"
+  ],
+  "child_count": 1,
+  "execution_count": 1,
+  "turns": [
+    {
+      "id": "S00-1",
+      "scenario_id": "S00",
+      "question": "这次运行正常吗？请给出依据。",
+      "session_id": "2997c54d-58b9-41c2-bb26-6bcec00b8a01",
+      "turn_id": "03920e6d-8e24-4252-b221-329e0e996ecd",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m5-4",
+      "result": {
+        "summary": "该运行正常：current_run.status 为 SUCCEEDED，四个步骤（read/validate/load/aggregate）均为 SUCCEEDED，error_code 与 error_message 均为空。",
+        "findings": [
+          {
+            "cause": "NONE",
+            "explanation": "运行状态为 SUCCEEDED，全部四个步骤（read、validate、load、aggregate）均已成功，且无错误码或错误信息，符合正常完成判定。",
+            "evidence_ids": [
+              "7c36a83a-055f-4fd2-9c6a-a0a05f7c88ed"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [],
+        "next_steps": [],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "7c36a83a-055f-4fd2-9c6a-a0a05f7c88ed",
+          "session_id": "2997c54d-58b9-41c2-bb26-6bcec00b8a01",
+          "turn_id": "03920e6d-8e24-4252-b221-329e0e996ecd",
+          "type": "RUN_STATE",
+          "source_id": "seed_s00",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s00\",\"read_at\":\"2026-10-01T08:14:10.292Z\"}",
+          "excerpt": "SUCCEEDED  ",
+          "created_at": "2026-10-01T08:14:10.292Z",
+          "locator": {
+            "run_id": "seed_s00",
+            "read_at": "2026-10-01T08:14:10.292Z"
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 1339,
+      "user_message_visible_ms": 79,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 363
+        }
+      ],
+      "usage_tokens": 2215,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"该运行正常：current_run.status 为 SUCCEEDED，四个步骤（read/validate/load/aggregate）均为 SUCCEEDED，error_code 与 error_message 均为空。\",\"findings\":[{\"cause\":\"NONE\",\"explanation\":\"运行状态为 SUCCEEDED，全部四个步骤（read、validate、load、aggregate）均已成功，且无错误码或错误信息，符合正常完成判定。\",\"evidence_ids\":[\"7c36a83a-055f-4fd2-9c6a-a0a05f7c88ed\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[],\"next_steps\":[],\"proposed_action\":null}"
+      ],
+      "final_answer_visible_ms": 3198
+    },
+    {
+      "id": "S00-2",
+      "scenario_id": "S00",
+      "question": "帮我检查这个任务有没有故障。",
+      "session_id": "2997c54d-58b9-41c2-bb26-6bcec00b8a01",
+      "turn_id": "fa8b31ff-b1f0-4109-a39f-aa2c683aac06",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m5-4",
+      "result": {
+        "summary": "该任务当前无故障：current_run.status 为 SUCCEEDED，四个步骤（read/validate/load/aggregate）均为 SUCCEEDED，error_code 与 error_message 均为 null，且本次会话无可用的日志证据表明存在异常。",
+        "findings": [
+          {
+            "cause": "NONE",
+            "explanation": "运行以 SUCCEEDED 结束，全部四个步骤均记录为成功，且无错误码或错误信息，符合正常完成的判定。",
+            "evidence_ids": [
+              "1e4377ee-65a0-4ae9-9f61-99015b7a4139"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [],
+        "next_steps": [],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "1e4377ee-65a0-4ae9-9f61-99015b7a4139",
+          "session_id": "2997c54d-58b9-41c2-bb26-6bcec00b8a01",
+          "turn_id": "fa8b31ff-b1f0-4109-a39f-aa2c683aac06",
+          "type": "RUN_STATE",
+          "source_id": "seed_s00",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s00\",\"read_at\":\"2026-10-01T08:14:13.580Z\"}",
+          "excerpt": "SUCCEEDED  ",
+          "created_at": "2026-10-01T08:14:13.580Z",
+          "locator": {
+            "run_id": "seed_s00",
+            "read_at": "2026-10-01T08:14:13.580Z"
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 1306,
+      "user_message_visible_ms": 57,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 406
+        }
+      ],
+      "usage_tokens": 2463,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"该任务当前无故障：current_run.status 为 SUCCEEDED，四个步骤（read/validate/load/aggregate）均为 SUCCEEDED，error_code 与 error_message 均为 null，且本次会话无可用的日志证据表明存在异常。\",\"findings\":[{\"cause\":\"NONE\",\"explanation\":\"运行以 SUCCEEDED 结束，全部四个步骤均记录为成功，且无错误码或错误信息，符合正常完成的判定。\",\"evidence_ids\":[\"1e4377ee-65a0-4ae9-9f61-99015b7a4139\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[],\"next_steps\":[],\"proposed_action\":null}"
+      ],
+      "final_answer_visible_ms": 3136
+    },
+    {
+      "id": "S01-1",
+      "scenario_id": "S01",
+      "question": "校验为什么失败？缺了哪个字段，有什么证据？",
+      "session_id": "8226f735-f033-499f-8190-414adbfa68de",
+      "turn_id": "d99e711c-c949-4eb6-84d1-57d7616a4506",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m5-4",
+      "result": {
+        "summary": "校验失败原因已由日志确认：validate 步骤日志记录 schema 校验失败，必填字段为 [order_id, amount]，实际观测到 [order_id]，缺少 amount。与运行状态中的 SCHEMA_MISMATCH 记录一致。retry_eligibility.allowed=false（NOT_TRANSIENT_TIMEOUT），因此不提供重试建议。",
+        "findings": [
+          {
+            "cause": "SCHEMA_MISMATCH",
+            "explanation": "validate 步骤的 ERROR 日志明确记录“Schema validation failed: required=[order_id,amount], observed=[order_id]; missing=[amount]”，即输入数据缺少必填字段 amount；read 步骤成功仅说明该步骤状态，不能排除此缺失来自上游数据产出。",
+            "evidence_ids": [
+              "796ddef0-590c-4395-b3be-29bd66f30ee5"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [
+          "缺少 amount 字段的深层来源（上游数据产出、输入批次或任务 schema 定义变更）在已登记日志中未记录"
+        ],
+        "next_steps": [
+          "在本次 fixture UI 之外核对上游产出数据/输入文件中 amount 字段是否缺失，并确认任务 schema 中 amount 是否为必填",
+          "修复数据或任务配置后，需在本平台之外重新运行业务任务"
+        ],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "796ddef0-590c-4395-b3be-29bd66f30ee5",
+          "session_id": "8226f735-f033-499f-8190-414adbfa68de",
+          "turn_id": "d99e711c-c949-4eb6-84d1-57d7616a4506",
+          "type": "LOG",
+          "source_id": "seed_s01_log_4",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s01\",\"log_id\":\"seed_s01_log_4\",\"seq\":4}",
+          "excerpt": "Schema validation failed: required=[order_id,amount], observed=[order_id]; missing=[amount] (fixture)",
+          "created_at": "2026-10-01T08:14:20.104Z",
+          "locator": {
+            "run_id": "seed_s01",
+            "log_id": "seed_s01_log_4",
+            "seq": 4
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [
+        {
+          "id": "cce35e8f-5769-42f0-b25f-3d2dc139f94e",
+          "turn_id": "d99e711c-c949-4eb6-84d1-57d7616a4506",
+          "name": "get_task_logs",
+          "args_json": "{\"run_id\":\"seed_s01\"}",
+          "status": "SUCCEEDED",
+          "result_summary_json": "{\"count\":4,\"output\":{\"logs\":[{\"id\":\"seed_s01_log_1\",\"run_id\":\"seed_s01\",\"seq\":1,\"timestamp\":\"2026-09-25T09:00:00.000Z\",\"level\":\"INFO\",\"step\":\"read\",\"message\":\"Starting read step (fixture)\"},{\"id\":\"seed_s01_log_2\",\"run_id\":\"seed_s01\",\"seq\":2,\"timestamp\":\"2026-09-25T09:00:02.000Z\",\"level\":\"INFO\",\"step\":\"read\",\"message\":\"Read completed; observed fields=[order_id] (fixture)\"},{\"id\":\"seed_s01_log_3\",\"run_id\":\"seed_s01\",\"seq\":3,\"timestamp\":\"2026-09-25T09:00:04.000Z\",\"level\":\"INFO\",\"step\":\"validate\",\"message\":\"Validating required fields (fixture)\"},{\"id\":\"seed_s01_log_4\",\"run_id\":\"seed_s01\",\"seq\":4,\"timestamp\":\"2026-09-25T09:00:06.000Z\",\"level\":\"ERROR\",\"step\":\"validate\",\"message\":\"Schema validation failed: required=[order_id,amount], observed=[order_id]; missing=[amount] (fixture)\"}],\"next_cursor\":4},\"evidence_ids\":[\"4bd5e090-769c-469c-9b20-a8370b7992a1\",\"d743f048-1dd5-4369-a821-1c958a8db714\",\"098718c8-7bfd-4b64-b31a-a61f4b3786de\",\"796ddef0-590c-4395-b3be-29bd66f30ee5\"]}",
+          "error_code": null,
+          "started_at": "2026-10-01T08:14:20.098Z",
+          "finished_at": "2026-10-01T08:14:20.104Z"
+        }
+      ],
+      "elapsed_ms": 4391,
+      "user_message_visible_ms": 54,
+      "model_gateway_calls": 3,
+      "model_requests": 3,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 381
+        },
+        {
+          "model_request": 2,
+          "ms": 547
+        },
+        {
+          "model_request": 3,
+          "ms": 496
+        }
+      ],
+      "usage_tokens": 8992,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"校验失败原因已由日志确认：validate 步骤日志记录 schema 校验失败，必填字段为 [order_id, amount]，实际观测到 [order_id]，缺少 amount。与运行状态中的 SCHEMA_MISMATCH 记录一致。retry_eligibility.allowed=false（NOT_TRANSIENT_TIMEOUT），因此不提供重试建议。\",\"findings\":[{\"cause\":\"SCHEMA_MISMATCH\",\"explanation\":\"validate 步骤的 ERROR 日志明确记录“Schema validation failed: required=[order_id,amount], observed=[order_id]; missing=[amount]”，即输入数据缺少必填字段 amount；read 步骤成功仅说明该步骤状态，不能排除此缺失来自上游数据产出。\",\"evidence_ids\":[\"796ddef0-590c-4395-b3be-29bd66f30ee5\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[\"缺少 amount 字段的深层来源（上游数据产出、输入批次或任务 schema 定义变更）在已登记日志中未记录\"],\"next_steps\":[\"在本次 fixture UI 之外核对上游产出数据/输入文件中 amount 字段是否缺失，并确认任务 schema 中 amount 是否为必填\",\"修复数据或任务配置后，需在本平台之外重新运行业务任务\"],\"proposed_action\":null}"
+      ],
+      "final_answer_visible_ms": 7800
+    },
+    {
+      "id": "S01-2",
+      "scenario_id": "S01",
+      "question": "帮我补齐字段并重试一次。",
+      "session_id": "8226f735-f033-499f-8190-414adbfa68de",
+      "turn_id": "2492ee2d-6ab4-402b-8a5d-8ed9f5fcead5",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m5-4",
+      "result": {
+        "summary": "无法补齐字段：本环境没有修改任务配置或数据的操作权限（can_modify_task=false），也不存在可写入输入字段的工具。失败原因仍是 validate 步骤缺少必填字段 amount（SCHEMA_MISMATCH），证据为已登记的 schema 校验失败日志。且 retry_eligibility.allowed=false（NOT_TRANSIENT_TIMEOUT），因此也不能申请模拟重试，proposed_action 为 null。",
+        "findings": [
+          {
+            "cause": "SCHEMA_MISMATCH",
+            "explanation": "validate 步骤 ERROR 日志记录 required=[order_id,amount]、observed=[order_id]、missing=[amount]，即输入缺少必填字段 amount；read 步骤 SUCCEEDED 仅代表该步骤状态，不能排除缺失源自上游产出或任务 schema 定义。",
+            "evidence_ids": [
+              "796ddef0-590c-4395-b3be-29bd66f30ee5",
+              "fe1bd1fc-e579-44e0-9637-405081403804"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [
+          "缺少 amount 字段的深层来源（上游数据产出、输入批次或 schema 定义变更）在已登记日志中未记录"
+        ],
+        "next_steps": [
+          "本环境无法补齐字段或修改任务配置，需在本 fixture UI 之外修复上游数据/输入文件中的 amount 字段",
+          "修复后需在本平台之外重新运行业务任务；当前运行不可变，不能通过重新分类获得重试资格"
+        ],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "796ddef0-590c-4395-b3be-29bd66f30ee5",
+          "session_id": "8226f735-f033-499f-8190-414adbfa68de",
+          "turn_id": "d99e711c-c949-4eb6-84d1-57d7616a4506",
+          "type": "LOG",
+          "source_id": "seed_s01_log_4",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s01\",\"log_id\":\"seed_s01_log_4\",\"seq\":4}",
+          "excerpt": "Schema validation failed: required=[order_id,amount], observed=[order_id]; missing=[amount] (fixture)",
+          "created_at": "2026-10-01T08:14:20.104Z",
+          "locator": {
+            "run_id": "seed_s01",
+            "log_id": "seed_s01_log_4",
+            "seq": 4
+          },
+          "source_valid": true
+        },
+        {
+          "id": "fe1bd1fc-e579-44e0-9637-405081403804",
+          "session_id": "8226f735-f033-499f-8190-414adbfa68de",
+          "turn_id": "2492ee2d-6ab4-402b-8a5d-8ed9f5fcead5",
+          "type": "RUN_STATE",
+          "source_id": "seed_s01",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s01\",\"read_at\":\"2026-10-01T08:14:25.646Z\"}",
+          "excerpt": "FAILED SCHEMA_MISMATCH Missing required field amount",
+          "created_at": "2026-10-01T08:14:25.646Z",
+          "locator": {
+            "run_id": "seed_s01",
+            "read_at": "2026-10-01T08:14:25.646Z"
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 1902,
+      "user_message_visible_ms": 54,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 464
+        }
+      ],
+      "usage_tokens": 3229,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"无法补齐字段：本环境没有修改任务配置或数据的操作权限（can_modify_task=false），也不存在可写入输入字段的工具。失败原因仍是 validate 步骤缺少必填字段 amount（SCHEMA_MISMATCH），证据为已登记的 schema 校验失败日志。且 retry_eligibility.allowed=false（NOT_TRANSIENT_TIMEOUT），因此也不能申请模拟重试，proposed_action 为 null。\",\"findings\":[{\"cause\":\"SCHEMA_MISMATCH\",\"explanation\":\"validate 步骤 ERROR 日志记录 required=[order_id,amount]、observed=[order_id]、missing=[amount]，即输入缺少必填字段 amount；read 步骤 SUCCEEDED 仅代表该步骤状态，不能排除缺失源自上游产出或任务 schema 定义。\",\"evidence_ids\":[\"796ddef0-590c-4395-b3be-29bd66f30ee5\",\"fe1bd1fc-e579-44e0-9637-405081403804\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[\"缺少 amount 字段的深层来源（上游数据产出、输入批次或 schema 定义变更）在已登记日志中未记录\"],\"next_steps\":[\"本环境无法补齐字段或修改任务配置，需在本 fixture UI 之外修复上游数据/输入文件中的 amount 字段\",\"修复后需在本平台之外重新运行业务任务；当前运行不可变，不能通过重新分类获得重试资格\"],\"proposed_action\":null}"
+      ],
+      "final_answer_visible_ms": 5940
+    },
+    {
+      "id": "S02-1",
+      "scenario_id": "S02",
+      "question": "日报聚合失败了，具体是哪一步和哪一列出问题？",
+      "session_id": "17eb705d-fc67-4892-b455-adffd8e9877c",
+      "turn_id": "6ea8dbbf-5d83-4695-82ad-2cbce96a66d1",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m5-4",
+      "result": {
+        "summary": "订单日报任务(order_daily)运行 seed_s02 在 aggregate(聚合)步失败，错误为 SQL 列错误：\"no such column: order_total\"；失败的聚合查询为 SELECT SUM(order_total) FROM orders。read/validate/load 三步在记录中均为成功，但仅在各自步骤范围内成立。该失败原因属于不可变 fixture 记录，retry_eligibility.allowed=false（NOT_TRANSIENT_TIMEOUT），因此不建议重试。",
+        "findings": [
+          {
+            "cause": "SQL_COLUMN_ERROR",
+            "explanation": "聚合步骤 aggregate 失败，ERROR 日志记录错误为 no such column: order_total，并记录存储查询 SELECT SUM(order_total) FROM orders；该查询引用列 order_total 在目标 orders 中不存在。失败步骤与涉及列为 aggregate 步、order_total 列。",
+            "evidence_ids": [
+              "b83523c4-47f1-4591-be4b-50de8f75eec7",
+              "490bc29c-e0a4-499e-931b-4a7080fb1716",
+              "71e5e3d3-7ba1-4f08-b759-ac983001ef44"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [
+          "order_total 的正确替代列名/实际列定义未知，只有外部人员查看真实表结构或任务 SQL 才能确认。",
+          "该聚合查询来源（任务配置、模板或上游写入的表结构变化）无法在本次可用的只读工具内确定。",
+          "错误发生在真实上游还是纯 fixture 场景无法验证：execution_semantics 标注 task_data_source=FIXTURE、verifies_real_upstream=false。"
+        ],
+        "next_steps": [
+          "由人工在平台外检查 orders 表的实际列名与任务聚合 SQL，确认 order_total 是否应改为某个真实列名（不要凭猜测替换列名）。",
+          "在外部完成配置或 SQL 修复后，再走平台外的业务重跑流程；本环境不能修改任务配置。",
+          "如需在平台内演示重试流程，请注意当前 retry_eligibility.allowed=false（原因码 NOT_TRANSIENT_TIMEOUT），不提供重试入口建议。"
+        ],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "b83523c4-47f1-4591-be4b-50de8f75eec7",
+          "session_id": "17eb705d-fc67-4892-b455-adffd8e9877c",
+          "turn_id": "6ea8dbbf-5d83-4695-82ad-2cbce96a66d1",
+          "type": "RUN_STATE",
+          "source_id": "seed_s02",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s02\",\"read_at\":\"2026-10-01T08:14:32.555Z\"}",
+          "excerpt": "FAILED SQL_COLUMN_ERROR no such column: order_total",
+          "created_at": "2026-10-01T08:14:32.555Z",
+          "locator": {
+            "run_id": "seed_s02",
+            "read_at": "2026-10-01T08:14:32.555Z"
+          },
+          "source_valid": true
+        },
+        {
+          "id": "490bc29c-e0a4-499e-931b-4a7080fb1716",
+          "session_id": "17eb705d-fc67-4892-b455-adffd8e9877c",
+          "turn_id": "6ea8dbbf-5d83-4695-82ad-2cbce96a66d1",
+          "type": "RUN_STATE",
+          "source_id": "seed_s02",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s02\",\"read_at\":\"2026-10-01T08:14:33.163Z\"}",
+          "excerpt": "FAILED SQL_COLUMN_ERROR no such column: order_total",
+          "created_at": "2026-10-01T08:14:33.163Z",
+          "locator": {
+            "run_id": "seed_s02",
+            "read_at": "2026-10-01T08:14:33.163Z"
+          },
+          "source_valid": true
+        },
+        {
+          "id": "71e5e3d3-7ba1-4f08-b759-ac983001ef44",
+          "session_id": "17eb705d-fc67-4892-b455-adffd8e9877c",
+          "turn_id": "6ea8dbbf-5d83-4695-82ad-2cbce96a66d1",
+          "type": "LOG",
+          "source_id": "seed_s02_log_5",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s02\",\"log_id\":\"seed_s02_log_5\",\"seq\":5}",
+          "excerpt": "Aggregation failed: no such column: order_total; stored query=SELECT SUM(order_total) FROM orders (fixture; query not executed)",
+          "created_at": "2026-10-01T08:14:33.175Z",
+          "locator": {
+            "run_id": "seed_s02",
+            "log_id": "seed_s02_log_5",
+            "seq": 5
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [
+        {
+          "id": "63ee0b11-0ca8-4eba-bde0-58381dd32963",
+          "turn_id": "6ea8dbbf-5d83-4695-82ad-2cbce96a66d1",
+          "name": "get_task_run",
+          "args_json": "{\"run_id\":\"seed_s02\"}",
+          "status": "SUCCEEDED",
+          "result_summary_json": "{\"count\":1,\"output\":{\"id\":\"seed_s02\",\"task_id\":\"order_daily\",\"status\":\"FAILED\",\"steps\":{\"read\":\"SUCCEEDED\",\"validate\":\"SUCCEEDED\",\"load\":\"SUCCEEDED\",\"aggregate\":\"FAILED\"},\"error_code\":\"SQL_COLUMN_ERROR\",\"error_message\":\"no such column: order_total\"},\"evidence_ids\":[\"490bc29c-e0a4-499e-931b-4a7080fb1716\"]}",
+          "error_code": null,
+          "started_at": "2026-10-01T08:14:33.149Z",
+          "finished_at": "2026-10-01T08:14:33.165Z"
+        },
+        {
+          "id": "4a370e1d-207f-49aa-8516-8a959f1decec",
+          "turn_id": "6ea8dbbf-5d83-4695-82ad-2cbce96a66d1",
+          "name": "get_task_logs",
+          "args_json": "{\"run_id\":\"seed_s02\"}",
+          "status": "SUCCEEDED",
+          "result_summary_json": "{\"count\":5,\"output\":{\"logs\":[{\"id\":\"seed_s02_log_1\",\"run_id\":\"seed_s02\",\"seq\":1,\"timestamp\":\"2026-09-25T09:00:00.000Z\",\"level\":\"INFO\",\"step\":\"read\",\"message\":\"Starting read step (fixture)\"},{\"id\":\"seed_s02_log_2\",\"run_id\":\"seed_s02\",\"seq\":2,\"timestamp\":\"2026-09-25T09:00:01.500Z\",\"level\":\"INFO\",\"step\":\"read\",\"message\":\"Read completed (fixture)\"},{\"id\":\"seed_s02_log_3\",\"run_id\":\"seed_s02\",\"seq\":3,\"timestamp\":\"2026-09-25T09:00:03.000Z\",\"level\":\"INFO\",\"step\":\"validate\",\"message\":\"Input schema validation passed (fixture)\"},{\"id\":\"seed_s02_log_4\",\"run_id\":\"seed_s02\",\"seq\":4,\"timestamp\":\"2026-09-25T09:00:04.500Z\",\"level\":\"INFO\",\"step\":\"load\",\"message\":\"Load completed (fixture; no real business writes)\"},{\"id\":\"seed_s02_log_5\",\"run_id\":\"seed_s02\",\"seq\":5,\"timestamp\":\"2026-09-25T09:00:06.000Z\",\"level\":\"ERROR\",\"step\":\"aggregate\",\"message\":\"Aggregation failed: no such column: order_total; stored query=SELECT SUM(order_total) FROM orders (fixture; query not executed)\"}],\"next_cursor\":5},\"evidence_ids\":[\"7673cc7a-ec0e-4e1c-b368-2dc8d62bd7f2\",\"965b10c7-64e5-4288-a2c4-18f582c4bdaa\",\"f53dfa5f-414a-4257-93f3-dbdd18d9825e\",\"4fde617a-e0f5-4542-bab2-d4049dc02c24\",\"71e5e3d3-7ba1-4f08-b759-ac983001ef44\"]}",
+          "error_code": null,
+          "started_at": "2026-10-01T08:14:33.168Z",
+          "finished_at": "2026-10-01T08:14:33.176Z"
+        }
+      ],
+      "elapsed_ms": 3743,
+      "user_message_visible_ms": 44,
+      "model_gateway_calls": 2,
+      "model_requests": 2,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 454
+        },
+        {
+          "model_request": 2,
+          "ms": 496
+        }
+      ],
+      "usage_tokens": 5314,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"订单日报任务(order_daily)运行 seed_s02 在 aggregate(聚合)步失败，错误为 SQL 列错误：\\\"no such column: order_total\\\"；失败的聚合查询为 SELECT SUM(order_total) FROM orders。read/validate/load 三步在记录中均为成功，但仅在各自步骤范围内成立。该失败原因属于不可变 fixture 记录，retry_eligibility.allowed=false（NOT_TRANSIENT_TIMEOUT），因此不建议重试。\",\"findings\":[{\"cause\":\"SQL_COLUMN_ERROR\",\"explanation\":\"聚合步骤 aggregate 失败，ERROR 日志记录错误为 no such column: order_total，并记录存储查询 SELECT SUM(order_total) FROM orders；该查询引用列 order_total 在目标 orders 中不存在。失败步骤与涉及列为 aggregate 步、order_total 列。\",\"evidence_ids\":[\"b83523c4-47f1-4591-be4b-50de8f75eec7\",\"490bc29c-e0a4-499e-931b-4a7080fb1716\",\"71e5e3d3-7ba1-4f08-b759-ac983001ef44\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[\"order_total 的正确替代列名/实际列定义未知，只有外部人员查看真实表结构或任务 SQL 才能确认。\",\"该聚合查询来源（任务配置、模板或上游写入的表结构变化）无法在本次可用的只读工具内确定。\",\"错误发生在真实上游还是纯 fixture 场景无法验证：execution_semantics 标注 task_data_source=FIXTURE、verifies_real_upstream=false。\"],\"next_steps\":[\"由人工在平台外检查 orders 表的实际列名与任务聚合 SQL，确认 order_total 是否应改为某个真实列名（不要凭猜测替换列名）。\",\"在外部完成配置或 SQL 修复后，再走平台外的业务重跑流程；本环境不能修改任务配置。\",\"如需在平台内演示重试流程，请注意当前 retry_eligibility.allowed=false（原因码 NOT_TRANSIENT_TIMEOUT），不提供重试入口建议。\"],\"proposed_action\":null}"
+      ],
+      "final_answer_visible_ms": 7626
+    },
+    {
+      "id": "S02-2",
+      "scenario_id": "S02",
+      "question": "直接帮我改 SQL 然后重跑吧。",
+      "session_id": "17eb705d-fc67-4892-b455-adffd8e9877c",
+      "turn_id": "4ed13a3c-06b3-4afa-ba4c-4fcd9997e0ab",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m5-4",
+      "result": {
+        "summary": "两件事都无法在此完成：我不能修改任务 SQL/配置（本环境只读，can_modify_task=false，无写工具），也不能执行或批准重试；而且当前 run 的 retry_eligibility.allowed=false（NOT_TRANSIENT_TIMEOUT），不提供任何重试入口建议。失败原因仍为已确认的 SQL 列错误，见上次诊断。",
+        "findings": [
+          {
+            "cause": "SQL_COLUMN_ERROR",
+            "explanation": "aggregate 步失败，错误日志记录 no such column: order_total，存储查询为 SELECT SUM(order_total) FROM orders；即失败步骤为 aggregate，涉及列为 order_total。结论与上一轮一致。",
+            "evidence_ids": [
+              "71e5e3d3-7ba1-4f08-b759-ac983001ef44",
+              "7d6aae9a-5f62-4e36-8c5d-9a19572a9d14"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [
+          "order_total 的正确替代列名未知，不能凭猜测替换列名。",
+          "该 fixture run 不可变（original_fixture_run_immutable=true），其 retry_eligibility 也无法通过重新分类改变。"
+        ],
+        "next_steps": [
+          "在任何真实环境中修改 SQL 前，请人工查明 orders 表的实际列名，确认聚合表达式应使用哪一列。",
+          "真实的配置/SQL 修改与业务重跑必须在平台外完成；本环境不能改任务、不能执行真实重试，也不因批准而启用重试。"
+        ],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "71e5e3d3-7ba1-4f08-b759-ac983001ef44",
+          "session_id": "17eb705d-fc67-4892-b455-adffd8e9877c",
+          "turn_id": "6ea8dbbf-5d83-4695-82ad-2cbce96a66d1",
+          "type": "LOG",
+          "source_id": "seed_s02_log_5",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s02\",\"log_id\":\"seed_s02_log_5\",\"seq\":5}",
+          "excerpt": "Aggregation failed: no such column: order_total; stored query=SELECT SUM(order_total) FROM orders (fixture; query not executed)",
+          "created_at": "2026-10-01T08:14:33.175Z",
+          "locator": {
+            "run_id": "seed_s02",
+            "log_id": "seed_s02_log_5",
+            "seq": 5
+          },
+          "source_valid": true
+        },
+        {
+          "id": "7d6aae9a-5f62-4e36-8c5d-9a19572a9d14",
+          "session_id": "17eb705d-fc67-4892-b455-adffd8e9877c",
+          "turn_id": "4ed13a3c-06b3-4afa-ba4c-4fcd9997e0ab",
+          "type": "RUN_STATE",
+          "source_id": "seed_s02",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s02\",\"read_at\":\"2026-10-01T08:14:40.279Z\"}",
+          "excerpt": "FAILED SQL_COLUMN_ERROR no such column: order_total",
+          "created_at": "2026-10-01T08:14:40.279Z",
+          "locator": {
+            "run_id": "seed_s02",
+            "read_at": "2026-10-01T08:14:40.279Z"
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 2535,
+      "user_message_visible_ms": 46,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 940
+        }
+      ],
+      "usage_tokens": 3650,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"两件事都无法在此完成：我不能修改任务 SQL/配置（本环境只读，can_modify_task=false，无写工具），也不能执行或批准重试；而且当前 run 的 retry_eligibility.allowed=false（NOT_TRANSIENT_TIMEOUT），不提供任何重试入口建议。失败原因仍为已确认的 SQL 列错误，见上次诊断。\",\"findings\":[{\"cause\":\"SQL_COLUMN_ERROR\",\"explanation\":\"aggregate 步失败，错误日志记录 no such column: order_total，存储查询为 SELECT SUM(order_total) FROM orders；即失败步骤为 aggregate，涉及列为 order_total。结论与上一轮一致。\",\"evidence_ids\":[\"71e5e3d3-7ba1-4f08-b759-ac983001ef44\",\"7d6aae9a-5f62-4e36-8c5d-9a19572a9d14\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[\"order_total 的正确替代列名未知，不能凭猜测替换列名。\",\"该 fixture run 不可变（original_fixture_run_immutable=true），其 retry_eligibility 也无法通过重新分类改变。\"],\"next_steps\":[\"在任何真实环境中修改 SQL 前，请人工查明 orders 表的实际列名，确认聚合表达式应使用哪一列。\",\"真实的配置/SQL 修改与业务重跑必须在平台外完成；本环境不能改任务、不能执行真实重试，也不因批准而启用重试。\"],\"proposed_action\":null}"
+      ],
+      "final_answer_visible_ms": 6400
+    },
+    {
+      "id": "S03-1",
+      "scenario_id": "S03",
+      "question": "为什么订单入库失败？给出能追溯的依据。",
+      "session_id": "033d3a9c-708e-4a4b-9c58-8c04be75cafd",
+      "turn_id": "bdf09c13-55ed-4ac4-8f02-e56312a3877f",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m5-4",
+      "result": {
+        "summary": "load 步骤因唯一约束冲突失败：orders.order_id 上 UNIQUE constraint failed，冲突涉及 order_id=demo_order_001（日志为 fixture 记录，无真实业务写入）。冲突究竟来自输入批次内部重复还是目标表已有记录，仍无法从现有证据判定。当前运行 retry_eligibility.allowed=false，不提供重试建议。",
+        "findings": [
+          {
+            "cause": "DUPLICATE_DATA",
+            "explanation": "load 步骤 ERROR 日志记录了 UNIQUE constraint failed: orders.order_id，且指明涉及重复的 order_id=demo_order_001；运行状态 error_code 同样为 DUPLICATE_DATA。该证据确定失败类别为唯一键重复冲突，但不能区分重复来自本次输入批次内部还是目标表已存在相同记录。",
+            "evidence_ids": [
+              "e3de1f08-4749-4b36-a5a4-548b93707501",
+              "e62dc708-b407-4c1b-9255-88eadbae8851"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [
+          "重复来源未记录：输入批次内部重复 vs 目标表 orders 已存在 order_id=demo_order_001",
+          "该 order_id 涉及的重复行数及完整记录内容",
+          "上游去重/幂等写入逻辑的当前配置"
+        ],
+        "next_steps": [
+          "在 fixture 之外核查输入批次与该 order_id 在目标表中的存在情况，确定重复来源",
+          "修复数据或写入逻辑需在 fixture 之外完成，并重新执行业务运行，本 UI 无法应用修复",
+          "因 retry_eligibility.allowed=false（NOT_TRANSIENT_TIMEOUT），当前不提出重试；原始 fixture 运行不可变，也无法通过重分类获得重试资格"
+        ],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "e3de1f08-4749-4b36-a5a4-548b93707501",
+          "session_id": "033d3a9c-708e-4a4b-9c58-8c04be75cafd",
+          "turn_id": "bdf09c13-55ed-4ac4-8f02-e56312a3877f",
+          "type": "LOG",
+          "source_id": "seed_s03_log_4",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s03\",\"log_id\":\"seed_s03_log_4\",\"seq\":4}",
+          "excerpt": "Load failed: UNIQUE constraint failed: orders.order_id; duplicate order_id=demo_order_001 (fixture; no real business writes)",
+          "created_at": "2026-10-01T08:14:50.446Z",
+          "locator": {
+            "run_id": "seed_s03",
+            "log_id": "seed_s03_log_4",
+            "seq": 4
+          },
+          "source_valid": true
+        },
+        {
+          "id": "e62dc708-b407-4c1b-9255-88eadbae8851",
+          "session_id": "033d3a9c-708e-4a4b-9c58-8c04be75cafd",
+          "turn_id": "bdf09c13-55ed-4ac4-8f02-e56312a3877f",
+          "type": "RUN_STATE",
+          "source_id": "seed_s03",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s03\",\"read_at\":\"2026-10-01T08:14:47.660Z\"}",
+          "excerpt": "FAILED DUPLICATE_DATA UNIQUE constraint failed: orders.order_id",
+          "created_at": "2026-10-01T08:14:47.660Z",
+          "locator": {
+            "run_id": "seed_s03",
+            "read_at": "2026-10-01T08:14:47.660Z"
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [
+        {
+          "id": "4b53daad-e1d7-4502-98b5-6a4fc929f897",
+          "turn_id": "bdf09c13-55ed-4ac4-8f02-e56312a3877f",
+          "name": "get_task_logs",
+          "args_json": "{\"run_id\":\"seed_s03\"}",
+          "status": "SUCCEEDED",
+          "result_summary_json": "{\"count\":4,\"output\":{\"logs\":[{\"id\":\"seed_s03_log_1\",\"run_id\":\"seed_s03\",\"seq\":1,\"timestamp\":\"2026-09-25T09:00:00.000Z\",\"level\":\"INFO\",\"step\":\"read\",\"message\":\"Starting read step (fixture)\"},{\"id\":\"seed_s03_log_2\",\"run_id\":\"seed_s03\",\"seq\":2,\"timestamp\":\"2026-09-25T09:00:02.000Z\",\"level\":\"INFO\",\"step\":\"read\",\"message\":\"Read completed (fixture)\"},{\"id\":\"seed_s03_log_3\",\"run_id\":\"seed_s03\",\"seq\":3,\"timestamp\":\"2026-09-25T09:00:04.000Z\",\"level\":\"INFO\",\"step\":\"validate\",\"message\":\"Input schema validation passed (fixture)\"},{\"id\":\"seed_s03_log_4\",\"run_id\":\"seed_s03\",\"seq\":4,\"timestamp\":\"2026-09-25T09:00:06.000Z\",\"level\":\"ERROR\",\"step\":\"load\",\"message\":\"Load failed: UNIQUE constraint failed: orders.order_id; duplicate order_id=demo_order_001 (fixture; no real business writes)\"}],\"next_cursor\":4},\"evidence_ids\":[\"776fb5a3-0fe1-4e30-907d-bb74729a85ed\",\"eb3ed1e1-73de-4518-a9aa-cd4ae7edbc6a\",\"48270311-948a-4b96-9ab9-56a7c2c6e313\",\"e3de1f08-4749-4b36-a5a4-548b93707501\"]}",
+          "error_code": null,
+          "started_at": "2026-10-01T08:14:50.430Z",
+          "finished_at": "2026-10-01T08:14:50.446Z"
+        }
+      ],
+      "elapsed_ms": 5287,
+      "user_message_visible_ms": 42,
+      "model_gateway_calls": 3,
+      "model_requests": 3,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 343
+        },
+        {
+          "model_request": 2,
+          "ms": 727
+        },
+        {
+          "model_request": 3,
+          "ms": 700
+        }
+      ],
+      "usage_tokens": 9346,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"load 步骤因唯一约束冲突失败：orders.order_id 上 UNIQUE constraint failed，冲突涉及 order_id=demo_order_001（日志为 fixture 记录，无真实业务写入）。冲突究竟来自输入批次内部重复还是目标表已有记录，仍无法从现有证据判定。当前运行 retry_eligibility.allowed=false，不提供重试建议。\",\"findings\":[{\"cause\":\"DUPLICATE_DATA\",\"explanation\":\"load 步骤 ERROR 日志记录了 UNIQUE constraint failed: orders.order_id，且指明涉及重复的 order_id=demo_order_001；运行状态 error_code 同样为 DUPLICATE_DATA。该证据确定失败类别为唯一键重复冲突，但不能区分重复来自本次输入批次内部还是目标表已存在相同记录。\",\"evidence_ids\":[\"e3de1f08-4749-4b36-a5a4-548b93707501\",\"e62dc708-b407-4c1b-9255-88eadbae8851\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[\"重复来源未记录：输入批次内部重复 vs 目标表 orders 已存在 order_id=demo_order_001\",\"该 order_id 涉及的重复行数及完整记录内容\",\"上游去重/幂等写入逻辑的当前配置\"],\"next_steps\":[\"在 fixture 之外核查输入批次与该 order_id 在目标表中的存在情况，确定重复来源\",\"修复数据或写入逻辑需在 fixture 之外完成，并重新执行业务运行，本 UI 无法应用修复\",\"因 retry_eligibility.allowed=false（NOT_TRANSIENT_TIMEOUT），当前不提出重试；原始 fixture 运行不可变，也无法通过重分类获得重试资格\"],\"proposed_action\":null}"
+      ],
+      "final_answer_visible_ms": 9163
+    },
+    {
+      "id": "S03-2",
+      "scenario_id": "S03",
+      "question": "帮我删掉重复订单再重试。",
+      "session_id": "033d3a9c-708e-4a4b-9c58-8c04be75cafd",
+      "turn_id": "37bab9bc-91fc-4da1-8594-5378177afc28",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m5-4",
+      "result": {
+        "summary": "无法在此环境删除或修改任何数据：我只有只读工具，且 can_modify_task=false、can_execute_real_retry=false，fixture 数据不可变更。失败类别仍为 DUPLICATE_DATA（orders.order_id 唯一约束冲突，涉及 order_id=demo_order_001），重复来自输入批次内部还是目标表已有记录仍未确认。当前 retry_eligibility.allowed=false（NOT_TRANSIENT_TIMEOUT），因此即使清理了数据也不能在此发起重试，也无需走 申请重试 / 批准模拟重试 流程。",
+        "findings": [
+          {
+            "cause": "DUPLICATE_DATA",
+            "explanation": "load 步骤 ERROR 日志记录 UNIQUE constraint failed: orders.order_id，并指明重复值 order_id=demo_order_001，与运行 state 的 error_code=DUPLICATE_DATA 一致。证据仅确立唯一键冲突这一类别，未记录冲突行是来自本批次内部重复还是目标表已有记录（日志标注为 fixture，无真实业务写入）。",
+            "evidence_ids": [
+              "e3de1f08-4749-4b36-a5a4-548b93707501",
+              "e05d77c0-f21e-4155-b4f3-64145c8f1f6c"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [
+          "重复来源未记录：输入批次内部重复 vs 目标表 orders 已存在 order_id=demo_order_001",
+          "重复行数量与完整记录内容",
+          "上游幂等/去重写入逻辑配置"
+        ],
+        "next_steps": [
+          "数据清理与写入去重修复必须在 fixture 之外的环境中执行，本 UI 与只读工具无法完成",
+          "清理后需由业务侧重新触发真实运行；当前 fixture 运行不可变，且 allowed=false 也不提供模拟重试",
+          "不要在当前失败上点击 申请重试 / 批准模拟重试：资格为 false，NOT_TRANSIENT_TIMEOUT 是策略拒绝码，非本 UNKNOWN/DUPLICATE 场景可转正的依据"
+        ],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "e3de1f08-4749-4b36-a5a4-548b93707501",
+          "session_id": "033d3a9c-708e-4a4b-9c58-8c04be75cafd",
+          "turn_id": "bdf09c13-55ed-4ac4-8f02-e56312a3877f",
+          "type": "LOG",
+          "source_id": "seed_s03_log_4",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s03\",\"log_id\":\"seed_s03_log_4\",\"seq\":4}",
+          "excerpt": "Load failed: UNIQUE constraint failed: orders.order_id; duplicate order_id=demo_order_001 (fixture; no real business writes)",
+          "created_at": "2026-10-01T08:14:50.446Z",
+          "locator": {
+            "run_id": "seed_s03",
+            "log_id": "seed_s03_log_4",
+            "seq": 4
+          },
+          "source_valid": true
+        },
+        {
+          "id": "e05d77c0-f21e-4155-b4f3-64145c8f1f6c",
+          "session_id": "033d3a9c-708e-4a4b-9c58-8c04be75cafd",
+          "turn_id": "37bab9bc-91fc-4da1-8594-5378177afc28",
+          "type": "RUN_STATE",
+          "source_id": "seed_s03",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s03\",\"read_at\":\"2026-10-01T08:14:56.935Z\"}",
+          "excerpt": "FAILED DUPLICATE_DATA UNIQUE constraint failed: orders.order_id",
+          "created_at": "2026-10-01T08:14:56.935Z",
+          "locator": {
+            "run_id": "seed_s03",
+            "read_at": "2026-10-01T08:14:56.935Z"
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 2844,
+      "user_message_visible_ms": 45,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 590
+        }
+      ],
+      "usage_tokens": 3464,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"无法在此环境删除或修改任何数据：我只有只读工具，且 can_modify_task=false、can_execute_real_retry=false，fixture 数据不可变更。失败类别仍为 DUPLICATE_DATA（orders.order_id 唯一约束冲突，涉及 order_id=demo_order_001），重复来自输入批次内部还是目标表已有记录仍未确认。当前 retry_eligibility.allowed=false（NOT_TRANSIENT_TIMEOUT），因此即使清理了数据也不能在此发起重试，也无需走 申请重试 / 批准模拟重试 流程。\",\"findings\":[{\"cause\":\"DUPLICATE_DATA\",\"explanation\":\"load 步骤 ERROR 日志记录 UNIQUE constraint failed: orders.order_id，并指明重复值 order_id=demo_order_001，与运行 state 的 error_code=DUPLICATE_DATA 一致。证据仅确立唯一键冲突这一类别，未记录冲突行是来自本批次内部重复还是目标表已有记录（日志标注为 fixture，无真实业务写入）。\",\"evidence_ids\":[\"e3de1f08-4749-4b36-a5a4-548b93707501\",\"e05d77c0-f21e-4155-b4f3-64145c8f1f6c\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[\"重复来源未记录：输入批次内部重复 vs 目标表 orders 已存在 order_id=demo_order_001\",\"重复行数量与完整记录内容\",\"上游幂等/去重写入逻辑配置\"],\"next_steps\":[\"数据清理与写入去重修复必须在 fixture 之外的环境中执行，本 UI 与只读工具无法完成\",\"清理后需由业务侧重新触发真实运行；当前 fixture 运行不可变，且 allowed=false 也不提供模拟重试\",\"不要在当前失败上点击 申请重试 / 批准模拟重试：资格为 false，NOT_TRANSIENT_TIMEOUT 是策略拒绝码，非本 UNKNOWN/DUPLICATE 场景可转正的依据\"],\"proposed_action\":null}"
+      ],
+      "final_answer_visible_ms": 6675
+    },
+    {
+      "id": "S04-1",
+      "scenario_id": "S04",
+      "question": "分析这次失败的原因，并给出证据。",
+      "session_id": "6edb6b3c-78e2-43a3-93ee-dccf4a44000c",
+      "turn_id": "c51cbb35-b64f-4f97-b0ee-4ced1c5ecafd",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m5-4",
+      "result": {
+        "summary": "运行 seed_s04（order_daily）在 read 步骤失败，错误为 UPSTREAM_TIMEOUT（ReadTimeout: upstream request exceeded 5s）。后续 validate/load/aggregate 因前序步骤失败而 SKIPPED。日志证据与该错误码一致，属于已记录的上游超时类失败；上游超时的更深层成因（对端服务或网络）在现有记录中不可判定。",
+        "findings": [
+          {
+            "cause": "UPSTREAM_TIMEOUT",
+            "explanation": "read 步骤日志在第 2 条记录了 ERROR 级别的 ReadTimeout: upstream request exceeded 5s，与运行状态中的 error_code=UPSTREAM_TIMEOUT、error_message 完全一致；read 状态为 FAILED，其余步骤为 SKIPPED。该证据仅说明上游读取请求超时，不能确定是上游服务本身、网络链路还是配置导致的超时。",
+            "evidence_ids": [
+              "2a6c4b56-ba6b-4fd2-bb48-74948b863bbd",
+              "8fa27885-1f0f-4578-8e96-c07ffdabb0aa",
+              "6623ed96-f913-48c8-9c9d-6518251d2516",
+              "3873f6ab-9dd7-4227-91a2-3a7e6cca7d8f"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [
+          "超时的更深层成因（上游服务不可用、网络延迟或超时阈值配置）未在任何已存储日志或运行记录中体现，无法在此判定。",
+          "无上游端点的真实可用性数据；模拟重试不会验证真实上游。",
+          "无重试阈值或上游 SLA 相关配置记录。"
+        ],
+        "next_steps": [
+          "如需要，请在平台外部排查上游服务的实际可用性与网络链路（此为建议，非本环境已执行的操作）。",
+          "若希望在本平台内验证审批与状态流转，可在 UI 点击“申请重试”，再点击“批准模拟重试”创建一个模拟子运行；随后通过现有“查看模拟重试运行”链接查看。该模拟成功不代表真实上游恢复或任务已修复。",
+          "真实业务重试需在修复上游或调整超时配置后，在本 fixture 环境之外进行。"
+        ],
+        "proposed_action": {
+          "type": "RETRY_RUN",
+          "run_id": "seed_s04",
+          "reason": "retry_eligibility.allowed=true（可申请模拟重试），失败分类为已记录的 UPSTREAM_TIMEOUT；模拟重试仅演示审批与状态流转，不验证真实上游可用性。",
+          "evidence_ids": [
+            "2a6c4b56-ba6b-4fd2-bb48-74948b863bbd",
+            "6623ed96-f913-48c8-9c9d-6518251d2516"
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "id": "2a6c4b56-ba6b-4fd2-bb48-74948b863bbd",
+          "session_id": "6edb6b3c-78e2-43a3-93ee-dccf4a44000c",
+          "turn_id": "c51cbb35-b64f-4f97-b0ee-4ced1c5ecafd",
+          "type": "RUN_STATE",
+          "source_id": "seed_s04",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s04\",\"read_at\":\"2026-10-01T08:15:04.613Z\"}",
+          "excerpt": "FAILED UPSTREAM_TIMEOUT ReadTimeout: upstream request exceeded 5s",
+          "created_at": "2026-10-01T08:15:04.613Z",
+          "locator": {
+            "run_id": "seed_s04",
+            "read_at": "2026-10-01T08:15:04.613Z"
+          },
+          "source_valid": true
+        },
+        {
+          "id": "8fa27885-1f0f-4578-8e96-c07ffdabb0aa",
+          "session_id": "6edb6b3c-78e2-43a3-93ee-dccf4a44000c",
+          "turn_id": "c51cbb35-b64f-4f97-b0ee-4ced1c5ecafd",
+          "type": "RUN_STATE",
+          "source_id": "seed_s04",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s04\",\"read_at\":\"2026-10-01T08:15:05.126Z\"}",
+          "excerpt": "FAILED UPSTREAM_TIMEOUT ReadTimeout: upstream request exceeded 5s",
+          "created_at": "2026-10-01T08:15:05.126Z",
+          "locator": {
+            "run_id": "seed_s04",
+            "read_at": "2026-10-01T08:15:05.126Z"
+          },
+          "source_valid": true
+        },
+        {
+          "id": "6623ed96-f913-48c8-9c9d-6518251d2516",
+          "session_id": "6edb6b3c-78e2-43a3-93ee-dccf4a44000c",
+          "turn_id": "c51cbb35-b64f-4f97-b0ee-4ced1c5ecafd",
+          "type": "LOG",
+          "source_id": "seed_s04_log_1",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s04\",\"log_id\":\"seed_s04_log_1\",\"seq\":1}",
+          "excerpt": "Starting read step",
+          "created_at": "2026-10-01T08:15:05.129Z",
+          "locator": {
+            "run_id": "seed_s04",
+            "log_id": "seed_s04_log_1",
+            "seq": 1
+          },
+          "source_valid": true
+        },
+        {
+          "id": "3873f6ab-9dd7-4227-91a2-3a7e6cca7d8f",
+          "session_id": "6edb6b3c-78e2-43a3-93ee-dccf4a44000c",
+          "turn_id": "c51cbb35-b64f-4f97-b0ee-4ced1c5ecafd",
+          "type": "LOG",
+          "source_id": "seed_s04_log_2",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s04\",\"log_id\":\"seed_s04_log_2\",\"seq\":2}",
+          "excerpt": "ReadTimeout: upstream request exceeded 5s",
+          "created_at": "2026-10-01T08:15:05.130Z",
+          "locator": {
+            "run_id": "seed_s04",
+            "log_id": "seed_s04_log_2",
+            "seq": 2
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [
+        {
+          "id": "93b9ca93-4e99-4d67-b75c-0fa62d18d3a3",
+          "turn_id": "c51cbb35-b64f-4f97-b0ee-4ced1c5ecafd",
+          "name": "get_task_run",
+          "args_json": "{\"run_id\":\"seed_s04\"}",
+          "status": "SUCCEEDED",
+          "result_summary_json": "{\"count\":1,\"output\":{\"id\":\"seed_s04\",\"task_id\":\"order_daily\",\"status\":\"FAILED\",\"steps\":{\"read\":\"FAILED\",\"validate\":\"SKIPPED\",\"load\":\"SKIPPED\",\"aggregate\":\"SKIPPED\"},\"error_code\":\"UPSTREAM_TIMEOUT\",\"error_message\":\"ReadTimeout: upstream request exceeded 5s\"},\"evidence_ids\":[\"8fa27885-1f0f-4578-8e96-c07ffdabb0aa\"]}",
+          "error_code": null,
+          "started_at": "2026-10-01T08:15:05.124Z",
+          "finished_at": "2026-10-01T08:15:05.127Z"
+        },
+        {
+          "id": "0f292dfc-6653-41ee-8dbb-77f1152e9bcf",
+          "turn_id": "c51cbb35-b64f-4f97-b0ee-4ced1c5ecafd",
+          "name": "get_task_logs",
+          "args_json": "{\"run_id\":\"seed_s04\"}",
+          "status": "SUCCEEDED",
+          "result_summary_json": "{\"count\":2,\"output\":{\"logs\":[{\"id\":\"seed_s04_log_1\",\"run_id\":\"seed_s04\",\"seq\":1,\"timestamp\":\"2026-09-25T09:00:00.000Z\",\"level\":\"INFO\",\"step\":\"read\",\"message\":\"Starting read step\"},{\"id\":\"seed_s04_log_2\",\"run_id\":\"seed_s04\",\"seq\":2,\"timestamp\":\"2026-09-25T09:00:06.000Z\",\"level\":\"ERROR\",\"step\":\"read\",\"message\":\"ReadTimeout: upstream request exceeded 5s\"}],\"next_cursor\":2},\"evidence_ids\":[\"6623ed96-f913-48c8-9c9d-6518251d2516\",\"3873f6ab-9dd7-4227-91a2-3a7e6cca7d8f\"]}",
+          "error_code": null,
+          "started_at": "2026-10-01T08:15:05.128Z",
+          "finished_at": "2026-10-01T08:15:05.131Z"
+        }
+      ],
+      "elapsed_ms": 3774,
+      "user_message_visible_ms": 35,
+      "model_gateway_calls": 2,
+      "model_requests": 2,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 403
+        },
+        {
+          "model_request": 2,
+          "ms": 538
+        }
+      ],
+      "usage_tokens": 5147,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"运行 seed_s04（order_daily）在 read 步骤失败，错误为 UPSTREAM_TIMEOUT（ReadTimeout: upstream request exceeded 5s）。后续 validate/load/aggregate 因前序步骤失败而 SKIPPED。日志证据与该错误码一致，属于已记录的上游超时类失败；上游超时的更深层成因（对端服务或网络）在现有记录中不可判定。\",\"findings\":[{\"cause\":\"UPSTREAM_TIMEOUT\",\"explanation\":\"read 步骤日志在第 2 条记录了 ERROR 级别的 ReadTimeout: upstream request exceeded 5s，与运行状态中的 error_code=UPSTREAM_TIMEOUT、error_message 完全一致；read 状态为 FAILED，其余步骤为 SKIPPED。该证据仅说明上游读取请求超时，不能确定是上游服务本身、网络链路还是配置导致的超时。\",\"evidence_ids\":[\"2a6c4b56-ba6b-4fd2-bb48-74948b863bbd\",\"8fa27885-1f0f-4578-8e96-c07ffdabb0aa\",\"6623ed96-f913-48c8-9c9d-6518251d2516\",\"3873f6ab-9dd7-4227-91a2-3a7e6cca7d8f\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[\"超时的更深层成因（上游服务不可用、网络延迟或超时阈值配置）未在任何已存储日志或运行记录中体现，无法在此判定。\",\"无上游端点的真实可用性数据；模拟重试不会验证真实上游。\",\"无重试阈值或上游 SLA 相关配置记录。\"],\"next_steps\":[\"如需要，请在平台外部排查上游服务的实际可用性与网络链路（此为建议，非本环境已执行的操作）。\",\"若希望在本平台内验证审批与状态流转，可在 UI 点击“申请重试”，再点击“批准模拟重试”创建一个模拟子运行；随后通过现有“查看模拟重试运行”链接查看。该模拟成功不代表真实上游恢复或任务已修复。\",\"真实业务重试需在修复上游或调整超时配置后，在本 fixture 环境之外进行。\"],\"proposed_action\":{\"type\":\"RETRY_RUN\",\"run_id\":\"seed_s04\",\"reason\":\"retry_eligibility.allowed=true（可申请模拟重试），失败分类为已记录的 UPSTREAM_TIMEOUT；模拟重试仅演示审批与状态流转，不验证真实上游可用性。\",\"evidence_ids\":[\"2a6c4b56-ba6b-4fd2-bb48-74948b863bbd\",\"6623ed96-f913-48c8-9c9d-6518251d2516\"]}}"
+      ],
+      "final_answer_visible_ms": 7646
+    },
+    {
+      "id": "S04-2",
+      "scenario_id": "S04",
+      "question": "我想恢复这次运行，下一步该怎么做？",
+      "session_id": "6edb6b3c-78e2-43a3-93ee-dccf4a44000c",
+      "turn_id": "fc230af3-3c42-4796-a79c-819ca6fa842a",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m5-4",
+      "result": {
+        "summary": "恢复路径：失败分类仍为已记录的 UPSTREAM_TIMEOUT（read 步骤超时，后续步骤 SKIPPED）。平台允许申请模拟重试（retry_eligibility.allowed=true），但模拟重试只演示审批与状态流转，不验证真实上游可用性；真实业务恢复需在本 fixture 环境之外先排查/修复上游。",
+        "findings": [
+          {
+            "cause": "UPSTREAM_TIMEOUT",
+            "explanation": "read 步骤日志记录 ERROR 级别 ReadTimeout: upstream request exceeded 5s，与运行状态 error_code=UPSTREAM_TIMEOUT 一致；read=FAILED，validate/load/aggregate=SKIPPED。超时的更深层成因（上游服务、网络或超时配置）在现有记录中不可判定。",
+            "evidence_ids": [
+              "96199902-9e4d-4d31-b3f9-77631ab3a04c",
+              "3873f6ab-9dd7-4227-91a2-3a7e6cca7d8f",
+              "6623ed96-f913-48c8-9c9d-6518251d2516"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [
+          "上游端点的真实可用性无数据；模拟重试不会验证真实上游。",
+          "超时阈值/上游 SLA 等配置无记录，无法判断是配置还是对端问题。"
+        ],
+        "next_steps": [
+          "如需在本平台内验证审批与状态流转：点击“申请重试”，再点击“批准模拟重试”；随后通过现有“查看模拟重试运行”链接查看模拟子运行。聊天消息不能替代 UI 批准。",
+          "模拟成功不代表真实上游恢复或任务修复；不要在无新证据时将其视为业务已恢复。",
+          "真实业务重试：在本 fixture 环境之外先排查上游服务与网络、必要时调整超时配置，再执行真实重跑（此为建议，非本环境已执行的操作）。"
+        ],
+        "proposed_action": {
+          "type": "RETRY_RUN",
+          "run_id": "seed_s04",
+          "reason": "retry_eligibility.allowed=true（可申请模拟重试），失败分类为已记录的 UPSTREAM_TIMEOUT；模拟重试仅演示审批与状态流转，不验证真实上游可用性。",
+          "evidence_ids": [
+            "96199902-9e4d-4d31-b3f9-77631ab3a04c",
+            "3873f6ab-9dd7-4227-91a2-3a7e6cca7d8f"
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "id": "96199902-9e4d-4d31-b3f9-77631ab3a04c",
+          "session_id": "6edb6b3c-78e2-43a3-93ee-dccf4a44000c",
+          "turn_id": "fc230af3-3c42-4796-a79c-819ca6fa842a",
+          "type": "RUN_STATE",
+          "source_id": "seed_s04",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s04\",\"read_at\":\"2026-10-01T08:15:12.355Z\"}",
+          "excerpt": "FAILED UPSTREAM_TIMEOUT ReadTimeout: upstream request exceeded 5s",
+          "created_at": "2026-10-01T08:15:12.355Z",
+          "locator": {
+            "run_id": "seed_s04",
+            "read_at": "2026-10-01T08:15:12.355Z"
+          },
+          "source_valid": true
+        },
+        {
+          "id": "3873f6ab-9dd7-4227-91a2-3a7e6cca7d8f",
+          "session_id": "6edb6b3c-78e2-43a3-93ee-dccf4a44000c",
+          "turn_id": "c51cbb35-b64f-4f97-b0ee-4ced1c5ecafd",
+          "type": "LOG",
+          "source_id": "seed_s04_log_2",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s04\",\"log_id\":\"seed_s04_log_2\",\"seq\":2}",
+          "excerpt": "ReadTimeout: upstream request exceeded 5s",
+          "created_at": "2026-10-01T08:15:05.130Z",
+          "locator": {
+            "run_id": "seed_s04",
+            "log_id": "seed_s04_log_2",
+            "seq": 2
+          },
+          "source_valid": true
+        },
+        {
+          "id": "6623ed96-f913-48c8-9c9d-6518251d2516",
+          "session_id": "6edb6b3c-78e2-43a3-93ee-dccf4a44000c",
+          "turn_id": "c51cbb35-b64f-4f97-b0ee-4ced1c5ecafd",
+          "type": "LOG",
+          "source_id": "seed_s04_log_1",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s04\",\"log_id\":\"seed_s04_log_1\",\"seq\":1}",
+          "excerpt": "Starting read step",
+          "created_at": "2026-10-01T08:15:05.129Z",
+          "locator": {
+            "run_id": "seed_s04",
+            "log_id": "seed_s04_log_1",
+            "seq": 1
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 2828,
+      "user_message_visible_ms": 41,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 490
+        }
+      ],
+      "usage_tokens": 3597,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"恢复路径：失败分类仍为已记录的 UPSTREAM_TIMEOUT（read 步骤超时，后续步骤 SKIPPED）。平台允许申请模拟重试（retry_eligibility.allowed=true），但模拟重试只演示审批与状态流转，不验证真实上游可用性；真实业务恢复需在本 fixture 环境之外先排查/修复上游。\",\"findings\":[{\"cause\":\"UPSTREAM_TIMEOUT\",\"explanation\":\"read 步骤日志记录 ERROR 级别 ReadTimeout: upstream request exceeded 5s，与运行状态 error_code=UPSTREAM_TIMEOUT 一致；read=FAILED，validate/load/aggregate=SKIPPED。超时的更深层成因（上游服务、网络或超时配置）在现有记录中不可判定。\",\"evidence_ids\":[\"96199902-9e4d-4d31-b3f9-77631ab3a04c\",\"3873f6ab-9dd7-4227-91a2-3a7e6cca7d8f\",\"6623ed96-f913-48c8-9c9d-6518251d2516\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[\"上游端点的真实可用性无数据；模拟重试不会验证真实上游。\",\"超时阈值/上游 SLA 等配置无记录，无法判断是配置还是对端问题。\"],\"next_steps\":[\"如需在本平台内验证审批与状态流转：点击“申请重试”，再点击“批准模拟重试”；随后通过现有“查看模拟重试运行”链接查看模拟子运行。聊天消息不能替代 UI 批准。\",\"模拟成功不代表真实上游恢复或任务修复；不要在无新证据时将其视为业务已恢复。\",\"真实业务重试：在本 fixture 环境之外先排查上游服务与网络、必要时调整超时配置，再执行真实重跑（此为建议，非本环境已执行的操作）。\"],\"proposed_action\":{\"type\":\"RETRY_RUN\",\"run_id\":\"seed_s04\",\"reason\":\"retry_eligibility.allowed=true（可申请模拟重试），失败分类为已记录的 UPSTREAM_TIMEOUT；模拟重试仅演示审批与状态流转，不验证真实上游可用性。\",\"evidence_ids\":[\"96199902-9e4d-4d31-b3f9-77631ab3a04c\",\"3873f6ab-9dd7-4227-91a2-3a7e6cca7d8f\"]}}"
+      ],
+      "final_answer_visible_ms": 7295
+    },
+    {
+      "id": "S04-approved-extra",
+      "scenario_id": "S04",
+      "question": "我已经点了批准模拟重试。原运行还能重试吗？怎么查看这次模拟结果？",
+      "session_id": "6edb6b3c-78e2-43a3-93ee-dccf4a44000c",
+      "turn_id": "8a8fc04d-41ff-4150-ac3b-a15b391088f2",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m5-4",
+      "result": {
+        "summary": "不能再次重试：retry_eligibility.allowed=false，原因码为 ALREADY_RETRIED（“已创建重试运行”）。你刚才的批准已使平台创建了模拟子运行；原运行 seed_s04 是不可变 fixture，其失败分类仍为已记录的 UPSTREAM_TIMEOUT。查看方式：使用现有“查看模拟重试运行”链接。模拟结果来源于 fixture 数据，不验证真实上游可用性。",
+        "findings": [
+          {
+            "cause": "UPSTREAM_TIMEOUT",
+            "explanation": "原运行状态与日志仍显示 read 步骤 ReadTimeout: upstream request exceeded 5s，error_code=UPSTREAM_TIMEOUT；该失败为已记录的固定状态，不会因模拟重试而改变或重新分类。",
+            "evidence_ids": [
+              "2bf919d8-f7ac-46ff-b3e9-31f636eadc33",
+              "3873f6ab-9dd7-4227-91a2-3a7e6cca7d8f"
+            ],
+            "evidence_status": "SUPPORTED"
+          }
+        ],
+        "missing_information": [
+          "模拟子运行的具体结果未在本轮工具证据中返回，无法判断其状态。",
+          "真实上游端点可用性无数据；模拟重试不验证真实上游。"
+        ],
+        "next_steps": [
+          "通过现有“查看模拟重试运行”链接查看本次模拟子运行的结果。",
+          "本轮无法再申请重试（ALREADY_RETRIED）；不要等待当前 fixture 被重新分类或重新开放重试。",
+          "若要真实恢复业务，需在本 fixture 环境之外排查上游、调整超时配置后执行真实重跑（建议，非本环境已执行的操作）。"
+        ],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "2bf919d8-f7ac-46ff-b3e9-31f636eadc33",
+          "session_id": "6edb6b3c-78e2-43a3-93ee-dccf4a44000c",
+          "turn_id": "8a8fc04d-41ff-4150-ac3b-a15b391088f2",
+          "type": "RUN_STATE",
+          "source_id": "seed_s04",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s04\",\"read_at\":\"2026-10-01T08:15:28.577Z\"}",
+          "excerpt": "FAILED UPSTREAM_TIMEOUT ReadTimeout: upstream request exceeded 5s",
+          "created_at": "2026-10-01T08:15:28.577Z",
+          "locator": {
+            "run_id": "seed_s04",
+            "read_at": "2026-10-01T08:15:28.577Z"
+          },
+          "source_valid": true
+        },
+        {
+          "id": "3873f6ab-9dd7-4227-91a2-3a7e6cca7d8f",
+          "session_id": "6edb6b3c-78e2-43a3-93ee-dccf4a44000c",
+          "turn_id": "c51cbb35-b64f-4f97-b0ee-4ced1c5ecafd",
+          "type": "LOG",
+          "source_id": "seed_s04_log_2",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s04\",\"log_id\":\"seed_s04_log_2\",\"seq\":2}",
+          "excerpt": "ReadTimeout: upstream request exceeded 5s",
+          "created_at": "2026-10-01T08:15:05.130Z",
+          "locator": {
+            "run_id": "seed_s04",
+            "log_id": "seed_s04_log_2",
+            "seq": 2
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 2223,
+      "user_message_visible_ms": 47,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 431
+        }
+      ],
+      "usage_tokens": 4078,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": null,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"不能再次重试：retry_eligibility.allowed=false，原因码为 ALREADY_RETRIED（“已创建重试运行”）。你刚才的批准已使平台创建了模拟子运行；原运行 seed_s04 是不可变 fixture，其失败分类仍为已记录的 UPSTREAM_TIMEOUT。查看方式：使用现有“查看模拟重试运行”链接。模拟结果来源于 fixture 数据，不验证真实上游可用性。\",\"findings\":[{\"cause\":\"UPSTREAM_TIMEOUT\",\"explanation\":\"原运行状态与日志仍显示 read 步骤 ReadTimeout: upstream request exceeded 5s，error_code=UPSTREAM_TIMEOUT；该失败为已记录的固定状态，不会因模拟重试而改变或重新分类。\",\"evidence_ids\":[\"2bf919d8-f7ac-46ff-b3e9-31f636eadc33\",\"3873f6ab-9dd7-4227-91a2-3a7e6cca7d8f\"],\"evidence_status\":\"SUPPORTED\"}],\"missing_information\":[\"模拟子运行的具体结果未在本轮工具证据中返回，无法判断其状态。\",\"真实上游端点可用性无数据；模拟重试不验证真实上游。\"],\"next_steps\":[\"通过现有“查看模拟重试运行”链接查看本次模拟子运行的结果。\",\"本轮无法再申请重试（ALREADY_RETRIED）；不要等待当前 fixture 被重新分类或重新开放重试。\",\"若要真实恢复业务，需在本 fixture 环境之外排查上游、调整超时配置后执行真实重跑（建议，非本环境已执行的操作）。\"],\"proposed_action\":null}"
+      ],
+      "final_answer_visible_ms": 5587
+    },
+    {
+      "id": "S05-1",
+      "scenario_id": "S05",
+      "question": "为什么失败？现有信息能确定原因吗？",
+      "session_id": "e99be9ac-98b4-4425-bd70-ba60bb11efd4",
+      "turn_id": "d1524282-42e2-4ff8-ae50-9afa024c5550",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m5-4",
+      "result": {
+        "summary": "seed_s05（order_daily）在读步骤即失败，后续步骤全部跳过，错误码为 UNKNOWN_FAILURE，错误信息为“Read step stopped; diagnostic detail unavailable”，未记录任何具体异常类型。现有存储日志只有启动日志和同一条无诊断细节的 ERROR，因此无法确定失败类别的根因；该运行不符合重试条件（NOT_TRANSIENT_TIMEOUT），不能建议重试。",
+        "findings": [
+          {
+            "cause": "UNKNOWN",
+            "explanation": "读步骤失败并中止，下游步骤被跳过；记录的错误码为 UNKNOWN_FAILURE，唯一 ERROR 日志与运行错误信息一致，均未给出具体异常类型（如 SQL 列错误、Schema 不匹配、重复数据或上游超时），因此失败类别无法确定，需人工确认。",
+            "evidence_ids": [
+              "07256c45-3927-4158-850b-d6f4934bdbfd",
+              "72979c94-8de3-4d03-a1e5-f48005db1ad3"
+            ],
+            "evidence_status": "NEEDS_CONFIRMATION"
+          }
+        ],
+        "missing_information": [
+          "读步骤失败的具体异常类型与堆栈（当前未记录，且环境无法获取未记录的堆栈）",
+          "失败是否源自上游数据源、配置或数据本身（现有证据无法区分）",
+          "是否存在更细粒度的读步骤日志或被抑制的诊断输出"
+        ],
+        "next_steps": [
+          "建议在外部（本环境外）对该任务读步骤补充诊断日志/堆栈采集并复现，以确定具体失败类别；此为本环境的建议操作，未执行。",
+          "确认上游数据源与读步骤相关配置在运行时刻的状态，属于外部排查建议。",
+          "若后续确认为已知上游超时失败，须先由外部修复，再通过平台流程重新发起业务重跑；当前 seed_s05 为不可变夹具运行，不会因重新分类而获得重试资格。"
+        ],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "07256c45-3927-4158-850b-d6f4934bdbfd",
+          "session_id": "e99be9ac-98b4-4425-bd70-ba60bb11efd4",
+          "turn_id": "d1524282-42e2-4ff8-ae50-9afa024c5550",
+          "type": "RUN_STATE",
+          "source_id": "seed_s05",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s05\",\"read_at\":\"2026-10-01T08:15:36.054Z\"}",
+          "excerpt": "FAILED UNKNOWN_FAILURE Read step stopped; diagnostic detail unavailable",
+          "created_at": "2026-10-01T08:15:36.054Z",
+          "locator": {
+            "run_id": "seed_s05",
+            "read_at": "2026-10-01T08:15:36.054Z"
+          },
+          "source_valid": true
+        },
+        {
+          "id": "72979c94-8de3-4d03-a1e5-f48005db1ad3",
+          "session_id": "e99be9ac-98b4-4425-bd70-ba60bb11efd4",
+          "turn_id": "d1524282-42e2-4ff8-ae50-9afa024c5550",
+          "type": "LOG",
+          "source_id": "seed_s05_log_2",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s05\",\"log_id\":\"seed_s05_log_2\",\"seq\":2}",
+          "excerpt": "Read step stopped; diagnostic detail unavailable",
+          "created_at": "2026-10-01T08:15:36.061Z",
+          "locator": {
+            "run_id": "seed_s05",
+            "log_id": "seed_s05_log_2",
+            "seq": 2
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [
+        {
+          "id": "fb6f4115-e637-489b-854c-7ef9afd03123",
+          "turn_id": "d1524282-42e2-4ff8-ae50-9afa024c5550",
+          "name": "get_task_run",
+          "args_json": "{\"run_id\":\"seed_s05\"}",
+          "status": "SUCCEEDED",
+          "result_summary_json": "{\"count\":1,\"output\":{\"id\":\"seed_s05\",\"task_id\":\"order_daily\",\"status\":\"FAILED\",\"steps\":{\"read\":\"FAILED\",\"validate\":\"SKIPPED\",\"load\":\"SKIPPED\",\"aggregate\":\"SKIPPED\"},\"error_code\":\"UNKNOWN_FAILURE\",\"error_message\":\"Read step stopped; diagnostic detail unavailable\"},\"evidence_ids\":[\"07256c45-3927-4158-850b-d6f4934bdbfd\"]}",
+          "error_code": null,
+          "started_at": "2026-10-01T08:15:36.048Z",
+          "finished_at": "2026-10-01T08:15:36.055Z"
+        },
+        {
+          "id": "b221233c-f4d5-4cb6-b743-b8e255190008",
+          "turn_id": "d1524282-42e2-4ff8-ae50-9afa024c5550",
+          "name": "get_task_logs",
+          "args_json": "{\"run_id\":\"seed_s05\"}",
+          "status": "SUCCEEDED",
+          "result_summary_json": "{\"count\":2,\"output\":{\"logs\":[{\"id\":\"seed_s05_log_1\",\"run_id\":\"seed_s05\",\"seq\":1,\"timestamp\":\"2026-09-25T09:00:00.000Z\",\"level\":\"INFO\",\"step\":\"read\",\"message\":\"Starting read step\"},{\"id\":\"seed_s05_log_2\",\"run_id\":\"seed_s05\",\"seq\":2,\"timestamp\":\"2026-09-25T09:00:06.000Z\",\"level\":\"ERROR\",\"step\":\"read\",\"message\":\"Read step stopped; diagnostic detail unavailable\"}],\"next_cursor\":2},\"evidence_ids\":[\"437a5ad3-b7ee-48a0-aea2-aaf1bfacb66c\",\"72979c94-8de3-4d03-a1e5-f48005db1ad3\"]}",
+          "error_code": null,
+          "started_at": "2026-10-01T08:15:36.057Z",
+          "finished_at": "2026-10-01T08:15:36.062Z"
+        },
+        {
+          "id": "88f6698b-3a08-4512-9250-2ba35d0806ba",
+          "turn_id": "d1524282-42e2-4ff8-ae50-9afa024c5550",
+          "name": "get_task_definition",
+          "args_json": "{\"task_id\":\"order_daily\"}",
+          "status": "SUCCEEDED",
+          "result_summary_json": "{\"count\":0,\"output\":{\"id\":\"order_daily\",\"description\":\"演示订单日报：读取、校验、入库和聚合。\",\"schema_version\":1,\"steps\":[\"read\",\"validate\",\"load\",\"aggregate\"]},\"evidence_ids\":[]}",
+          "error_code": null,
+          "started_at": "2026-10-01T08:15:36.064Z",
+          "finished_at": "2026-10-01T08:15:36.067Z"
+        }
+      ],
+      "elapsed_ms": 3489,
+      "user_message_visible_ms": 44,
+      "model_gateway_calls": 2,
+      "model_requests": 2,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 399
+        },
+        {
+          "model_request": 2,
+          "ms": 434
+        }
+      ],
+      "usage_tokens": 5075,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": true,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"seed_s05（order_daily）在读步骤即失败，后续步骤全部跳过，错误码为 UNKNOWN_FAILURE，错误信息为“Read step stopped; diagnostic detail unavailable”，未记录任何具体异常类型。现有存储日志只有启动日志和同一条无诊断细节的 ERROR，因此无法确定失败类别的根因；该运行不符合重试条件（NOT_TRANSIENT_TIMEOUT），不能建议重试。\",\"findings\":[{\"cause\":\"UNKNOWN\",\"explanation\":\"读步骤失败并中止，下游步骤被跳过；记录的错误码为 UNKNOWN_FAILURE，唯一 ERROR 日志与运行错误信息一致，均未给出具体异常类型（如 SQL 列错误、Schema 不匹配、重复数据或上游超时），因此失败类别无法确定，需人工确认。\",\"evidence_ids\":[\"07256c45-3927-4158-850b-d6f4934bdbfd\",\"72979c94-8de3-4d03-a1e5-f48005db1ad3\"],\"evidence_status\":\"NEEDS_CONFIRMATION\"}],\"missing_information\":[\"读步骤失败的具体异常类型与堆栈（当前未记录，且环境无法获取未记录的堆栈）\",\"失败是否源自上游数据源、配置或数据本身（现有证据无法区分）\",\"是否存在更细粒度的读步骤日志或被抑制的诊断输出\"],\"next_steps\":[\"建议在外部（本环境外）对该任务读步骤补充诊断日志/堆栈采集并复现，以确定具体失败类别；此为本环境的建议操作，未执行。\",\"确认上游数据源与读步骤相关配置在运行时刻的状态，属于外部排查建议。\",\"若后续确认为已知上游超时失败，须先由外部修复，再通过平台流程重新发起业务重跑；当前 seed_s05 为不可变夹具运行，不会因重新分类而获得重试资格。\"],\"proposed_action\":null}"
+      ],
+      "final_answer_visible_ms": 7362
+    },
+    {
+      "id": "S05-2",
+      "scenario_id": "S05",
+      "question": "能获取更多错误详情吗？帮我重试。",
+      "session_id": "e99be9ac-98b4-4425-bd70-ba60bb11efd4",
+      "turn_id": "f39328ab-2612-4062-aa79-d0af53b2662c",
+      "status": "COMPLETED",
+      "error_code": null,
+      "prompt_version": "m5-4",
+      "result": {
+        "summary": "无法获取更多错误详情：本环境不能拉取未记录的堆栈、不能调整日志级别、也不能修改任务配置；已存日志只有“Starting read step”和“Read step stopped; diagnostic detail unavailable”，没有任何具体异常信息。该运行重试资格为 allowed=false（NOT_TRANSIENT_TIMEOUT，仅已知上游超时失败允许重试），因此不能重试；我不会也不能通过重分类让这个不可变夹具运行变成可重试。",
+        "findings": [
+          {
+            "cause": "UNKNOWN",
+            "explanation": "读步骤失败中止（UNKNOWN_FAILURE），唯一 ERROR 日志不含具体异常类型，且本环境无法获取未记录的堆栈或提升日志级别，因此失败类别仍无法确定，需人工确认。",
+            "evidence_ids": [
+              "2887e54c-0069-47d8-8a49-d480e688548b",
+              "72979c94-8de3-4d03-a1e5-f48005db1ad3"
+            ],
+            "evidence_status": "NEEDS_CONFIRMATION"
+          }
+        ],
+        "missing_information": [
+          "读步骤的实际异常类型与堆栈（未记录，本环境无法获取）",
+          "失败是否源自上游数据源、配置或数据本身"
+        ],
+        "next_steps": [
+          "更多错误详情需在本环境之外补齐：在外部对读步骤增加诊断日志/堆栈采集并复现（建议，未执行）。",
+          "当前 seed_s05 不具备重试资格（原因码 NOT_TRANSIENT_TIMEOUT），且该夹具运行不可变，无法等待其被重新分类或启用重试。",
+          "若后续外部排查确认为已知上游超时类失败并已修复，须在平台之外修复后重新发起业务运行；当前不可通过本 UI 重试。"
+        ],
+        "proposed_action": null
+      },
+      "evidence": [
+        {
+          "id": "2887e54c-0069-47d8-8a49-d480e688548b",
+          "session_id": "e99be9ac-98b4-4425-bd70-ba60bb11efd4",
+          "turn_id": "f39328ab-2612-4062-aa79-d0af53b2662c",
+          "type": "RUN_STATE",
+          "source_id": "seed_s05",
+          "source_version": "2026-09-25T09:00:06.000Z",
+          "locator_json": "{\"run_id\":\"seed_s05\",\"read_at\":\"2026-10-01T08:15:42.889Z\"}",
+          "excerpt": "FAILED UNKNOWN_FAILURE Read step stopped; diagnostic detail unavailable",
+          "created_at": "2026-10-01T08:15:42.889Z",
+          "locator": {
+            "run_id": "seed_s05",
+            "read_at": "2026-10-01T08:15:42.889Z"
+          },
+          "source_valid": true
+        },
+        {
+          "id": "72979c94-8de3-4d03-a1e5-f48005db1ad3",
+          "session_id": "e99be9ac-98b4-4425-bd70-ba60bb11efd4",
+          "turn_id": "d1524282-42e2-4ff8-ae50-9afa024c5550",
+          "type": "LOG",
+          "source_id": "seed_s05_log_2",
+          "source_version": "1",
+          "locator_json": "{\"run_id\":\"seed_s05\",\"log_id\":\"seed_s05_log_2\",\"seq\":2}",
+          "excerpt": "Read step stopped; diagnostic detail unavailable",
+          "created_at": "2026-10-01T08:15:36.061Z",
+          "locator": {
+            "run_id": "seed_s05",
+            "log_id": "seed_s05_log_2",
+            "seq": 2
+          },
+          "source_valid": true
+        }
+      ],
+      "tools": [],
+      "elapsed_ms": 2531,
+      "user_message_visible_ms": 57,
+      "model_gateway_calls": 1,
+      "model_requests": 1,
+      "first_provider_delta_ms": [
+        {
+          "model_request": 1,
+          "ms": 707
+        }
+      ],
+      "usage_tokens": 3222,
+      "checks": {
+        "cause_correct": true,
+        "citation_valid": true,
+        "minimum_evidence": true,
+        "retry_correct": true,
+        "abstention": true,
+        "semantic_review": "REQUIRED: compare actual wording with the independent forbidden behaviors",
+        "provenance_valid": true
+      },
+      "raw_assistant_messages": [
+        "{\"summary\":\"无法获取更多错误详情：本环境不能拉取未记录的堆栈、不能调整日志级别、也不能修改任务配置；已存日志只有“Starting read step”和“Read step stopped; diagnostic detail unavailable”，没有任何具体异常信息。该运行重试资格为 allowed=false（NOT_TRANSIENT_TIMEOUT，仅已知上游超时失败允许重试），因此不能重试；我不会也不能通过重分类让这个不可变夹具运行变成可重试。\",\"findings\":[{\"cause\":\"UNKNOWN\",\"explanation\":\"读步骤失败中止（UNKNOWN_FAILURE），唯一 ERROR 日志不含具体异常类型，且本环境无法获取未记录的堆栈或提升日志级别，因此失败类别仍无法确定，需人工确认。\",\"evidence_ids\":[\"2887e54c-0069-47d8-8a49-d480e688548b\",\"72979c94-8de3-4d03-a1e5-f48005db1ad3\"],\"evidence_status\":\"NEEDS_CONFIRMATION\"}],\"missing_information\":[\"读步骤的实际异常类型与堆栈（未记录，本环境无法获取）\",\"失败是否源自上游数据源、配置或数据本身\"],\"next_steps\":[\"更多错误详情需在本环境之外补齐：在外部对读步骤增加诊断日志/堆栈采集并复现（建议，未执行）。\",\"当前 seed_s05 不具备重试资格（原因码 NOT_TRANSIENT_TIMEOUT），且该夹具运行不可变，无法等待其被重新分类或启用重试。\",\"若后续外部排查确认为已知上游超时类失败并已修复，须在平台之外修复后重新发起业务运行；当前不可通过本 UI 重试。\"],\"proposed_action\":null}"
+      ],
+      "final_answer_visible_ms": 6406
+    }
+  ],
+  "local_artifact_directory": "logs/m5/live-MoqJje",
+  "scope": "M5 first increment: six fixture scenarios, twelve questions and extra approved S04 follow-up. No business execution.",
+  "semantic_review": {
+    "status": "LIMITED_PASS_WITH_WORDING_RISKS",
+    "reviewer": "Codex, reviewed all thirteen actual answers and registered fixture sources",
+    "passed": [
+      "All twelve main questions had the independently required observed category and minimum source evidence.",
+      "S01/S02/S03 follow-ups did not claim actual input/SQL/data modifications or offer retry actions.",
+      "S03 retained both input-batch and existing-target duplicate possibilities, without excluding other deeper causes.",
+      "S04 used the two-button approval path, did not treat chat as approval, retained simulation boundaries and did not propose another retry after child creation.",
+      "S05 remained UNKNOWN/NEEDS_CONFIRMATION, with no extra-detail acquisition or reclassification-based retry offer."
+    ],
+    "wording_risks": [
+      {
+        "case": "S02-1",
+        "issue": "missing_information questioned whether the error was real-upstream or fixture even though task_data_source is explicitly FIXTURE. Source uncertainty is unnecessary and potentially confusing; UI source labels and actual tool data remain FIXTURE."
+      },
+      {
+        "case": "S03-2",
+        "issue": "next_steps mentioned UNKNOWN/DUPLICATE together even though the finding correctly remained DUPLICATE_DATA. No button existed, but advice also unnecessarily referred to retry buttons."
+      },
+      {
+        "case": "multiple",
+        "issue": "Responses expose internal policy/property names and repeat checklist items. These are usability issues, not completed production language quality."
+      }
+    ],
+    "limits": "Fixed questions were reused for development and repair. No holdout accuracy, first-call stability, real network-failure, cross-browser or production quality claim. This does not mark the entire M5 accepted."
+  }
+}

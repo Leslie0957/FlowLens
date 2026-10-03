@@ -1,12 +1,14 @@
 import { z } from 'zod';
 
 export const CONTRACT_VERSION = 1;
+export const SCENARIO_IDS=['S00','S01','S02','S03','S04','S05'] as const;
+export const scenarioIdSchema=z.enum(SCENARIO_IDS);
 export const runStatus = z.enum(['PENDING','RUNNING','SUCCEEDED','FAILED']);
 export const stepStatus = z.enum(['PENDING','RUNNING','SUCCEEDED','FAILED','SKIPPED']);
 export const logLevel = z.enum(['DEBUG','INFO','WARN','ERROR']);
 export const runSchema = z.object({
   id:z.string(),task_id:z.string(),task_name:z.string(),data_source:z.literal('FIXTURE'),
-  scenario_id:z.enum(['S00','S04','S05']),scenario_instance_id:z.string(),
+  scenario_id:scenarioIdSchema,scenario_instance_id:z.string(),
   parent_run_id:z.string().nullable(),status:runStatus,
   step_states:z.record(z.string(),stepStatus),params:z.record(z.string(),z.unknown()),
   created_at:z.string(),started_at:z.string().nullable(),finished_at:z.string().nullable(),
@@ -18,20 +20,25 @@ export const runSchema = z.object({
 export type Run = z.infer<typeof runSchema>;
 export const taskLogSchema=z.object({id:z.string(),run_id:z.string(),seq:z.number().int(),timestamp:z.string(),level:logLevel,step:z.string(),message:z.string()});
 export type TaskLog=z.infer<typeof taskLogSchema>;
-export const scenarioSchema=z.object({id:z.enum(['S00','S04','S05']),display_name:z.string(),description:z.string()});
+export const scenarioSchema=z.object({id:scenarioIdSchema,display_name:z.string(),description:z.string()});
 export type Scenario=z.infer<typeof scenarioSchema>;
 export const capabilitiesSchema=z.object({provider_mode:z.enum(['LIVE','MOCK','UNCONFIGURED']),model_configured:z.boolean(),retry_enabled:z.boolean(),task_data_mode:z.literal('FIXTURE')});
 export type Capabilities=z.infer<typeof capabilitiesSchema>;
+const utcTimestamp=z.iso.datetime({offset:true}).transform(value=>new Date(value).toISOString());
 export const listQuerySchema=z.object({
   status:runStatus.optional(),task_id:z.string().max(80).optional(),q:z.string().max(200).optional(),
+  created_from:utcTimestamp.optional(),created_to:utcTimestamp.optional(),
   page:z.coerce.number().int().min(1).default(1),limit:z.coerce.number().int().min(1).max(100).default(20)
-});
+}).refine(v=>!v.created_from||!v.created_to||v.created_from<=v.created_to,{message:'creation range must be ordered'});
+export const historyQuerySchema=z.object({q:z.string().max(200).optional(),page:z.coerce.number().int().min(1).default(1),limit:z.coerce.number().int().min(1).max(100).default(20)});
+export const historyItemSchema=z.object({id:z.string(),run_id:z.string(),title:z.string(),updated_at:z.string(),task_name:z.string(),scenario_id:scenarioIdSchema,run_status:runStatus,
+ last_status:z.enum(['QUEUED','RUNNING','COMPLETED','FAILED','CANCELLED','INTERRUPTED']).nullable(),last_error_code:z.string().nullable(),provider_mode:z.enum(['LIVE','MOCK']).nullable(),summary:z.string().nullable(),turn_count:z.number().int()});
 export const logQuerySchema=z.object({
   query:z.string().max(200).optional(),level:logLevel.optional(),
   before_seq:z.coerce.number().int().min(0).optional(),after_seq:z.coerce.number().int().min(0).optional(),
   limit:z.coerce.number().int().min(1).max(200).default(200)
 }).refine(v=>!(v.before_seq!==undefined && v.after_seq!==undefined),{message:'before_seq and after_seq are mutually exclusive'});
-export const createRunSchema=z.object({scenario_id:z.enum(['S00','S04','S05'])}).strict();
+export const createRunSchema=z.object({scenario_id:scenarioIdSchema}).strict();
 export const errorSchema=z.object({error:z.object({code:z.string(),message:z.string(),retryable:z.boolean(),request_id:z.string()})});
 export const dataResponse=<T extends z.ZodTypeAny>(schema:T)=>z.object({data:schema});
 export const pageResponse=<T extends z.ZodTypeAny>(schema:T)=>z.object({data:z.array(schema),page_info:z.object({page:z.number(),limit:z.number(),total:z.number(),has_more:z.boolean()})});

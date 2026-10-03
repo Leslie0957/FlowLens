@@ -27,6 +27,18 @@ export function createSession(db:DatabaseSync,runId:string,key:string,now=Date.n
 }
 export function getSession(db:DatabaseSync,id:string){return db.prepare('SELECT * FROM diagnosis_session WHERE id=?').get(id) as Row|undefined;}
 export function listSessions(db:DatabaseSync,runId:string){return db.prepare('SELECT * FROM diagnosis_session WHERE run_id=? ORDER BY updated_at DESC LIMIT 100').all(runId) as Row[];}
+export function listHistory(db:DatabaseSync,options:{q?:string;page:number;limit:number}){
+ const from=` FROM diagnosis_session s JOIN task_run r ON r.id=s.run_id JOIN task_definition t ON t.id=r.task_id
+ LEFT JOIN diagnosis_turn d ON d.id=(SELECT id FROM diagnosis_turn WHERE session_id=s.id ORDER BY created_at DESC,rowid DESC LIMIT 1)
+ LEFT JOIN diagnosis_result result ON result.turn_id=d.id`;
+ const where=options.q?' WHERE instr(lower(s.title||t.name||s.run_id),lower(?))>0':'';
+ const args=options.q?[options.q]:[];
+ const total=(db.prepare('SELECT count(*) n'+from+where).get(...args) as {n:number}).n;
+ const data=db.prepare(`SELECT s.id,s.run_id,s.title,s.updated_at,t.name task_name,r.scenario_id,r.status run_status,
+ d.status last_status,d.error_code last_error_code,d.provider_mode,result.summary,
+ (SELECT count(*) FROM diagnosis_turn WHERE session_id=s.id) turn_count`+from+where+' ORDER BY s.updated_at DESC,s.id DESC LIMIT ? OFFSET ?').all(...args,options.limit,(options.page-1)*options.limit);
+ return {data,total};
+}
 export function event(db:DatabaseSync,sessionId:string,turnId:string,type:string,payload:Record<string,unknown>,now=Date.now()){
  return transaction(db,()=>{
   const seq=(db.prepare('SELECT COALESCE(MAX(seq),0)+1 n FROM agent_event WHERE session_id=?').get(sessionId) as {n:number}).n;

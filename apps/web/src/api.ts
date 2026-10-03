@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {historyItemSchema} from '@flowlens/contracts';
 import {runSchema,taskLogSchema,scenarioSchema,capabilitiesSchema,sessionSchema,sessionSnapshotSchema,evidenceSchema,approvalSchema,pageResponse,dataResponse,type Run,type TaskLog} from '@flowlens/contracts';
 export class ApiError extends Error {constructor(public code:string,public requestId:string,public status:number,message:string){super(message);}}
 async function read<T extends z.ZodTypeAny>(path:string,schema:T,options:RequestInit={}):Promise<z.infer<T>> {
@@ -11,10 +12,11 @@ async function read<T extends z.ZodTypeAny>(path:string,schema:T,options:Request
   }
   return schema.parse(body);
 }
-export type RunQuery={page:number;limit:number;status?:string;q?:string};
+export type RunQuery={page:number;limit:number;status?:string;q?:string;created_from?:string;created_to?:string};
 export async function fetchRuns(query:RunQuery,signal?:AbortSignal){
   const p=new URLSearchParams({page:String(query.page),limit:String(query.limit)});
   if(query.status)p.set('status',query.status);if(query.q)p.set('q',query.q);
+  if(query.created_from)p.set('created_from',query.created_from);if(query.created_to)p.set('created_to',query.created_to);
   return read('/runs?'+p,pageResponse(runSchema),{signal});
 }
 export async function fetchRun(id:string,signal?:AbortSignal):Promise<Run>{
@@ -32,6 +34,7 @@ export async function createDemoRun(id:string,key:string):Promise<Run>{
   return response.data;
 }
 export async function fetchSessions(runId:string){return (await read('/sessions?run_id='+encodeURIComponent(runId),dataResponse(z.array(sessionSchema)))).data;}
+export async function fetchHistory(query:{q?:string;page:number;limit:number},signal?:AbortSignal){const p=new URLSearchParams({page:String(query.page),limit:String(query.limit)});if(query.q)p.set('q',query.q);return read('/diagnoses?'+p,pageResponse(historyItemSchema),{signal});}
 export async function createSession(runId:string,key:string){return (await read('/sessions',dataResponse(sessionSchema),{method:'POST',headers:{'Idempotency-Key':key},body:JSON.stringify({run_id:runId})})).data;}
 export async function fetchSession(id:string){return (await read('/sessions/'+encodeURIComponent(id),dataResponse(sessionSnapshotSchema))).data;}
 export async function sendMessage(id:string,content:string,key:string){return (await read('/sessions/'+encodeURIComponent(id)+'/messages',dataResponse(z.object({user_message_id:z.string(),turn_id:z.string()})),{method:'POST',headers:{'Idempotency-Key':key},body:JSON.stringify({content})})).data;}

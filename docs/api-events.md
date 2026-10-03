@@ -10,8 +10,9 @@
 |---|---|
 | GET /health | 服务状态（基础路径外）。 |
 | GET /capabilities | provider_mode=MOCK/LIVE/UNCONFIGURED，task_data_mode=FIXTURE；LIVE 标志不代表真实业务数据。 |
-| GET /tasks、/demo/scenarios | 预置定义和三个场景。 |
-| GET /runs | page、limit、status、task_id、q（任务名）；见 listQuerySchema。 |
+| GET /tasks、/demo/scenarios | 预置定义和六个场景（S00～S05）；M5新增S01/S02/S03。 |
+| GET /runs | page、limit、status、task_id、q（任务名）、created_from/created_to（创建时间 ISO8601，接受时区偏移、归一 UTC、包含边界）；逆序/无效范围400。 |
+| GET /diagnoses | q（标题/任务名/run_id）、page、limit≤100；updated_at/id降序分页，包含最后一轮状态、错误、模型模式、摘要与轮数；未完成的最新轮次不展示旧轮次摘要。 |
 | GET /runs/:id | 状态、步骤、参数、retry_eligibility、child_run_id。 |
 | GET /runs/:id/logs | before_seq 或 after_seq、level、query、limit≤200；两个游标互斥。 |
 | GET /runs/:id/logs/:logId/context | 目标 log_id 前后各 20 条，绑定当前 run，超出可见页也能定位。 |

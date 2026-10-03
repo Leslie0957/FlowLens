@@ -5,12 +5,12 @@ import { join } from 'node:path';
 import { openDatabase,migrate,seed } from '../src/db.js';
 import { createRun,advanceDue,getRun,listLogs } from '../src/store.js';
 function isolated(run:(path:string)=>void){const dir=mkdtempSync(join(tmpdir(),'flowlens-m1-'));try{run(join(dir,'test.sqlite'));}finally{rmSync(dir,{recursive:true,force:true,maxRetries:10,retryDelay:100});}}
-it('migrates and seeds S00/S04/S05 twice without replacing a created run',()=>isolated(path=>{
+it('migrates and seeds all six scenes twice without replacing a created run',()=>isolated(path=>{
  const db=openDatabase(path);migrate(db);seed(db);seed(db);
- expect(db.prepare('SELECT count(*) n FROM task_run').get()).toMatchObject({n:3});
+ expect(db.prepare('SELECT count(*) n FROM task_run').get()).toMatchObject({n:6});
  const run=createRun(db,'S04','idem-a',Date.parse('2026-09-26T00:00:00Z'));
  expect(run.status).toBe('PENDING');seed(db);
- expect(db.prepare('SELECT count(*) n FROM task_run').get()).toMatchObject({n:4});db.close();
+ expect(db.prepare('SELECT count(*) n FROM task_run').get()).toMatchObject({n:7});db.close();
  const reopened=openDatabase(path);migrate(reopened);expect(getRun(reopened,run.id)?.status).toBe('PENDING');reopened.close();
 }));
 it('advances S04 through persisted read timeout and skips later stages',()=>isolated(path=>{
@@ -31,7 +31,7 @@ it('serves versioned runs from SQLite and returns safe correlated errors',async(
  const db=openDatabase(':memory:');migrate(db);seed(db);const lines:string[]=[];
  const app=createApp(db,line=>lines.push(line));
  const list=await request(app).get('/api/v1/runs?status=FAILED&page=1&limit=20');
- expect(list.status).toBe(200);expect(list.body.data.map((run:{scenario_id:string})=>run.scenario_id).sort()).toEqual(['S04','S05']);
+ expect(list.status).toBe(200);expect(list.body.data.map((run:{scenario_id:string})=>run.scenario_id).sort()).toEqual(['S01','S02','S03','S04','S05']);
  const missing=await request(app).get('/api/v1/runs/no_such_run');
  expect(missing.status).toBe(404);expect(missing.body.error.request_id).toBeTruthy();
  expect(lines.some(line=>JSON.parse(line).request_id===missing.body.error.request_id)).toBe(true);
@@ -44,7 +44,7 @@ it('API creates one demo run for a repeated key and rejects changed payload',asy
  const repeat=await request(app).post('/api/v1/demo/runs').set('Idempotency-Key','same-key').send({scenario_id:'S04'});
  const conflict=await request(app).post('/api/v1/demo/runs').set('Idempotency-Key','same-key').send({scenario_id:'S05'});
  expect(first.status).toBe(202);expect(repeat.body.data.id).toBe(first.body.data.id);expect(conflict.status).toBe(409);
- expect(db.prepare('SELECT count(*) n FROM task_run').get()).toMatchObject({n:4});db.close();
+ expect(db.prepare('SELECT count(*) n FROM task_run').get()).toMatchObject({n:7});db.close();
 });
 
 it('queues a third simulation until one of two active runs finishes',()=>{
@@ -94,7 +94,7 @@ it('concurrent duplicate HTTP creates are serialized by SQLite idempotency',asyn
  const db=openDatabase(':memory:');migrate(db);seed(db);const app=createApp(db,()=>{});
  const [a,b]=await Promise.all([request(app).post('/api/v1/demo/runs').set('Idempotency-Key','concurrent-key').send({scenario_id:'S04'}),request(app).post('/api/v1/demo/runs').set('Idempotency-Key','concurrent-key').send({scenario_id:'S04'})]);
  expect(a.status).toBe(202);expect(b.status).toBe(202);expect(a.body.data.id).toBe(b.body.data.id);
- expect(db.prepare('SELECT count(*) n FROM task_run').get()).toMatchObject({n:4});db.close();
+ expect(db.prepare('SELECT count(*) n FROM task_run').get()).toMatchObject({n:7});db.close();
 });
 
 import {loadFixture} from '../src/fixtures.js';

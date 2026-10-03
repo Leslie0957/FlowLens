@@ -6,16 +6,16 @@ import {createRequire} from 'node:module';
 import {createHash} from 'node:crypto';
 import {spawn} from 'node:child_process';
 const root=fileURLToPath(new URL('../',import.meta.url));
-const cases=JSON.parse(readFileSync(join(root,'fixtures/evals/m4-p0.json'),'utf8'));
-const args=process.argv.slice(2),live=args.includes('--execute-live'),mock=args.includes('--mock');
-if(args.some(x=>!['--execute-live','--mock'].includes(x))||live&&mock){console.error('Use no flag for plan, --execute-live for paid evaluation, or --mock for offline smoke.');process.exitCode=2;}
-else if(!live&&!mock){console.log(JSON.stringify({status:'PLAN_ONLY_NO_REQUESTS',cases,execute:'pnpm build; pnpm eval:live --execute-live'},null,2));}
+const args=process.argv.slice(2),live=args.includes('--execute-live'),mock=args.includes('--mock'),m5=args.includes('--m5');
+const cases=JSON.parse(readFileSync(join(root,m5?'fixtures/evals/m5-p1.json':'fixtures/evals/m4-p0.json'),'utf8'));
+if(args.some(x=>!['--execute-live','--mock','--m5'].includes(x))||live&&mock){console.error('Use no flag for plan, --execute-live for paid evaluation, --mock for offline smoke, and optional --m5 for twelve questions.');process.exitCode=2;}
+else if(!live&&!mock){console.log(JSON.stringify({status:'PLAN_ONLY_NO_REQUESTS',cases,execute:'pnpm build; pnpm eval:live '+(m5?'--m5 ':'')+'--execute-live'},null,2));}
 else if(live&&(process.env.MODEL_MODE!=='LIVE'||process.env.FLOWLENS_LIVE_APPROVED!=='1'||!process.env.MODEL_API_KEY||!(process.env.FLOWLENS_LIVE_MAX_REQUESTS==='unlimited'||Number.isSafeInteger(Number(process.env.FLOWLENS_LIVE_MAX_REQUESTS))&&Number(process.env.FLOWLENS_LIVE_MAX_REQUESTS)>0)||Number(process.env.MODEL_MAX_OUTPUT_TOKENS)!==2048)){
  console.error('LIVE_NOT_APPROVED: require LIVE, local key, explicit approved budget, and output limit 2048. No requests sent.');process.exitCode=2;
 }else{
  // Explicit MOCK overrides inherited LIVE variables, even on the developer machine.
  if(mock){process.env.MODEL_MODE='MOCK';process.env.MODEL_API_KEY='';process.env.FLOWLENS_LIVE_APPROVED='0';process.env.FLOWLENS_LIVE_MAX_REQUESTS='0';}
- const parent=join(root,'logs/m4');mkdirSync(parent,{recursive:true});
+ const parent=join(root,m5?'logs/m5':'logs/m4');mkdirSync(parent,{recursive:true});
  const folder=mkdtempSync(join(parent,live?'live-':'mock-'));
  const {openDatabase,migrate,seed}=await import('../apps/server/dist/db.js');
  const {createApp}=await import('../apps/server/dist/http.js');
@@ -46,7 +46,8 @@ else if(live&&(process.env.MODEL_MODE!=='LIVE'||process.env.FLOWLENS_LIVE_APPROV
  function grade(item,result,evidence){
   const findings=result?.findings??[],ids=[...findings.flatMap(f=>f.evidence_ids),...(result?.proposed_action?.evidence_ids??[])];
   const fact=evidence.some(e=>e.type==='RUN_STATE'||e.type==='LOG');
-  const minimum=item.cause==='UPSTREAM_TIMEOUT'?evidence.some(e=>e.type==='LOG'&&/ReadTimeout|UPSTREAM_TIMEOUT|upstream request exceeded/i.test(e.excerpt)):
+  const knownLogs={SCHEMA_MISMATCH:/required=\[order_id,amount\].*observed=\[order_id\]/,SQL_COLUMN_ERROR:/no such column: order_total/,DUPLICATE_DATA:/UNIQUE constraint failed: orders\.order_id/,UPSTREAM_TIMEOUT:/ReadTimeout|UPSTREAM_TIMEOUT|upstream request exceeded/i};
+  const minimum=knownLogs[item.cause]?evidence.some(e=>e.type==='LOG'&&knownLogs[item.cause].test(e.excerpt)):
    evidence.some(e=>/SUCCEEDED/.test(e.excerpt)&&(e.type==='RUN_STATE'||e.type==='LOG'))&&item.cause==='NONE'||evidence.some(e=>/UNKNOWN_FAILURE|detail unavailable/.test(e.excerpt)&&(e.type==='RUN_STATE'||e.type==='LOG'))&&item.cause==='UNKNOWN';
   return {cause_correct:findings.length>0&&findings.every(f=>f.cause===item.cause),citation_valid:ids.length>0&&ids.every(id=>evidence.some(e=>e.id===id))&&fact,minimum_evidence:minimum,retry_correct:Boolean(result?.proposed_action)===item.retry,abstention:item.cause==='UNKNOWN'?findings.length>0&&findings.every(f=>f.cause==='UNKNOWN'&&f.evidence_status==='NEEDS_CONFIRMATION')&&result.missing_information.length>0:null,semantic_review:'REQUIRED: compare actual wording with the independent forbidden behaviors'};
  }
@@ -92,7 +93,7 @@ else if(live&&(process.env.MODEL_MODE!=='LIVE'||process.env.FLOWLENS_LIVE_APPROV
   let ready=false;for(let i=0;i<100;i++){try{ready=(await fetch(base+'/runs')).ok;}catch{ready=false;}if(ready)break;await wait(200);}if(!ready)throw Error('PREVIEW_START_FAILED');
   browser=await chromium.launch({channel:'chrome',headless:true});report.browser=browser.version();
   context=await browser.newContext({viewport:{width:1440,height:900},recordVideo:{dir:join(folder,'video'),size:{width:1440,height:900}}});page=await context.newPage();
-  for(const scenario of ['S00','S04','S05']){
+  for(const scenario of [...new Set(cases.map(c=>c.scenario_id))]){
    await page.goto(base+'/runs/seed_'+scenario.toLowerCase());await expect(page.getByText((live?'LIVE':'MOCK')+' 模型 · FIXTURE 数据')).toBeVisible();
    await page.getByRole('button',{name:'新建会话'}).click();await expect(page.getByText('本机消息通道已连接',{exact:true})).toBeVisible();
    let last;
@@ -108,13 +109,13 @@ else if(live&&(process.env.MODEL_MODE!=='LIVE'||process.env.FLOWLENS_LIVE_APPROV
     report.checks.push('S04 chat did not execute; UI approval created one child; post-approval no new proposal; refresh retained three turns');
     await page.getByRole('link',{name:/查看模拟重试运行/}).click();await expect(page.locator('.heading-status')).toContainText('已完成');await expect(page.getByText('Report generated (simulated recovery)').first()).toBeVisible();await page.screenshot({path:join(folder,'child.png'),fullPage:true});await wait(800);
    }
-   if(scenario==='S05'){await expect(page.getByRole('button',{name:'申请重试',exact:true})).toHaveCount(0);await page.reload();await expect(page.locator('.diagnosis-result')).toHaveCount(report.turns.filter(t=>t.scenario_id==='S05'&&t.result).length);report.checks.push('S05 existing turns persisted, no retry button');}
+   if(scenario!=='S04'){await expect(page.getByRole('button',{name:'申请重试',exact:true})).toHaveCount(0);await page.reload();await expect(page.locator('.diagnosis-result')).toHaveCount(report.turns.filter(t=>t.scenario_id===scenario&&t.result).length);report.checks.push(scenario+' existing turns persisted, no retry button');}
   }
   report.child_count=Number(db.prepare('SELECT count(*) n FROM task_run WHERE parent_run_id=?').get('seed_s04').n);report.execution_count=Number(db.prepare('SELECT count(*) n FROM action_execution').get().n);
   expect(report.child_count).toBe(1);expect(report.execution_count).toBe(1);
   const primary=report.turns.filter(t=>!t.id.includes('extra'));
   report.metrics={questions:primary.length,cause_correct:primary.filter(t=>t.checks.cause_correct).length,citation_valid:primary.filter(t=>t.checks.citation_valid&&t.checks.provenance_valid).length,minimum_evidence:primary.filter(t=>t.checks.minimum_evidence).length,tool_succeeded:primary.flatMap(t=>t.tools).filter(t=>t.status==='SUCCEEDED').length,tool_total:primary.flatMap(t=>t.tools).length,abstention_correct:primary.filter(t=>t.checks.abstention===true).length,abstention_total:primary.filter(t=>t.checks.abstention!==null).length};
-  report.status=primary.length===6&&primary.every(t=>t.status==='COMPLETED'&&Object.values(t.checks).every(v=>v!==false))?'MECHANICAL_CHECKS_PASSED_SEMANTIC_REVIEW_REQUIRED':'MECHANICAL_CHECKS_FAILED';
+  report.status=primary.length===cases.length&&primary.every(t=>t.status==='COMPLETED'&&Object.values(t.checks).every(v=>v!==false))?'MECHANICAL_CHECKS_PASSED_SEMANTIC_REVIEW_REQUIRED':'MECHANICAL_CHECKS_FAILED';
   if(report.status==='MECHANICAL_CHECKS_FAILED')process.exitCode=1;
  }catch(error){report.status='FAILED';report.error=error instanceof Error?error.message:String(error);process.exitCode=1;}
  finally{

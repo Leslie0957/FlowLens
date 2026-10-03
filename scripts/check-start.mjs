@@ -25,7 +25,12 @@ try{
  await page.goto('http://127.0.0.1:5177/runs/seed_s05');await expect(page.getByText('MOCK 模型 · FIXTURE 数据')).toBeVisible();
  await page.getByRole('button',{name:'新建会话'}).click();await page.getByRole('textbox',{name:'诊断问题'}).fill('当前证据能确定根因吗？');await page.getByRole('button',{name:'发送',exact:true}).click();
  await expect(page.locator('.diagnosis-result')).toContainText('当前信息不足');await page.reload();await expect(page.locator('.diagnosis-result')).toHaveCount(1);
- await page.screenshot({path:join(folder,'build-start.png'),fullPage:true});writeFileSync(join(folder,'report.json'),JSON.stringify({status:'PASSED',commands:['pnpm start','pnpm preview --port 5177'],browser:browser.version(),checks:['built frontend and backend start','MOCK fixture visible','diagnosis and refresh persist']},null,2));
+ await page.screenshot({path:join(folder,'build-start.png'),fullPage:true});
+ const sessionUrl=page.url();
+ await page.goto('http://127.0.0.1:5177/diagnoses');await expect(page.getByRole('heading',{name:'历史诊断',exact:true})).toBeVisible();await expect(page.locator('.history-item').filter({hasText:'当前证据能确定根因吗'})).toHaveCount(1);
+ await page.locator('.history-title').filter({hasText:'当前证据能确定根因吗'}).click();await expect(page).toHaveURL(sessionUrl);await expect(page.locator('.diagnosis-result')).toHaveCount(1);
+ await page.goto('http://127.0.0.1:5177/demo');await expect(page.locator('.scenario-card')).toHaveCount(6);await page.screenshot({path:join(folder,'m5-demo.png'),fullPage:true});
+ writeFileSync(join(folder,'report.json'),JSON.stringify({status:'PASSED',commands:['pnpm start','pnpm preview --port 5177'],browser:browser.version(),checks:['built frontend and backend start','MOCK fixture visible','diagnosis and refresh persist','history restores exact session','six demo scenarios in built frontend']},null,2));
 }finally{
  await browser?.close();
  // pnpm spawns children; on Windows terminate only these known process trees.

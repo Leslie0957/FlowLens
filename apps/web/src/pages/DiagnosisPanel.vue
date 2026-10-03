@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {computed,onMounted,onUnmounted,ref,watch,nextTick} from 'vue';
+import {useRoute,useRouter} from 'vue-router';
 import type {Run} from '@flowlens/contracts';
 import {fetchCapabilities,fetchSessions,createSession,fetchSession,sendMessage,fetchEvidence,fetchLogContext,fetchApprovals,proposeRetry,resolveApproval,cancelTurn,fetchRun} from '../api.js';
 import {readAgentEvents} from '../agent-stream.js';
@@ -7,7 +8,7 @@ import {runEventConnection} from '../agent-connection.js';
 import {applyAgentEvent} from '../agent-reducer.js';
 import SafeMarkdown from '../SafeMarkdown.js';
 import DiagnosisAnswer from '../DiagnosisAnswer.vue';
-import ToolTraceCard from '../ToolTraceCard.vue';
+import ToolTraceList from '../ToolTraceList.vue';
 import EvidencePopover from '../EvidencePopover.vue';
 const evidenceAnchor=ref<HTMLElement|null>(null),evidenceLoading=ref(false),evidenceError=ref('');
 let evidenceTicket=0;
@@ -15,6 +16,7 @@ function closeEvidence(){evidenceTicket++;evidenceAnchor.value=null;evidence.val
 
 
 const props=defineProps<{run:Run}>();
+const route=useRoute(),router=useRouter();
 const sessions=ref<Awaited<ReturnType<typeof fetchSessions>>>([]),selected=ref('');
 const snapshot=ref<Awaited<ReturnType<typeof fetchSession>>|null>(null),approvals=ref<Awaited<ReturnType<typeof fetchApprovals>>>([]);
 const provider=ref(''),draft=ref(''),busy=ref(false),error=ref(''),streamState=ref(''),evidence=ref<Awaited<ReturnType<typeof fetchEvidence>>|null>(null),context=ref<Awaited<ReturnType<typeof fetchLogContext>>|null>(null);
@@ -34,8 +36,8 @@ const latestResult=computed(()=>{const row=snapshot.value?.results.at(-1);if(!ro
 const latestApproval=computed(()=>approvals.value[0]??null);
 function messageProvider(turnId:string){return snapshot.value?.turns.find(t=>t.id===turnId)?.provider_mode==='LIVE'?'DeepSeek · LIVE':'Mock 诊断';}
 watch(()=>latestApproval.value?.child_run_id,id=>{clearInterval(childTimer);child.value=null;if(!id)return;const read=async()=>{if(document.visibilityState!=='visible')return;try{const value=await fetchRun(id);if(latestApproval.value?.child_run_id!==id)return;child.value=value;if(value.status==='SUCCEEDED'||value.status==='FAILED')clearInterval(childTimer);}catch{/* existing result remains visible */}};void read();childTimer=setInterval(()=>{void read();},2000);});
-async function loadBase(){const runId=props.run.id,ticket=generation;try{const [items,caps,pending]=await Promise.all([fetchSessions(runId),fetchCapabilities(),fetchApprovals(runId)]);if(ticket!==generation||props.run.id!==runId)return;sessions.value=items;provider.value=caps.provider_mode;approvals.value=pending;if(!selected.value&&items.length)selected.value=items[0]!.id;}catch(e){if(ticket===generation&&props.run.id===runId)error.value=e instanceof Error?e.message:'诊断加载失败';}}
-async function loadSnapshot(id=selected.value){if(!id)return;const current=generation;try{const data=await fetchSession(id);if(current===generation&&selected.value===id&&data.last_event_seq>=(snapshot.value?.last_event_seq??0))snapshot.value=data;}catch(e){if(current===generation)error.value=e instanceof Error?e.message:'会话加载失败';}}
+async function loadBase(){const runId=props.run.id,ticket=generation;try{const [items,caps,pending]=await Promise.all([fetchSessions(runId),fetchCapabilities(),fetchApprovals(runId)]);if(ticket!==generation||props.run.id!==runId)return;sessions.value=items;provider.value=caps.provider_mode;approvals.value=pending;if(!selected.value)selected.value=String(route.query.session??'')||items[0]?.id||'';}catch(e){if(ticket===generation&&props.run.id===runId)error.value=e instanceof Error?e.message:'诊断加载失败';}}
+async function loadSnapshot(id=selected.value){if(!id)return;const current=generation,runId=props.run.id;try{const data=await fetchSession(id);if(current!==generation||selected.value!==id||runId!==props.run.id)return;if(data.session.run_id!==runId)throw new Error('该会话不属于当前运行，不能加载');if(data.last_event_seq>=(snapshot.value?.last_event_seq??0))snapshot.value=data;if(!sessions.value.some(s=>s.id===id))sessions.value=[data.session,...sessions.value];}catch(e){if(current===generation)error.value=e instanceof Error?e.message:'会话加载失败';}}
 function connect(){
  controller?.abort();const id=selected.value;if(!id||!snapshot.value)return;
  const ticket=++generation,signal=new AbortController();controller=signal;error.value='';
@@ -49,10 +51,11 @@ function connect(){
   }catch(e){if(current()&&!signal.signal.aborted){error.value=e instanceof Error?e.message:'消息通道连接失败';await loadSnapshot(id);}throw e;}}
  });
 }
-async function choose(id:string){closeEvidence();animateTurn.value='';generation++;controller?.abort();snapshot.value=null;evidence.value=null;context.value=null;error.value='';await loadSnapshot(id);if(selected.value===id)connect();}
+async function choose(id:string){closeEvidence();animateTurn.value='';generation++;controller?.abort();snapshot.value=null;evidence.value=null;context.value=null;error.value='';await loadSnapshot(id);if(selected.value===id&&snapshot.value){if(route.query.session!==id)void router.replace({path:route.path,query:{...route.query,session:id}});connect();}}
 async function addSession(){busy.value=true;error.value='';try{const item=await createSession(props.run.id,crypto.randomUUID());sessions.value=[item,...sessions.value];selected.value=item.id;}catch(e){error.value=e instanceof Error?e.message:'创建会话失败';}finally{busy.value=false;}}
 async function send(){
  const content=draft.value.trim();if(!content||content.length>2000||busy.value||activeTurn.value)return;
+ if(selected.value&&(!snapshot.value||snapshot.value.session.run_id!==props.run.id)){error.value='请先打开属于当前运行的会话，或新建会话';return;}
  busy.value=true;error.value='';
  try{if(!selected.value)await addSession();if(!selected.value)return;
   const sessionId=selected.value,requestKey=JSON.stringify([sessionId,content]),key=pendingSendKeys.get(requestKey)??crypto.randomUUID();
@@ -80,6 +83,7 @@ async function decide(decision:'approve'|'reject'){const item=latestApproval.val
 watch(()=>props.run.id,()=>{closeEvidence();animateTurn.value='';generation++;controller?.abort();selected.value='';snapshot.value=null;sessions.value=[];approvals.value=[];void loadBase();});
 onMounted(()=>{void loadBase();});onUnmounted(()=>{closeEvidence();generation++;controller?.abort();clearInterval(childTimer);});
 watch(selected,id=>{if(id&&(!snapshot.value||snapshot.value.session.id!==id))void choose(id);});
+watch(()=>route.query.session,id=>{const value=String(id??'');if(value&&value!==selected.value)selected.value=value;});
 </script>
 <template>
 <section class="panel diagnosis-panel">
@@ -94,7 +98,7 @@ watch(selected,id=>{if(id&&(!snapshot.value||snapshot.value.session.id!==id))voi
    <div ref="historyElement" class="diagnosis-history" @scroll="onHistoryScroll">
     <div v-for="turn in snapshot.turns" :key="turn.id" class="diagnosis-turn">
      <div v-for="message in snapshot.messages.filter(m=>m.turn_id===turn.id&&m.role==='user')" :key="message.id" class="diagnosis-message user"><strong>你</strong><SafeMarkdown :text="message.content"/></div>
-     <details v-if="snapshot.tool_calls.some(t=>t.turn_id===turn.id)" class="tool-trace"><summary>只读查询 · {{snapshot.tool_calls.filter(t=>t.turn_id===turn.id).length}} 项</summary><ToolTraceCard v-for="tool in snapshot.tool_calls.filter(t=>t.turn_id===turn.id)" :key="tool.id" :tool="tool"/></details>
+     <ToolTraceList :tools="snapshot.tool_calls.filter(t=>t.turn_id===turn.id)"/>
      <div class="diagnosis-message assistant"><strong>{{messageProvider(turn.id)}}</strong><DiagnosisAnswer :content="snapshot.messages.filter(m=>m.turn_id===turn.id&&m.role==='assistant').map(m=>m.content).join('')" :row="snapshot.results.find(r=>r.turn_id===turn.id)" :status="turn.status" :animate="animateTurn===turn.id" @evidence="showEvidence" @reveal="onAnswerReveal"/></div>
     </div>
    </div>

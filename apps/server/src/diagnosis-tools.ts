@@ -20,6 +20,9 @@ const definitions=[
  {id:'input-schema',title:'输入 Schema',category:'schema'},
  {id:'upstream-timeout',title:'上游读取超时',category:'timeout'},
  {id:'insufficient-information',title:'信息不足排查',category:'unknown'},
+ {id:'missing-field',title:'输入缺少必填字段',category:'schema'},
+ {id:'sql-column-error',title:'聚合 SQL 列引用错误',category:'sql'},
+ {id:'duplicate-data',title:'重复订单与唯一约束',category:'duplicate'},
 ] as const;
 const docs=definitions.map(d=>({...d,version:'1',updated_at:'2026-09-26',text:readFileSync(new URL('../../../docs/runbooks/'+d.id+'.md',import.meta.url),'utf8')}));
 const defaultRetriever:RunbookRetriever={search(query,category,limit){

@@ -1,0 +1,139 @@
+{
+  "date": "2026-10-01",
+  "scope": "M5 first increment only; existing Windows checkout, isolated test/evaluation databases; no entire-M5 acceptance.",
+  "base_commit": "98242efcdfeeb3bc8780bb9b5abcc3e363140d5c",
+  "node": "v24.14.1",
+  "pnpm": "11.5.0",
+  "browser": "154.0.8037.58",
+  "checks": {
+    "typecheck": {
+      "status": "PASSED",
+      "log": "logs/maintenance/m5-4-typecheck.txt"
+    },
+    "lint": {
+      "status": "PASSED",
+      "log": "logs/maintenance/m5-4-lint.txt"
+    },
+    "test": {
+      "status": "PASSED",
+      "server": 84,
+      "frontend": 21,
+      "log": "logs/maintenance/m5-4-tests.txt"
+    },
+    "build": {
+      "status": "PASSED",
+      "log": "logs/maintenance/m5-4-build.txt"
+    },
+    "chrome_e2e": {
+      "status": "PASSED",
+      "cases": 20,
+      "terminal_duration": "1.6m",
+      "log": "logs/maintenance/m5-4-e2e.txt"
+    },
+    "mock_p0": {
+      "status": "PASSED",
+      "metrics": {
+        "questions": 6,
+        "cause_correct": 6,
+        "citation_valid": 6,
+        "minimum_evidence": 6,
+        "tool_succeeded": 12,
+        "tool_total": 12,
+        "abstention_correct": 2,
+        "abstention_total": 2
+      },
+      "provider_requests": 0,
+      "log": "logs/maintenance/m5-4-p0-mock.txt"
+    },
+    "mock_m5": {
+      "status": "PASSED",
+      "metrics": {
+        "questions": 12,
+        "cause_correct": 12,
+        "citation_valid": 12,
+        "minimum_evidence": 12,
+        "tool_succeeded": 24,
+        "tool_total": 24,
+        "abstention_correct": 2,
+        "abstention_total": 2
+      },
+      "provider_requests": 0,
+      "log": "logs/maintenance/m5-4-mock.txt"
+    }
+  },
+  "live": {
+    "mechanical_status": "MECHANICAL_CHECKS_PASSED_SEMANTIC_REVIEW_REQUIRED",
+    "semantic_review": "LIMITED_PASS_WITH_WORDING_RISKS",
+    "metrics": {
+      "questions": 12,
+      "cause_correct": 12,
+      "citation_valid": 12,
+      "minimum_evidence": 12,
+      "tool_succeeded": 9,
+      "tool_total": 9,
+      "abstention_correct": 2,
+      "abstention_total": 2
+    },
+    "requests": 20,
+    "usage_tokens": 59792,
+    "child_count": 1,
+    "execution_count": 1
+  },
+  "live_history": [
+    {
+      "folder": "live-EyDiZO",
+      "prompt_version": "m4-2",
+      "status": "MECHANICAL_CHECKS_FAILED",
+      "questions_executed": 12,
+      "requests": 26,
+      "usage_tokens": 69611
+    },
+    {
+      "folder": "live-8akLPc",
+      "prompt_version": "m5-1",
+      "status": "MECHANICAL_CHECKS_FAILED",
+      "questions_executed": 12,
+      "requests": 28,
+      "usage_tokens": 83734
+    },
+    {
+      "folder": "live-nJBBm7",
+      "prompt_version": "m5-2",
+      "status": "MECHANICAL_CHECKS_FAILED",
+      "questions_executed": 12,
+      "requests": 27,
+      "usage_tokens": 86380
+    },
+    {
+      "folder": "live-qIgYpQ",
+      "prompt_version": "m5-3",
+      "status": "FAILED",
+      "questions_executed": 10,
+      "requests": 24,
+      "usage_tokens": 76141
+    },
+    {
+      "folder": "live-MoqJje",
+      "prompt_version": "m5-4",
+      "status": "MECHANICAL_CHECKS_PASSED_SEMANTIC_REVIEW_REQUIRED",
+      "questions_executed": 12,
+      "requests": 20,
+      "usage_tokens": 59792
+    }
+  ],
+  "total_requests": 125,
+  "total_usage_tokens": 375658,
+  "source_sha256": {
+    "packages/contracts/src/index.ts": "4bc68f14d5205f381bdbb18bdecb5d2b73e1e1605f9706a73ce90e127ef73f36",
+    "apps/server/src/fixtures.ts": "49e82582bfa0f5f51c0a7fd144bd712e20ca3cb371666fb5ce1b1f21931c1ec8",
+    "apps/server/src/diagnosis-agent.ts": "78ebadaef2aff9e475bd35b534fdc9b493c6c0da2ac6c946c11c6114973aeb8d",
+    "apps/server/src/diagnosis-context.ts": "211ad3d4062573d55516327412a1ffa8bdfa9bb0fc8987b41d7faa0e7f4bd025",
+    "apps/server/src/model-gateway.ts": "05940f283784470b116673462bc159a01051263da19c5f6c2a44513e4c60d55e",
+    "scripts/eval-p0.mjs": "7f249ac2319da0a6042b732a49e05934606f53762b5ff94ffdcb1f68a2d5bb20",
+    "fixtures/evals/m5-p1.json": "985fea9c7a298921d94ecbd507cd3427b9762b9fcad8e48e6224a49180680899"
+  },
+  "remote_ci": {
+    "status": "NOT_PUSHED",
+    "note": "New M5 offline step has not run on GitHub; existing remote result belongs to accepted P0."
+  }
+}

@@ -88,7 +88,7 @@ it('repairs output with explicit field types and safe validation feedback',async
 it('adds durable M2 records without changing seeded runs',()=>{
  const db=openDatabase(':memory:');migrate(db);seed(db);
  expect((db.prepare('PRAGMA user_version').get() as {user_version:number}).user_version).toBeGreaterThanOrEqual(3);
- expect(db.prepare('SELECT count(*) n FROM task_run').get()).toMatchObject({n:3});
+ expect(db.prepare('SELECT count(*) n FROM task_run').get()).toMatchObject({n:6});
  for(const table of ['diagnosis_session','diagnosis_turn','message','tool_call','evidence','diagnosis_result','agent_event','approval_request','action_execution']){
   expect(db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table)).toMatchObject({name:table});
  }
@@ -186,5 +186,5 @@ it('persists a mock turn, replays events, and blocks an unapproved retry',async(
  const replay=await request(app).get(`/api/v1/sessions/${id}/events?after_seq=0`).set('Accept','text/event-stream');
  expect(replay.status).toBe(200);expect(replay.text).toContain('event: turn.started');
  const blocked=await request(app).post('/api/v1/runs/seed_s04/retry-proposals').set('Idempotency-Key','m2-premature').send({turn_id:'invented',reason:'retry'});
- expect(blocked.status).toBe(409);expect(db.prepare('SELECT count(*) n FROM task_run').get()).toMatchObject({n:3});db.close();
+ expect(blocked.status).toBe(409);expect(db.prepare('SELECT count(*) n FROM task_run').get()).toMatchObject({n:6});db.close();
 });

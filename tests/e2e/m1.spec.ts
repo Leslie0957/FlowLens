@@ -4,7 +4,7 @@ test('shows persisted fixture runs and opens S04 detail with server logs',async(
   await expect(page.getByRole('heading',{name:'运行监控'})).toBeVisible();
   await expect(page.getByText('演示任务数据').first()).toBeVisible();
   await expect(page.locator('tbody tr').filter({hasText:'seed_s00'})).toHaveCount(1);
-  await page.locator('tbody tr').filter({hasText:'S04'}).click();
+  await page.locator('tbody tr').filter({hasText:'seed_s04'}).click();
   await expect(page).toHaveURL(/\/runs\/seed_s04/);
   await expect(page.getByText('ReadTimeout: upstream request exceeded 5s').first()).toBeVisible();
   await expect(page.getByText('SKIPPED').first()).toBeVisible();

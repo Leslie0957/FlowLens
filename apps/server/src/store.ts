@@ -84,11 +84,13 @@ export function listLogs(db:DatabaseSync,runId:string,options:{query?:string;lev
   const rows=db.prepare(sql).all(...args as (string|number)[]) as Row[];
   return (options.after_seq!==undefined?rows:rows.reverse()).map(row=>taskLogSchema.parse(row));
 }
-export function listRuns(db:DatabaseSync,options:{status?:string;task_id?:string;q?:string;page:number;limit:number}):{data:Run[];total:number} {
+export function listRuns(db:DatabaseSync,options:{status?:string;task_id?:string;q?:string;created_from?:string;created_to?:string;page:number;limit:number}):{data:Run[];total:number} {
   const where:string[]=[];const args:unknown[]=[];
   if(options.status){where.push('r.status=?');args.push(options.status);}
   if(options.task_id){where.push('r.task_id=?');args.push(options.task_id);}
   if(options.q){where.push('t.name LIKE ?');args.push('%'+options.q+'%');}
+  if(options.created_from){where.push('r.created_at>=?');args.push(options.created_from);}
+  if(options.created_to){where.push('r.created_at<=?');args.push(options.created_to);}
   const filter=where.length?' WHERE '+where.join(' AND '):'';
   const total=(db.prepare('SELECT count(*) n FROM task_run r JOIN task_definition t ON t.id=r.task_id'+filter).get(...args as (string|number)[]) as {n:number}).n;
   const rows=db.prepare('SELECT r.*,t.name task_name FROM task_run r JOIN task_definition t ON t.id=r.task_id'+filter+' ORDER BY r.created_at DESC,r.id DESC LIMIT ? OFFSET ?').all(...[...args,options.limit,(options.page-1)*options.limit] as (string|number)[]) as Row[];

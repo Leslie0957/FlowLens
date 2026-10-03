@@ -1,0 +1,124 @@
+{
+  "status": "PASSED",
+  "chrome": "154.0.8037.58",
+  "paid_requests": 0,
+  "checks": [
+    {
+      "width": 360,
+      "labels": [
+        {
+          "x": 55,
+          "y": 55
+        },
+        {
+          "x": 158,
+          "y": 55
+        },
+        {
+          "x": 261,
+          "y": 55
+        }
+      ],
+      "icons": [
+        {
+          "width": 24,
+          "height": 24
+        },
+        {
+          "width": 24,
+          "height": 24
+        },
+        {
+          "width": 24,
+          "height": 24
+        }
+      ],
+      "scroll_y": 600,
+      "topbar_y": 0,
+      "scroll_width": 360,
+      "viewport": 360
+    },
+    {
+      "width": 768,
+      "labels": [
+        {
+          "x": 65,
+          "y": 165.5
+        },
+        {
+          "x": 65,
+          "y": 225.5
+        },
+        {
+          "x": 65,
+          "y": 285.5
+        }
+      ],
+      "icons": [
+        {
+          "width": 24,
+          "height": 24
+        },
+        {
+          "width": 24,
+          "height": 24
+        },
+        {
+          "width": 24,
+          "height": 24
+        }
+      ],
+      "scroll_y": 600,
+      "topbar_y": 0,
+      "scroll_width": 768,
+      "viewport": 768
+    },
+    {
+      "width": 1440,
+      "labels": [
+        {
+          "x": 65,
+          "y": 165.5
+        },
+        {
+          "x": 65,
+          "y": 225.5
+        },
+        {
+          "x": 65,
+          "y": 285.5
+        }
+      ],
+      "icons": [
+        {
+          "width": 24,
+          "height": 24
+        },
+        {
+          "width": 24,
+          "height": 24
+        },
+        {
+          "width": 24,
+          "height": 24
+        }
+      ],
+      "scroll_y": 387,
+      "topbar_y": 0,
+      "scroll_width": 1440,
+      "viewport": 1440
+    }
+  ],
+  "date": "2026-10-01",
+  "scope": "sticky topbar and sidebar icon/label alignment",
+  "frontend_checks": {
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "build": "PASS"
+  },
+  "source_sha256": {
+    "apps/web/src/App.vue": "8541a1b422deef84f42fa41d7fbb515646f888cc63af6fe764eba7f016aea2c2",
+    "apps/web/src/style.css": "15256d86a5bdbfad21220bb5b3a7fde9ac9538dc4db6bcfba135897437173076"
+  },
+  "full_suite": "previous pages-checks report retained; this style change verified in browser and frontend checks"
+}

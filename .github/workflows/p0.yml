@@ -33,3 +33,4 @@ jobs:
       - run: pnpm build
       - run: pnpm test:e2e
       - run: pnpm eval:mock
+      - run: pnpm eval:mock --m5

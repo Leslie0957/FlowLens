@@ -7,6 +7,8 @@ import {loadFixture,SCENARIOS} from './fixtures.js';
 import {createLogger,requestId} from './log.js';
 import {DomainError,createSession,getSession,listSessions,snapshot,submitMessage,eventsAfter,getEvidence,proposeRetry,getApproval,listApprovals,resolveApproval,retryEligibility,turn} from './diagnosis-store.js';
 import {runDiagnosis,cancelTurn} from './diagnosis-agent.js';
+import {historyQuerySchema,historyItemSchema} from '@flowlens/contracts';
+import {listHistory} from './diagnosis-store.js';
 
 class HttpError extends Error {constructor(public status:number,public code:string,public safeMessage:string){super(code);}}
 type Handler=(req:Request,res:Response)=>void;
@@ -64,6 +66,7 @@ export function createApp(db:DatabaseSync,sink?:(line:string)=>void):express.Exp
     const logs=db.prepare('SELECT * FROM task_log WHERE run_id=? AND seq BETWEEN ? AND ? ORDER BY seq').all(id,Math.max(0,row.seq-20),row.seq+20);
     res.json({data:{log_id:logId,logs}});
   }));
+  app.get('/api/v1/diagnoses',wrap((req,res)=>{const query=historyQuerySchema.parse(req.query),result=listHistory(db,query);res.json({data:result.data.map(row=>historyItemSchema.parse(row)),page_info:{page:query.page,limit:query.limit,total:result.total,has_more:query.page*query.limit<result.total}});}));
   app.get('/api/v1/sessions',wrap((req,res)=>{const runId=String(req.query.run_id??'');if(!runId)throw new DomainError('INVALID_ARGUMENTS',400);res.json({data:listSessions(db,runId)});}));
   app.post('/api/v1/sessions',wrap((req,res)=>{const body=createSessionSchema.parse(req.body);res.status(201).json({data:sessionSchema.parse(createSession(db,body.run_id,key(req)))});}));
   app.get('/api/v1/sessions/:id',wrap((req,res)=>res.json({data:sessionSnapshotSchema.parse(snapshot(db,req.params.id as string))})));

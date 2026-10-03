@@ -1,0 +1,243 @@
+{
+  "date": "2026-10-03",
+  "status": "LOCAL_RELEASE_VERIFIED",
+  "base_commit": "98242efcdfeeb3bc8780bb9b5abcc3e363140d5c",
+  "user_acceptance": "2026-10-03 M5 accepted",
+  "clean_directory": "logs/m4/clean-ed5c3adc06284c679d591bcaff333dcf",
+  "node": "v24.14.1",
+  "pnpm": "11.5.0",
+  "checks": [
+    {
+      "exit_code": 0,
+      "arguments": [
+        "install",
+        "--frozen-lockfile",
+        "--offline"
+      ],
+      "elapsed_ms": 9061,
+      "check": "install"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "db:migrate"
+      ],
+      "elapsed_ms": 2733,
+      "check": "migrate"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "db:seed"
+      ],
+      "elapsed_ms": 2064,
+      "check": "seed"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "db:seed"
+      ],
+      "elapsed_ms": 2092,
+      "check": "seed-again"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "typecheck"
+      ],
+      "elapsed_ms": 31995,
+      "check": "typecheck"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "lint"
+      ],
+      "elapsed_ms": 23807,
+      "check": "lint"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "test"
+      ],
+      "elapsed_ms": 20733,
+      "check": "test"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "build"
+      ],
+      "elapsed_ms": 10600,
+      "check": "build"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "test:e2e"
+      ],
+      "elapsed_ms": 130397,
+      "check": "e2e"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "eval:mock"
+      ],
+      "elapsed_ms": 21068,
+      "check": "evaluation-mock"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "eval:mock",
+        "--m5"
+      ],
+      "elapsed_ms": 33634,
+      "check": "evaluation-m5-mock"
+    },
+    {
+      "exit_code": 0,
+      "arguments": [
+        "check:start"
+      ],
+      "elapsed_ms": 3481,
+      "check": "start-preview"
+    }
+  ],
+  "server_tests": {
+    "passed": 86,
+    "total": 86
+  },
+  "frontend_tests": {
+    "passed": 23,
+    "total": 23
+  },
+  "e2e": {
+    "startTime": "2026-10-03T05:09:23.420Z",
+    "duration": 123750.467,
+    "expected": 25,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "start_preview": {
+    "status": "PASSED",
+    "commands": [
+      "pnpm start",
+      "pnpm preview --port 5177"
+    ],
+    "browser": "154.0.8037.97",
+    "checks": [
+      "built frontend and backend start",
+      "MOCK fixture visible",
+      "diagnosis and refresh persist",
+      "history restores exact session",
+      "six demo scenarios in built frontend"
+    ]
+  },
+  "extra_paid_requests": 0,
+  "task_data_mode": "FIXTURE",
+  "model_for_release_checks": "MOCK",
+  "remote_ci": "PENDING_PUSH",
+  "source_sha256": {
+    "apps/server/test/m5-pages.test.ts": "48186655428f5892af888db3a78bce2d5b4db5598bcbfe40553ebe441951acc6",
+    "apps/server/test/m5-quality.test.ts": "034475fd90973ba55350dd0dd0b378286c3e99eedcc3d90cdf5f9699e36c7649",
+    "apps/server/test/m5-scenarios.test.ts": "6c5fa9b1ad0684fbaa787ce43e1e40957189cffabaf906dd4b559eb83899f9e3",
+    "apps/web/src/ToolTraceList.test.ts": "73e66d8a90f27fc2f252728ecbff927453c33a8cf4415edb17b05edb6e81d4c7",
+    "apps/web/src/ToolTraceList.vue": "e06824d870fa71b26176ba1ff24308bef74444be38431dfc7967b5cfb9380f20",
+    "apps/web/src/pages/DemoPage.vue": "02f005cf9a4723b048ce815f1c9a43e8dc42d83d8aa76a61fd19863569464ff1",
+    "apps/web/src/pages/HistoryPage.vue": "b56dd40db5746b11d397b7887dee80b6172eb0cd561157f7eb9baea8001d7dde",
+    "apps/web/src/time-range.test.ts": "c63b212b6d6e97e5b3bf1f72503d4c6e883afaaf7fc191a981f39a7a8873553f",
+    "apps/web/src/time-range.ts": "3e0397da95148f601cede9006d22f90b5dac836a395de5ba92440a199084c9fe",
+    "tests/e2e/m5-pages.spec.ts": "45d1237882d2d87297e5078c04b9a6cda2a172ef31314d3c440278635159c8b2",
+    "tests/e2e/m5.spec.ts": "4f89d271903be6bf8f4ffe82a47c26e94d04c78fd63d10b710335a159aa15ad8",
+    "tests/fixtures/m5-pressure.mjs": "64353420b4e1b9f931fcaa5d36e8924150089161acee55fbacadc0f5dc6afbba",
+    ".github/workflows/p0.yml": "23efccf416bb82532a3e3ff613eef701302dca46cf41fc13560787e72942fd10",
+    "apps/server/eslint.config.mjs": "aefb7cae6ae4ad6f8d06f56ec8137fcce2fbe568e1d643d5c9db5f0fde6f211b",
+    "apps/server/package.json": "8167a35bcd635f67d6ca929571c22c9030df19ab8ae2dbadcaf63feb35742622",
+    "apps/server/src/cli.ts": "fd78a9db9d55c2cb3f501eb47cc1b0dca77d179015fd912a878992a1e4b28149",
+    "apps/server/src/db.ts": "d8419c39ef1a068186fd8eb21475b39ba18de60e39ac76a07656ffb80cc17dfc",
+    "apps/server/src/diagnosis-agent.ts": "78ebadaef2aff9e475bd35b534fdc9b493c6c0da2ac6c946c11c6114973aeb8d",
+    "apps/server/src/diagnosis-context.ts": "211ad3d4062573d55516327412a1ffa8bdfa9bb0fc8987b41d7faa0e7f4bd025",
+    "apps/server/src/diagnosis-store.ts": "312f60ae6ebb7ab2554c1c1258411bf2e9b1edf06fc111811e7404b5cd3569c8",
+    "apps/server/src/diagnosis-tools.ts": "40433de3175b9151da092876ef6d15e7f0778f814dbd847ca1092389bb9d401d",
+    "apps/server/src/fixtures.ts": "49e82582bfa0f5f51c0a7fd144bd712e20ca3cb371666fb5ce1b1f21931c1ec8",
+    "apps/server/src/http.ts": "a39e0a96f9ce9190931354c98aa4f7c86c3d954816487b4705df8383a42ee9d9",
+    "apps/server/src/live-budget.ts": "dc4870a5fc0e639e70947fcbf825e3f805671fca768eea0e375f6ccb31fc006f",
+    "apps/server/src/live-validation.ts": "44dd01a007a03914f884d62f2a4844e98cfe1ce76085b27327b3abf1a284e90b",
+    "apps/server/src/log.ts": "6cc2affa4d496c6197f6b9f3f26c7513a0b3f7f83e3066da4fc18d9b6d961dc1",
+    "apps/server/src/main.ts": "e037dc51d80c2b5e563cb2fb457147e1f8e8e889557d0f3fb385bafe03a270bc",
+    "apps/server/src/model-error.ts": "3e38b5617c8debe0c79306aa7a079fa49bf429b8c99d62842746f7ace8801f4d",
+    "apps/server/src/model-gateway.ts": "05940f283784470b116673462bc159a01051263da19c5f6c2a44513e4c60d55e",
+    "apps/server/src/model-stream.ts": "ad999e5d8d1c8f32910074d4d13a335df51ede79ea86fe21e6e556b95f8f3970",
+    "apps/server/src/prompt-version.ts": "1c86104fedbfb90bab2856f52556bdb0655c022077010893679cadb852862a6f",
+    "apps/server/src/runtime.ts": "6979de5961741cd93688d5747125de7ea6c361ccd29131a55ece4db103db99bd",
+    "apps/server/src/store.ts": "0994b72a689ac202da7d11598f4d99539cbfea64b8e704b0e3184ffc891be56b",
+    "apps/server/src/tool-registry.ts": "62591f0798e2b57a92c8fbf5222dd68482352b49a37288bc7613a583ad08ad5b",
+    "apps/server/test/live-budget.test.ts": "4b4165d62af70ca69dcd665cfa22b58e1ef4ab8ae8ceaa4c0e312f56fb53537c",
+    "apps/server/test/m1.test.ts": "94a5ee23a0a8cc357dcd251f9789f605768e114939144a4608106cffdb04f532",
+    "apps/server/test/m2-eval.test.ts": "20d9728a3717d884d11ac57d68ce93e8cbaa3a734440cf2f0445b3ef24837f7c",
+    "apps/server/test/m2.test.ts": "db07b0c2f7e8380947181f5b7976bcebfaa5916932a1f9a0dbf0755401d679f5",
+    "apps/server/test/m3-approval.test.ts": "0d0171cee648e65327d2d505a625951cf9caeb95349c051c5dd0edaa3ade9f8d",
+    "apps/server/test/m3-contracts.test.ts": "4500c4800fe2d6a295b0448ea2231337f520d327d3102971f4d7d517774b9808",
+    "apps/server/test/m3-guidance.test.ts": "410f1412bb4f7c48c8273273d1c4cb99121e605e6034277aa896c48ea87db924",
+    "apps/server/test/m3-process.test.ts": "891dd36e887f13bf47d0eb049904232ba7c18181cd8e397e1796c9532d2c0fe4",
+    "apps/server/test/m3-recovery.test.ts": "922eef31df423586b3940caba3722d085985da39d246a62962b1a6dfb7907b71",
+    "apps/server/test/m4-metrics.test.ts": "6539d8c6df37e965636e941996edda0cfca617894fb71aa2e76abfe8c971f631",
+    "apps/server/test/migration-v4.test.ts": "3ec2c998b50c6b39f3ae20d852211e695a37167f56961bfe48ef1b3d8c50b5c6",
+    "apps/server/test/tool-registry.test.ts": "463ac2a6ee9e71dd28938da916496781d0718ee27506d69e6dba9dbd0e6e6155",
+    "apps/server/tsconfig.json": "4365576f162a87f226322cc9664459cea58960b0659835da6abcfa63a6447916",
+    "apps/web/eslint.config.mjs": "ecf7b69823609f3abc70056d9f035fcb78ac1f9b0b2ba822b5b63afccc837aaf",
+    "apps/web/index.html": "0adf49a661ccabab334456de9c5c47dfde1be1515bf2449d0ac3b26ffc8b2d08",
+    "apps/web/package.json": "d18d06e11eb8fdf0617b60a69fd7987a17120703ae577871005beafb914912f1",
+    "apps/web/src/App.vue": "8541a1b422deef84f42fa41d7fbb515646f888cc63af6fe764eba7f016aea2c2",
+    "apps/web/src/DiagnosisAnswer.test.ts": "3e4a383daef288a771be12862703615311adaa5b93034ff170ffac13bc7e2fe3",
+    "apps/web/src/DiagnosisAnswer.vue": "35d1c78499864a38f43295b446c18f0b738f96a699a1e23790adb9d686f7fe26",
+    "apps/web/src/EvidencePopover.test.ts": "12fcd4d34633399f5234c6982aa8728bfcd322b9c90a0b505a4a117289f29bed",
+    "apps/web/src/EvidencePopover.vue": "40c1e22f94d46bbdbec633102961ba7bac3654bc506c2696bc16567aff095214",
+    "apps/web/src/SafeMarkdown.test.ts": "69eb987a77bbc6eceb8f01cfef659e7d07a9f885a1781fa667f544b5ff75357e",
+    "apps/web/src/SafeMarkdown.ts": "c8e489a5de20dff453679e50869bdcc407839f5fded1acdcbb85fb1a3b802656",
+    "apps/web/src/ToolTraceCard.test.ts": "f8722c8fa0c53d8c92f5ae4ca0687608d9f3dcae5a8c3984a69171894b15c4b1",
+    "apps/web/src/ToolTraceCard.vue": "09faea6e5199628fb70687b9a23e317e245c2c0e26c56b1787d12d2fd1a69cb8",
+    "apps/web/src/agent-connection.test.ts": "3c54e19cfed7e5251ee298bf1c6681ecd240fa6deb6fe7c93f641faceac38318",
+    "apps/web/src/agent-connection.ts": "bd4a6421937d1bb51fe9c63a512aa31e2b3ff8763e470c053c7486663e0bc9cd",
+    "apps/web/src/agent-reducer.test.ts": "004730eebefd397a1da4136ab202ed2b6bb002b6823738eded3fd8d839f15ee5",
+    "apps/web/src/agent-reducer.ts": "3c62c4a461d0151bf90196a668d2fce81be4715cb5f52f3358420ee485569352",
+    "apps/web/src/agent-stream.test.ts": "e90cb8b0a1a4b0381e2ea97a21f05ad37e768550f721d2e52f55af2d289940a2",
+    "apps/web/src/agent-stream.ts": "27ec50d101a4687ffacd33c1b138749f070a96c016881c682a9f4abbcb1346c6",
+    "apps/web/src/api.ts": "d790444375213677ef9452c6805e68ea042c70dfedb7226dfd36f61ddf63a1f4",
+    "apps/web/src/diagnosis-presentation.test.ts": "ac5b5e79ffa9ef5ced840fe8a8ca335e7edbd7b257e09a199ac31cf72dc08f49",
+    "apps/web/src/diagnosis-presentation.ts": "c2e27937fec3d97382d805f7c6178be7c1b753cb68b7cb83ba3beb0d6bf60348",
+    "apps/web/src/env.d.ts": "62f4b2b7e7efe316a2439217fb4415d0b1aa195a71fd5377bc14a1d1ea21dbe0",
+    "apps/web/src/main.ts": "8bebf250a548853e5491f5cadcc2811b8bcab47ce42805a3e83b0fe540eb95e4",
+    "apps/web/src/pages/DiagnosisPanel.vue": "c1c53e8e3d730cd5d562cd00515538912f0590633fa31fc26fc8c42bca9a58df",
+    "apps/web/src/pages/RunDetailPage.vue": "b53139dd7c9de8f641a4a981f765b0de7ca3d333580f158fe79b365181d52366",
+    "apps/web/src/pages/RunsPage.vue": "4d6c60781c4b6e812eb92fcf464c13e6ab53e282f13ea97ea2b885bebb2c1849",
+    "apps/web/src/router.ts": "dca5d8f1092828a64b917e90780301f741c4d19233a819032bbeafa0b29a6328",
+    "apps/web/src/store/runs.test.ts": "9befebc05af378bf0d1e6b293e5337adba47ecea456898e1b5ee56a4e138e722",
+    "apps/web/src/store/runs.ts": "bbf4b5e3626e436fb490b745b4f349f7c0d2b73bd3a5ac6d859a7c25c01404f5",
+    "apps/web/src/style.css": "15256d86a5bdbfad21220bb5b3a7fde9ac9538dc4db6bcfba135897437173076",
+    "apps/web/src/ui.ts": "8278621d9231aab8bbd0ee554251fc4ff548065c4e109030f340882734bd47b2",
+    "apps/web/tsconfig.json": "5a220910205d11e33620d283320dc403ad45e48ea84c0c6799dd1c51206395ee",
+    "apps/web/vite.config.ts": "d9980d69aa420b8b5c1c0756b24f6426d029010cd38c53174abf8d51fed1e286",
+    "apps/web/vitest.config.ts": "92980f6249961d0e3cd1211e82d5b074c5b327a6ada87d1be4b99c80a9ad69f2",
+    "package.json": "939140f63a7fcb7d28efdcac8856b5eaf9fe626d0eb23261307cf6c886636724",
+    "packages/contracts/package.json": "11f4f8470f5454febf54ce2f8d2822c34397842132eb85e16b9f2ff3c6ede844",
+    "packages/contracts/src/index.ts": "2457880365416d1b7a8a4da1f157b5cb356674ac7f042ff87de75e2675de432b",
+    "packages/contracts/tsconfig.json": "24ec678d7ea1dc0143742361c3dbdfb0657963920559b12f9e1cc8b3da23dd8b",
+    "playwright.config.ts": "d4b898ffe8bd0c68b57f6e97b820a53a980fd7c3a5e8d7236cfe0fe0e5ea37e4",
+    "pnpm-lock.yaml": "1b34baba8715b586f40aaddc47a469d625cf671b9965e2136e96da010e89b432",
+    "pnpm-workspace.yaml": "de06f7c428ebb1da2f52bcae979c4c847f62917311895bbc297b5e71ca2ff301",
+    "scripts/check-start.mjs": "24e6068359c4162eefc4efa729a49371aff397ef644ad727569cbb4f51945045",
+    "scripts/eval-p0.mjs": "7f249ac2319da0a6042b732a49e05934606f53762b5ff94ffdcb1f68a2d5bb20",
+    "scripts/verify-clean.ps1": "39b9c943ad9ffd509fca3691020b8f15469b03a9723d6c24d4ac185cf7c37dfd",
+    "tests/e2e/final-answer.spec.ts": "1d4b1c798f1131894f9ea19b3abec4145b43d56bdc46467da73f369763d060c0",
+    "tests/e2e/m1.spec.ts": "930f223033856a1a07fece87ea0e07c319f8c255f83988337f65f98e632b0ee2",
+    "tests/e2e/m2.spec.ts": "3d039267523e3c4d666623c733b661ba236cba7cec877ecc9bf6186b69015546",
+    "tests/e2e/m3.spec.ts": "4b8e26ea5cd67553ddc72c88f2da9ebdf383d1a56ff130b23b69919fb09110de",
+    "tests/e2e/m4.spec.ts": "c263122eeba5cf5bed91fd19ccbc400858738a340a1ac168417485b31bf1d877"
+  }
+}
