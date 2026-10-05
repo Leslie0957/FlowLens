@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node --env-file-if-exists=../../.env.local --import tsx --watch src/main.ts",
     "start": "node --env-file-if-exists=../../.env.local dist/main.js",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node ../../scripts/copy-local-runner.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run --silent",

@@ -11,3 +11,5 @@ export function createLiveRequestBudget(){
   return ++requests;
  }};
 }
+// One process-wide counter for FIXTURE diagnosis and local repair LIVE requests.
+export const sharedLiveBudget=createLiveRequestBudget();

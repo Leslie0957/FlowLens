@@ -56,6 +56,20 @@ data: {"schema_version":1,"event_id":"...","seq":42,"session_id":"...","turn_id"
 
 2026-10-01 用户要求只看到最终答案：message.delta/reset 仍用于协议与历史恢复，但页面不从它们显示初稿正文。只有 diagnosis.completed 或有效结果快照进入答案卡；当前提交的新 turn 在前端分批展示已校验结果，历史直接显示。同一 turn 的 SSE/快照结果 ID 替换不重播，组件卸载时停止展示计时器；该调整不增加模型请求或改变审批资格。
 
+## M6.2 独立本地修复 API
+
+M6.2 不使用上述 FIXTURE 的 session/SSE/approval 路由。`POST /api/v1/local-executions/:id/repairs` 要求空 body 与 `Idempotency-Key`，仅接受当前版本的失败执行；模式取服务端 MODEL 配置，返回修复会话 ID。`GET /api/v1/local-executions/:id/repairs` 列出该执行的有界历史，`GET /api/v1/local-repairs/:id` 返回状态、LIVE/MOCK 来源、模型请求数/usage、绑定证据、工具轨迹、候选 Diff/hash 和实际验证结果。页面轮询，不使用旧 FIXTURE SSE 事件。
+
+`POST /api/v1/local-repairs/:id/approve` 与 `/reject` 均要求空 body 和幂等键；批准只针对服务端保存的当前候选，校验项目/版本/hash、固定 `orders-sql-v1` 命令与有效期。批准产生一个新不可变版本和一个本地执行 ID；验证失败仍保留 `APPROVED` 审批事实和失败的实际执行状态。`POST /api/v1/local-repairs/:id/cancel` 仅取消未完成的诊断；批准后的实际执行沿用 `/api/v1/local-executions/:id/cancel`。客户端无补丁正文、路径、命令或环境变量入参。
+
+常见修复错误包括 `REPAIR_REQUIRES_FAILED_EXECUTION`、`REPAIR_STALE`、`REPAIR_NOT_PENDING`、`REPAIR_EXPIRED`、`REPAIR_CANDIDATE_CHANGED`、`REPAIR_EVIDENCE_INVALID` 与 `LOCAL_EXECUTION_BUSY`；响应仍带 request_id。修复会话中断不会自动恢复模型思考或应用补丁。
+
+## M6.3 独立有限循环 API
+
+`POST /api/v1/local-executions/:id/loops` 要求 `Idempotency-Key` 和严格 body `{ "authorize": true }`。仅当前版本的失败执行可启动；服务端固定当前项目、`task.sql`、`orders-sql-v1`、最多 3 轮、36 次模型请求、10 分钟，不接受客户端传入文件、命令、预算或候选正文。`GET /api/v1/local-executions/:id/loops` 列出该执行启动的循环；`GET /api/v1/local-repair-loops/:id` 返回状态、来源、累计请求/usage、每轮修复会话、证据、Diff 和真实验证；`POST /api/v1/local-repair-loops/:id/cancel` 停止活动循环。旧 FIXTURE 消息与审批路由不能启动循环，普通 M6.2 单次审批也不会隐式继续。
+
+授权后仅循环服务可自动应用其管理的候选；`POST /api/v1/local-repairs/:id/approve` 对循环候选返回 `LOOP_CANDIDATE_MANAGED`。失败验证结果及日志成为下一轮绑定证据；三轮耗尽为 `LIMIT_REACHED`。取消或超时先在持久记录标记停止请求、读接口显示 `STOPPING`，待模型调用或子进程确认结束后分别记 `CANCELLED`、`TIMED_OUT`；重启遗留为 `INTERRUPTED`，均不自动恢复。返回的 token usage 仅为提供商报告值，不推算金额。
+
 ## 错误定位
 
 INVALID_ARGUMENTS/INVALID_JSON（400）、RUN_NOT_FOUND/SESSION_NOT_FOUND（404）、ACTIVE_TURN_EXISTS/IDEMPOTENCY_CONFLICT/RETRY_NOT_ALLOWED/STALE（409）、TURN_LIMIT（429）、MODEL_NOT_CONFIGURED（503）；具体审批错误见 DomainError。Agent 错误落在 turn.error_code，例如 MODEL_TIMEOUT、TOOL_TIMEOUT、INVALID_RESULT、INVALID_EVIDENCE、SERVER_RESTARTED。复制 request_id 或 turn_id 到 JSON 日志查找，不需要暴露密钥。

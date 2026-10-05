@@ -1,6 +1,6 @@
 # FlowLens
 
-基于 Vue 3 和 TypeScript 的数据任务 Agent 诊断工作台。用户可查看模拟任务的运行状态与日志，让 DeepSeek 或确定性 Mock 调用只读工具分析故障、追溯证据，并在人工审批后执行**模拟**重试。当前为 Windows 本地单用户演示，任务数据均为独立构造的 FIXTURE，不连接真实业务系统。
+基于 Vue 3 和 TypeScript 的数据任务 Agent 诊断工作台。用户可查看模拟任务的运行状态与日志，让 DeepSeek 或确定性 Mock 调用只读工具分析故障、追溯证据，并在人工审批后执行**模拟**重试。另有独立的本地 SQL 执行、单次修复与有限修复循环实验。当前为 Windows 本地单用户演示，旧任务使用 FIXTURE、本地实验使用 SYNTHETIC 合成输入，均不连接真实业务系统。
 
 ## 功能
 
@@ -9,6 +9,9 @@
 - 断流续传、事件去重、取消与服务重启恢复；审批、幂等请求和模拟 child run。
 - MOCK 模式无需密钥；LIVE 模式需在服务端显式配置 DeepSeek、批准标志和请求预算（有限次数或已授权的持续使用）。
 - 独立历史诊断页、六场景演示页与创建时间范围筛选；历史链接恢复指定会话，日志窗口最多200行、工具轨迹展开每页最多20项。
+- M6.1 独立本地执行实验：预置故障 SQL 和正常对照在 Node 子进程中查询内存 SQLite，保存不可变版本、实际日志、退出码、产物及独立 3 笔/总额 100 验证。合成输入标记 SYNTHETIC；本步骤不调用模型。
+- M6.2 在失败的本地执行上进行一次 Agent 诊断：只读工具绑定当前 SQL、日志与执行，展示来源标记、证据和服务端计算的 Diff；页面审批后才产生新版本并实际验证一次。
+- M6.3 在单独勾选并批准后启动有限修复循环：至多自动应用/验证 3 份候选，失败结果回传下一轮；每轮保留版本、Diff、证据、日志与真实验证结果。
 
 回答展示：查询与校验期间只显示进度，初稿及修正过程不作为正文显示。最终结论通过服务端校验后，新消息按顺序逐步呈现；刷新或切换会话后直接显示已完成历史。该效果由前端逐步展示已校验的完整结果实现，因此正文开始前仍需等待模型生成和校验；开启系统“减少动态效果”时直接显示全文。
 
@@ -32,11 +35,17 @@ pnpm dev
 
 侧栏的“历史诊断”打开 `/diagnoses`，支持按标题、任务名或运行ID搜索，打开后URL携带指定session；“演示场景”打开 `/demo`，创建任意一个新模拟运行。运行列表的创建时间范围按本地时间填写，包含起止时刻，和状态/任务搜索组合生效。M5 具体操作见 [人工验收清单](docs/m5-manual-acceptance.md)。
 
+侧栏的“本地执行实验”打开 `/local`。创建“SQL 列错误”或“正常对照（预置）”项目后，进入项目页点击“运行任务”；故障项目不改源码重复运行仍失败，对照应输出 3 笔、总额 100。每次执行的源码快照、日志、结果与产物保存在数据库旁的 `local-projects/`，刷新不会重新执行。活动执行可取消；默认同时只运行 1 个、30 秒超时。普通 SQL 很快完成，取消功能的人工验收可按 [M6 验收计划](docs/m6-acceptance-plan.md)使用受控测试任务。
+
+M6.2 在故障执行详情点击“诊断并生成候选”，查看 LIVE/MOCK 来源、三个绑定的只读工具、证据及 `task.sql` Diff。点击“批准并实际验证”才会应用这一份候选并产生一次新执行；拒绝、过期、版本变化或候选篡改均不写入。新验证即使 SQL 退出码为 0，仍须通过独立 3/100 断言。预置正常对照仍不是 Agent 修复；聊天文字和旧 FIXTURE 模拟审批不能批准本地补丁。
+
+M6.3 在当前版本的失败执行下，先阅读“Agent 有限修复循环”的范围并勾选授权，再点击“批准有限修复循环”。此授权允许当前合成项目自动应用最多 3 份 `task.sql` 候选并分别实际验证；固定命令 `orders-sql-v1`，整个循环最多 10 分钟、36 次模型请求。通过独立 3/100 验证才显示成功；失败、达到上限、取消或服务重启均停止，刷新可看每轮历史。没有自由 SQL 编辑器、任意 Shell 或 Agent checkpoint/Continue。
+
 `pnpm-workspace.yaml` 已声明允许锁定的 esbuild 依赖运行构建脚本；无需交互执行 approve-builds。Chrome/ffmpeg 用于 E2E 和评测录屏，日常打开工作台不需要录屏工具。
 
 验证构建产物时，先停止 dev，再执行 `pnpm build`、`pnpm start`；另开终端执行 `pnpm preview`，仍打开 5173。start 运行后端 dist，preview 提供前端 dist 并代理 API；Vite preview 用于本地演示，不是公网部署。端口可分别用 APP_PORT、FLOWLENS_API_TARGET 和 `pnpm preview --port 5177` 调整。迁移/seed 可重复执行，不覆盖已有运行和会话。
 
-如需 LIVE，在仓库根目录从 [.env.example](.env.example) 创建被 Git 忽略的 `.env.local`，自行填写 `MODEL_API_KEY`，并设置 `MODEL_MODE=LIVE`、`FLOWLENS_LIVE_APPROVED=1` 与 `FLOWLENS_LIVE_MAX_REQUESTS`，随后重启服务。总请求上限可以是正整数；明确授权持续使用时可设为 `unlimited`，不再因累计超过 12 次停止对话。每轮仍限制 12 次模型请求、8 次工具调用和 120 秒，默认每次输出最多 2048 tokens。密钥仅由后端读取；任务数据仍为 FIXTURE。有限调用计数目前仅在进程内有效，重启会重置；模型用量在 `model.completed.usage` 日志中记录，不将 token 数写成实际金额。
+如需 LIVE，在仓库根目录从 [.env.example](.env.example) 创建被 Git 忽略的 `.env.local`，自行填写 `MODEL_API_KEY`，并设置 `MODEL_MODE=LIVE`、`FLOWLENS_LIVE_APPROVED=1` 与 `FLOWLENS_LIVE_MAX_REQUESTS`，随后重启服务。总请求上限可以是正整数；明确授权持续使用时可设为 `unlimited`，不再因累计超过 12 次停止对话。每轮仍限制 12 次模型请求、8 次工具调用和 120 秒，默认每次输出最多 2048 tokens。密钥仅由后端读取；旧诊断任务数据为 FIXTURE，本地修复使用 SYNTHETIC 合成输入。全局 LIVE 有限调用计数目前仅在进程内有效，重启会重置；M6.3 单个循环的轮次/请求数持久化，重启将活动循环标为中断，不自动继续。旧诊断的模型用量在 `model.completed.usage` 日志中记录，本地修复会话保存请求数与 usage，不将 token 数写成实际金额。
 
 ## 检查与定位
 
@@ -74,13 +83,14 @@ M5 页面与压力检查使用 `pnpm test:e2e -- tests/e2e/m5-pages.spec.ts`：�
 - S05 已增加能力提示、重试资格与原因语义校验，NONE 仅允许正常运行；S04 模型上下文明确模拟重试不能验证真实上游恢复。2026-09-30 m3-2 有限 LIVE 复测中，两处主要问题未重现，S04 审批后也未重复建议重试；m3-3 独立提供模型来源，真实复测已区分 DeepSeek LIVE 与 FIXTURE 任务。实际失败基线、修复与剩余措辞问题见 M3 记录。后端始终拒绝 S05 重试。
 - M3、M4/P0 已于 2026-10-01 获用户人工确认。M4 增加 JSON Output、UNKNOWN 待确认语义校验、已知失败原因的日志引用要求与独立计时；失败基线和最终实际评测均保留。仍依赖一次输出修复，真实网络故障、跨浏览器、保留集及回答稳定性未验收；版本交付结果见报告与 GitHub Actions。
 - m3-4 明确区分模型的只读工具与平台的审批后模拟执行。聊天里说“执行一次模拟重试”只会得到建议；实际需点击“申请重试”→“批准模拟重试”。真实三轮已复测按钮流程与批准后无重复建议；新运行结果可点击“查看模拟重试运行”核对。
-- 不提供登录/RBAC、真实任务执行器、文件修改、Shell、向量检索或公网部署。故障手册使用确定性关键词检索与引用。
-- SSE 续传和历史恢复已实现；Agent 中断后 checkpoint/Continue 按用户要求暂缓，不属于当前 M4。
+- 不提供登录/RBAC、通用任务执行器、任意 Shell、向量检索或公网部署。M6.2 的单次批准及 M6.3 的单独有限循环授权均只允许修改当前本地项目的 `task.sql`；执行器仍只运行固定结构的订单聚合 SQL，不连接真实业务。故障手册使用确定性关键词检索与引用。
+- SSE 续传和历史恢复已实现；M6.3 循环重启后只保留历史并标记中断，Agent checkpoint/Continue 继续暂缓。
 
 ## 文档与来源
 
 - [产品需求](docs/FlowLens_PRD_v0.1.md) · [当前架构](docs/architecture.md) · [API 与事件](docs/api-events.md) · [扩展方式](docs/extensions.md)
 - [M3 验收记录](docs/m3-acceptance-plan.md) · [M4 交付计划](docs/m4-delivery-plan.md) · [P0 验收报告](docs/p0-acceptance.md) · [M5 记录](docs/m5-acceptance-plan.md) · [阶段进度](docs/implementation-progress.md)
 - [工程问题记录与面试素材](docs/engineering-cases.md)：真实失败样本、定位依据、修复取舍、回归证据与讲解边界。
+- M6.1 已通过人工验收；M6.2 与 M6.3 已开发、待人工验收：[需求与阶段范围](docs/FlowLens_M6_PRD.md) · [验收计划和实际检查](docs/m6-acceptance-plan.md) · [实施交接](docs/m6-ai-handoff.md)。
 - [Runbook](docs/runbooks) · [场景数据](fixtures/scenarios) · [测试](tests/e2e)
 - miniClaude 教程项目只作为架构参考；FlowLens 的 Agent Loop 和产品代码自行实现。[来源说明与上游 MIT 许可](third_party/mini-claude/NOTICE.md)仅说明参考项目的来源，不代表 FlowLens 整体采用 MIT 许可。

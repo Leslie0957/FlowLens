@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {historyItemSchema} from '@flowlens/contracts';
+import {historyItemSchema,localProjectSchema,localExecutionSchema,localLogSchema,localArtifactSchema,localRepairSchema,localRepairLoopSchema} from '@flowlens/contracts';
 import {runSchema,taskLogSchema,scenarioSchema,capabilitiesSchema,sessionSchema,sessionSnapshotSchema,evidenceSchema,approvalSchema,pageResponse,dataResponse,type Run,type TaskLog} from '@flowlens/contracts';
 export class ApiError extends Error {constructor(public code:string,public requestId:string,public status:number,message:string){super(message);}}
 async function read<T extends z.ZodTypeAny>(path:string,schema:T,options:RequestInit={}):Promise<z.infer<T>> {
@@ -44,3 +44,23 @@ export async function fetchApprovals(runId:string){return (await read('/runs/'+e
 export async function proposeRetry(runId:string,turnId:string,reason:string,key:string){return (await read('/runs/'+encodeURIComponent(runId)+'/retry-proposals',dataResponse(approvalSchema),{method:'POST',headers:{'Idempotency-Key':key},body:JSON.stringify({turn_id:turnId,reason})})).data;}
 export async function resolveApproval(id:string,decision:'approve'|'reject',key:string){return (await read('/approvals/'+encodeURIComponent(id)+'/'+decision,dataResponse(approvalSchema),{method:'POST',headers:{'Idempotency-Key':key},body:'{}'})).data;}
 export async function cancelTurn(id:string){return (await read('/turns/'+encodeURIComponent(id)+'/cancel',dataResponse(z.unknown()),{method:'POST',body:'{}'})).data;}
+
+export async function fetchLocalProjects(signal?:AbortSignal,page=1){return read('/local-projects?page='+page,pageResponse(localProjectSchema),{signal});}
+export async function createLocalProject(templateId:'sql-column-error'|'sql-valid-control',key:string){return (await read('/local-projects',dataResponse(localProjectSchema),{method:'POST',headers:{'Idempotency-Key':key},body:JSON.stringify({template_id:templateId})})).data;}
+export async function fetchLocalProject(id:string,signal?:AbortSignal){return (await read('/local-projects/'+encodeURIComponent(id),dataResponse(localProjectSchema),{signal})).data;}
+export async function fetchLocalExecutions(projectId:string,signal?:AbortSignal,page=1){return read('/local-projects/'+encodeURIComponent(projectId)+'/executions?page='+page,pageResponse(localExecutionSchema),{signal});}
+export async function startLocalExecution(projectId:string,key:string){return (await read('/local-projects/'+encodeURIComponent(projectId)+'/executions',dataResponse(localExecutionSchema),{method:'POST',headers:{'Idempotency-Key':key},body:'{}'})).data;}
+export async function fetchLocalExecution(id:string,signal?:AbortSignal){return (await read('/local-executions/'+encodeURIComponent(id),dataResponse(localExecutionSchema),{signal})).data;}
+export async function fetchLocalLogs(id:string,signal?:AbortSignal){return (await read('/local-executions/'+encodeURIComponent(id)+'/logs',dataResponse(z.array(localLogSchema)),{signal})).data;}
+export async function fetchLocalArtifacts(id:string,signal?:AbortSignal){return (await read('/local-executions/'+encodeURIComponent(id)+'/artifacts',dataResponse(z.array(localArtifactSchema)),{signal})).data;}
+export async function fetchLocalArtifact(id:string,artifactId:string,signal?:AbortSignal){return (await read('/local-executions/'+encodeURIComponent(id)+'/artifacts/'+encodeURIComponent(artifactId),dataResponse(z.object({name:z.string(),content:z.string()})),{signal})).data;}
+export async function cancelLocalExecution(id:string){return (await read('/local-executions/'+encodeURIComponent(id)+'/cancel',dataResponse(localExecutionSchema),{method:'POST',body:'{}'})).data;}
+export async function fetchLocalRepairs(executionId:string,signal?:AbortSignal){return (await read('/local-executions/'+encodeURIComponent(executionId)+'/repairs',dataResponse(z.array(localRepairSchema)),{signal})).data;}
+export async function fetchLocalRepair(id:string,signal?:AbortSignal){return (await read('/local-repairs/'+encodeURIComponent(id),dataResponse(localRepairSchema),{signal})).data;}
+export async function requestLocalRepair(executionId:string,key:string){return (await read('/local-executions/'+encodeURIComponent(executionId)+'/repairs',dataResponse(localRepairSchema),{method:'POST',headers:{'Idempotency-Key':key},body:'{}'})).data;}
+export async function decideLocalRepair(id:string,decision:'approve'|'reject',key:string){return (await read('/local-repairs/'+encodeURIComponent(id)+'/'+decision,dataResponse(localRepairSchema),{method:'POST',headers:{'Idempotency-Key':key},body:'{}'})).data;}
+export async function cancelLocalRepair(id:string){return (await read('/local-repairs/'+encodeURIComponent(id)+'/cancel',dataResponse(localRepairSchema),{method:'POST',body:'{}'})).data;}
+export async function fetchLocalLoops(executionId:string,signal?:AbortSignal){return (await read('/local-executions/'+encodeURIComponent(executionId)+'/loops',dataResponse(z.array(localRepairLoopSchema)),{signal})).data;}
+export async function fetchLocalLoop(id:string,signal?:AbortSignal){return (await read('/local-repair-loops/'+encodeURIComponent(id),dataResponse(localRepairLoopSchema),{signal})).data;}
+export async function startLocalLoop(executionId:string,key:string){return (await read('/local-executions/'+encodeURIComponent(executionId)+'/loops',dataResponse(localRepairLoopSchema),{method:'POST',headers:{'Idempotency-Key':key},body:JSON.stringify({authorize:true})})).data;}
+export async function cancelLocalLoop(id:string){return (await read('/local-repair-loops/'+encodeURIComponent(id)+'/cancel',dataResponse(localRepairLoopSchema),{method:'POST',body:'{}'})).data;}

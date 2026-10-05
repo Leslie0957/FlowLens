@@ -7,14 +7,22 @@ import {loadFixture,SCENARIOS} from './fixtures.js';
 import {createLogger,requestId} from './log.js';
 import {DomainError,createSession,getSession,listSessions,snapshot,submitMessage,eventsAfter,getEvidence,proposeRetry,getApproval,listApprovals,resolveApproval,retryEligibility,turn} from './diagnosis-store.js';
 import {runDiagnosis,cancelTurn} from './diagnosis-agent.js';
-import {historyQuerySchema,historyItemSchema} from '@flowlens/contracts';
+import {historyQuerySchema,historyItemSchema,localCreateProjectSchema,localEmptyBodySchema,localPageQuerySchema,localLogQuerySchema,localIdSchema,localProjectSchema,localExecutionSchema,localLogSchema,localArtifactSchema} from '@flowlens/contracts';
 import {listHistory} from './diagnosis-store.js';
+import {LocalExecutionService,LocalError,localTemplates,localRootForDatabase} from './local-execution.js';
+import {LocalRepairService} from './local-repair.js';
+import {localRepairSchema,localLoopAuthorizeSchema,localRepairLoopSchema} from '@flowlens/contracts';
+import {LocalRepairLoopService} from './local-repair-loop.js';
+import {databasePath} from './runtime.js';
 
 class HttpError extends Error {constructor(public status:number,public code:string,public safeMessage:string){super(code);}}
-type Handler=(req:Request,res:Response)=>void;
-const wrap=(fn:Handler)=>(req:Request,res:Response,next:NextFunction)=>{try{fn(req,res);}catch(error){next(error);}};
-export function createApp(db:DatabaseSync,sink?:(line:string)=>void):express.Express {
+type Handler=(req:Request,res:Response)=>unknown;
+const wrap=(fn:Handler)=>(req:Request,res:Response,next:NextFunction)=>{try{return fn(req,res);}catch(error){next(error);}};
+export function createApp(db:DatabaseSync,sink?:(line:string)=>void,localService?:LocalExecutionService,repairService?:LocalRepairService,loopService?:LocalRepairLoopService):express.Express {
   const app=express();const log=createLogger(sink);
+  let local=localService;const getLocal=()=>local??(local=new LocalExecutionService(db,localRootForDatabase(databasePath())));
+  let repair=repairService;const getRepair=()=>repair??(repair=new LocalRepairService(db,getLocal()));
+  let loop=loopService;const getLoop=()=>loop??(loop=new LocalRepairLoopService(db,getLocal(),getRepair()));
   app.disable('x-powered-by');app.use(express.json({limit:'32kb'}));
   app.use((req,res,next)=>{
     const id=requestId(req.header('X-Request-Id'));res.locals.requestId=id;res.setHeader('X-Request-Id',id);
@@ -101,12 +109,45 @@ export function createApp(db:DatabaseSync,sink?:(line:string)=>void):express.Exp
   app.get('/api/v1/approvals/:id',wrap((req,res)=>{const value=getApproval(db,req.params.id as string);if(!value)throw new DomainError('APPROVAL_NOT_FOUND',404);res.json({data:value});}));
   app.post('/api/v1/approvals/:id/approve',wrap((req,res)=>res.json({data:resolveApproval(db,req.params.id as string,'approve',key(req))})));
   app.post('/api/v1/approvals/:id/reject',wrap((req,res)=>res.json({data:resolveApproval(db,req.params.id as string,'reject',key(req))})));
+  app.get('/api/v1/local-templates',wrap((_req,res)=>res.json({data:localTemplates})));
+  app.get('/api/v1/local-projects',wrap((req,res)=>{const q=localPageQuerySchema.parse(req.query),r=getLocal().listProjects(q.page,q.limit);res.json({data:r.data.map(x=>localProjectSchema.parse(x)),page_info:{page:q.page,limit:q.limit,total:r.total,has_more:q.page*q.limit<r.total}});}));
+  app.post('/api/v1/local-projects',wrap((req,res)=>{const body=localCreateProjectSchema.parse(req.body);const item=getLocal().createProject(body.template_id,key(req));log('local.project_created',{request_id:res.locals.requestId,project_id:item.id,revision_id:item.revision.id});res.status(201).json({data:localProjectSchema.parse(item)});}));
+  app.get('/api/v1/local-projects/:id',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id);res.json({data:localProjectSchema.parse(getLocal().getProject(id))});}));
+  app.get('/api/v1/local-projects/:id/executions',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id),q=localPageQuerySchema.parse(req.query),r=getLocal().listExecutions(id,q.page,q.limit);res.json({data:r.data.map(x=>localExecutionSchema.parse(x)),page_info:{page:q.page,limit:q.limit,total:r.total,has_more:q.page*q.limit<r.total}});}));
+  app.post('/api/v1/local-projects/:id/executions',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id);localEmptyBodySchema.parse(req.body??{});const item=getLocal().startExecution(id,key(req));log('local.execution_started',{request_id:res.locals.requestId,project_id:id,execution_id:item.id,revision_id:item.revision_id,status:item.status});res.status(202).json({data:localExecutionSchema.parse(item)});}));
+  app.get('/api/v1/local-executions/:id',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id);res.json({data:localExecutionSchema.parse(getLocal().getExecution(id))});}));
+  app.get('/api/v1/local-executions/:id/logs',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id),q=localLogQuerySchema.parse(req.query),rows=getLocal().logs(id,q.after_seq,q.limit);res.json({data:rows.map(x=>localLogSchema.parse(x)),page_info:{limit:q.limit,has_more:rows.length===q.limit}});}));
+  app.get('/api/v1/local-executions/:id/artifacts',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id);res.json({data:getLocal().artifacts(id).map(x=>localArtifactSchema.parse(x))});}));
+  app.get('/api/v1/local-executions/:id/artifacts/:artifactId',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id),artifactId=localIdSchema.parse(req.params.artifactId);res.json({data:getLocal().artifact(id,artifactId)});}));
+  app.post('/api/v1/local-executions/:id/cancel',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id);localEmptyBodySchema.parse(req.body??{});res.json({data:localExecutionSchema.parse(getLocal().cancel(id))});}));
+  app.get('/api/v1/local-executions/:id/repairs',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id);res.json({data:getRepair().list(id).map(item=>localRepairSchema.parse(item))});}));
+  app.post('/api/v1/local-executions/:id/repairs',wrap((req,res)=>{
+    const id=localIdSchema.parse(req.params.id);localEmptyBodySchema.parse(req.body??{});
+    const mode=process.env.MODEL_MODE==='LIVE'?'LIVE':'MOCK',model=process.env.MODEL_NAME??'deepseek-flash';
+    const item=getRepair().create(id,key(req),mode,model);
+    log('local.repair_requested',{request_id:res.locals.requestId,execution_id:id,repair_id:item.id,provider_mode:mode});
+    res.status(202).json({data:localRepairSchema.parse(item)});
+  }));
+  app.get('/api/v1/local-repairs/:id',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id);res.json({data:localRepairSchema.parse(getRepair().get(id))});}));
+  app.post('/api/v1/local-repairs/:id/approve',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id);localEmptyBodySchema.parse(req.body??{});if(db.prepare('SELECT loop_id FROM local_repair_loop_round WHERE repair_id=?').get(id))throw new LocalError('LOOP_CANDIDATE_MANAGED',409);const item=getRepair().approve(id,key(req));log('local.repair_approved',{request_id:res.locals.requestId,repair_id:id,revision_id:item.approved_revision_id,execution_id:item.verification_execution_id,status:item.status});res.json({data:localRepairSchema.parse(item)});}));
+  app.post('/api/v1/local-repairs/:id/reject',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id);localEmptyBodySchema.parse(req.body??{});res.json({data:localRepairSchema.parse(getRepair().reject(id,key(req)))});}));
+  app.post('/api/v1/local-repairs/:id/cancel',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id);localEmptyBodySchema.parse(req.body??{});res.json({data:localRepairSchema.parse(getRepair().cancel(id))});}));
+  app.get('/api/v1/local-executions/:id/loops',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id);res.json({data:getLoop().list(id).map(item=>localRepairLoopSchema.parse(item))});}));
+  app.post('/api/v1/local-executions/:id/loops',wrap((req,res)=>{
+    const id=localIdSchema.parse(req.params.id),body=localLoopAuthorizeSchema.parse(req.body??{});
+    const mode=process.env.MODEL_MODE==='LIVE'?'LIVE':'MOCK',model=process.env.MODEL_NAME??'deepseek-flash';
+    const item=getLoop().create(id,key(req),mode,model,body.authorize);
+    log('local.loop_authorized',{request_id:res.locals.requestId,loop_id:item.id,execution_id:id,provider_mode:mode,max_rounds:3,max_model_requests:36});
+    res.status(202).json({data:localRepairLoopSchema.parse(item)});
+  }));
+  app.get('/api/v1/local-repair-loops/:id',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id);res.json({data:localRepairLoopSchema.parse(getLoop().get(id))});}));
+  app.post('/api/v1/local-repair-loops/:id/cancel',wrap(async(req,res)=>{const id=localIdSchema.parse(req.params.id);localEmptyBodySchema.parse(req.body??{});res.json({data:localRepairLoopSchema.parse(await getLoop().cancel(id))});}));
   app.use((req,res)=>res.status(404).json({error:{code:'NOT_FOUND',message:'接口不存在',retryable:false,request_id:res.locals.requestId??requestId()}}));
   app.use((error:unknown,_req:Request,res:Response,_next:NextFunction)=>{
     void _next;
-    const status=error instanceof HttpError||error instanceof DomainError?error.status:error instanceof ZodError||error instanceof SyntaxError?400:error instanceof Error&&error.message==='IDEMPOTENCY_CONFLICT'?409:500;
-    const code=error instanceof HttpError||error instanceof DomainError?error.code:error instanceof ZodError?'INVALID_ARGUMENTS':error instanceof SyntaxError?'INVALID_JSON':status===409?'IDEMPOTENCY_CONFLICT':'INTERNAL_ERROR';
-    const message=error instanceof HttpError?error.safeMessage:error instanceof DomainError?'操作未完成：'+code:status===500?'服务暂时不可用':status===409?'幂等键对应不同请求':'请求参数无效';
+    const status=error instanceof HttpError||error instanceof DomainError||error instanceof LocalError?error.status:error instanceof ZodError||error instanceof SyntaxError?400:error instanceof Error&&error.message==='IDEMPOTENCY_CONFLICT'?409:500;
+    const code=error instanceof HttpError||error instanceof DomainError||error instanceof LocalError?error.code:error instanceof ZodError?'INVALID_ARGUMENTS':error instanceof SyntaxError?'INVALID_JSON':status===409?'IDEMPOTENCY_CONFLICT':'INTERNAL_ERROR';
+    const message=error instanceof HttpError?error.safeMessage:error instanceof DomainError||error instanceof LocalError?'操作未完成：'+code:status===500?'服务暂时不可用':status===409?'幂等键对应不同请求':'请求参数无效';
     log('request.failed',{request_id:res.locals.requestId,error_code:code,status},status===500?'error':'warn');
     res.status(status).json({error:{code,message,retryable:status>=500,request_id:res.locals.requestId??requestId()}});
   });

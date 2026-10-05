@@ -58,3 +58,47 @@ export const sessionSnapshotSchema=z.object({schema_version:z.literal(1),session
 export const evidenceSchema=z.object({id:z.string(),session_id:z.string(),turn_id:z.string(),type:z.enum(['LOG','RUNBOOK','RUN_STATE']),source_id:z.string(),source_version:z.string(),locator:z.record(z.string(),z.unknown()),excerpt:z.string(),created_at:z.string()});
 export const approvalSchema=z.object({id:z.string(),run_id:z.string(),turn_id:z.string(),status:z.enum(['PENDING','APPROVED','REJECTED','EXPIRED','STALE']),action:z.literal('RETRY_RUN'),reason:z.string(),params:z.record(z.string(),z.unknown()),expires_at:z.string(),created_at:z.string(),child_run_id:z.string().nullable()});
 export const agentEventSchema=z.object({schema_version:z.literal(1),event_id:z.string(),seq:z.number().int(),session_id:z.string(),turn_id:z.string(),timestamp:z.string(),type:z.string(),payload:z.record(z.string(),z.unknown())});
+
+// M6.1 local experiments intentionally have no relationship to FIXTURE Run.
+export const localTemplateIdSchema=z.enum(['sql-column-error','sql-valid-control']);
+export const localCreateProjectSchema=z.strictObject({template_id:localTemplateIdSchema});
+export const localEmptyBodySchema=z.strictObject({});
+export const localIdSchema=z.uuid();
+export const localRevisionSchema=z.object({id:localIdSchema,project_id:localIdSchema,parent_revision_id:localIdSchema.nullable(),sql_text:z.string(),input_json:z.string(),sha256:z.string(),created_source:z.enum(['TEMPLATE','TEST','AGENT_APPROVED']),created_at:z.string()});
+export const localProjectSchema=z.object({id:localIdSchema,template_id:localTemplateIdSchema,name:z.string(),input_source:z.literal('SYNTHETIC'),current_revision_id:localIdSchema,created_at:z.string(),revision:localRevisionSchema.optional()});
+export const localValidationSchema=z.object({passed:z.boolean(),order_count:z.number(),total_amount:z.number(),expected:z.object({order_count:z.literal(3),total_amount:z.literal(100)})});
+export const localExecutionSchema=z.object({id:localIdSchema,project_id:localIdSchema,revision_id:localIdSchema,revision_hash:z.string(),status:z.enum(['PENDING','RUNNING','SUCCEEDED','FAILED','CANCELLED','INTERRUPTED']),created_at:z.string(),started_at:z.string().nullable(),finished_at:z.string().nullable(),exit_code:z.number().int().nullable(),termination_reason:z.string().nullable(),error_code:z.string().nullable(),error_message:z.string().nullable(),validation:localValidationSchema.nullable(),runner_version:z.string(),validator_version:z.string()});
+export const localLogSchema=z.object({id:localIdSchema,execution_id:localIdSchema,seq:z.number().int(),timestamp:z.string(),level:z.enum(['INFO','ERROR']),step:z.string(),message:z.string()});
+export const localArtifactSchema=z.object({id:localIdSchema,execution_id:localIdSchema,name:z.enum(['task.sql','input.json','result.json']),sha256:z.string(),size:z.number().int()});
+export const localPageQuerySchema=z.object({page:z.coerce.number().int().min(1).default(1),limit:z.coerce.number().int().min(1).max(100).default(20)}).strict();
+export const localLogQuerySchema=z.object({after_seq:z.coerce.number().int().min(0).default(0),limit:z.coerce.number().int().min(1).max(200).default(200)}).strict();
+export type LocalProject=z.infer<typeof localProjectSchema>;
+export type LocalExecution=z.infer<typeof localExecutionSchema>;
+
+// M6.2 repair sessions are bound to local executions and never reuse FIXTURE approval IDs.
+export const localRepairEvidenceSchema=z.object({id:localIdSchema,session_id:localIdSchema,source_type:z.enum(['EXECUTION','SQL','LOG']),source_id:z.string(),source_version:z.string(),excerpt:z.string(),created_at:z.string()});
+export const localRepairToolSchema=z.object({id:localIdSchema,session_id:localIdSchema,seq:z.number().int(),name:z.string(),error_code:z.string().nullable(),created_at:z.string(),args:z.record(z.string(),z.unknown()),result:z.unknown().nullable()});
+export const localRepairSchema=z.object({
+  id:localIdSchema,project_id:localIdSchema,execution_id:localIdSchema,base_revision_id:localIdSchema,base_hash:z.string(),
+  status:z.enum(['QUEUED','RUNNING','PENDING_APPROVAL','NO_CANDIDATE','FAILED','CANCELLED','INTERRUPTED','APPROVED','REJECTED','EXPIRED','STALE','APPLY_FAILED']),
+  provider_mode:z.enum(['LIVE','MOCK']),model:z.string(),diagnosis:z.string().nullable(),expires_at:z.string().nullable(),
+  verification_command_id:z.literal('orders-sql-v1'),
+  approved_revision_id:localIdSchema.nullable(),verification_execution_id:localIdSchema.nullable(),error_code:z.string().nullable(),
+  model_requests:z.number().int(),usage:z.object({prompt_tokens:z.number(),completion_tokens:z.number()}).nullable(),created_at:z.string(),updated_at:z.string(),
+  candidate:z.object({file_path:z.literal('task.sql'),new_content:z.string(),sha256:z.string(),diff:z.string(),evidence_ids:z.array(localIdSchema)}).nullable(),
+  tools:z.array(localRepairToolSchema),evidence:z.array(localRepairEvidenceSchema),verification:localExecutionSchema.nullable()
+});
+export type LocalRepair=z.infer<typeof localRepairSchema>;
+
+// M6.3 authorization is a separate action from M6.2 single-candidate approval.
+export const localLoopAuthorizeSchema=z.strictObject({authorize:z.literal(true)});
+export const localRepairLoopSchema=z.object({
+  id:localIdSchema,project_id:localIdSchema,initial_execution_id:localIdSchema,
+  status:z.enum(['ACTIVE','STOPPING','SUCCEEDED','FAILED','LIMIT_REACHED','TIMED_OUT','CANCELLED','INTERRUPTED']),
+  provider_mode:z.enum(['LIVE','MOCK']),model:z.string(),max_rounds:z.literal(3),max_model_requests:z.literal(36),
+  writable_file:z.literal('task.sql'),verification_command_id:z.literal('orders-sql-v1'),deadline_at:z.string(),
+  current_execution_id:localIdSchema,error_code:z.string().nullable(),cancel_requested_at:z.string().nullable(),created_at:z.string(),updated_at:z.string(),finished_at:z.string().nullable(),
+  model_requests:z.number().int(),usage:z.object({prompt_tokens:z.number(),completion_tokens:z.number()}),
+  rounds:z.array(z.object({round_no:z.number().int().min(1).max(3),created_at:z.string(),repair:localRepairSchema}))
+});
+export type LocalRepairLoop=z.infer<typeof localRepairLoopSchema>;

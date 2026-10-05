@@ -4,10 +4,17 @@ import {createApp} from './http.js';
 import {createLogger} from './log.js';
 import {databasePath} from './runtime.js';
 import {recoverInterruptedTurns} from './diagnosis-agent.js';
-const db=openDatabase(databasePath());migrate(db);seed(db);
+import {LocalExecutionService,localRootForDatabase} from './local-execution.js';
+import {LocalRepairService} from './local-repair.js';
+import {LocalRepairLoopService} from './local-repair-loop.js';
+const dbPath=databasePath();
+const db=openDatabase(dbPath);migrate(db);seed(db);
 recoverInterruptedTurns(db);
+const local=new LocalExecutionService(db,localRootForDatabase(dbPath));local.recoverInterrupted();
+const repair=new LocalRepairService(db,local);repair.recoverInterrupted();
+const loop=new LocalRepairLoopService(db,local,repair);loop.recoverInterrupted();
 const log=createLogger();
-const app=createApp(db);
+const app=createApp(db,undefined,local,repair,loop);
 const port=Number(process.env.APP_PORT||4173);
 if(!Number.isInteger(port)||port<1||port>65535)throw new Error('INVALID_APP_PORT');
 const server=app.listen(port,'127.0.0.1',()=>log('server.started',{route:'127.0.0.1:'+port}));
@@ -22,5 +29,6 @@ const tick=()=>{
   }catch(error){log('runner.failed',{error_code:'RUNNER_ERROR'},'error');void error;}
 };
 tick();const timer=setInterval(tick,250);
-function stop(){clearInterval(timer);server.close(()=>{db.close();process.exit(0);});}
+let stopping=false;
+function stop(){if(stopping)return;stopping=true;clearInterval(timer);void loop.stopAll().then(()=>local.stopAll()).then(()=>server.close(()=>{db.close();process.exit(0);}));}
 process.on('SIGINT',stop);process.on('SIGTERM',stop);

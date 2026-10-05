@@ -18,7 +18,7 @@ function transaction<T>(db:DatabaseSync,fn:()=>T):T {
 export {transaction};
 export function migrate(db:DatabaseSync):void {
   const version=(db.prepare('PRAGMA user_version').get() as {user_version:number}).user_version;
-  if(version>4)throw new Error('DB_SCHEMA_TOO_NEW');
+  if(version>9)throw new Error('DB_SCHEMA_TOO_NEW');
   if(version<1)transaction(db,()=>{
     db.exec(`
       CREATE TABLE task_definition(id TEXT PRIMARY KEY,name TEXT NOT NULL,description TEXT NOT NULL,schema_version INTEGER NOT NULL,steps_json TEXT NOT NULL,created_at TEXT NOT NULL);
@@ -82,6 +82,76 @@ export function migrate(db:DatabaseSync):void {
       DROP TABLE simulation_state_before_v4;
       PRAGMA user_version=4;
     `);
+  });
+  if(version<5)transaction(db,()=>{
+    db.exec(`
+      CREATE TABLE local_project(id TEXT PRIMARY KEY,template_id TEXT NOT NULL,name TEXT NOT NULL,input_source TEXT NOT NULL CHECK(input_source='SYNTHETIC'),current_revision_id TEXT NOT NULL,created_at TEXT NOT NULL);
+      CREATE TABLE local_revision(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES local_project(id),parent_revision_id TEXT,sql_text TEXT NOT NULL,input_json TEXT NOT NULL,sha256 TEXT NOT NULL,created_source TEXT NOT NULL,created_at TEXT NOT NULL);
+      CREATE INDEX idx_local_revision_project ON local_revision(project_id,created_at);
+      CREATE TABLE local_execution(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES local_project(id),revision_id TEXT NOT NULL REFERENCES local_revision(id),revision_hash TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('PENDING','RUNNING','SUCCEEDED','FAILED','CANCELLED','INTERRUPTED')),created_at TEXT NOT NULL,started_at TEXT,finished_at TEXT,exit_code INTEGER,termination_reason TEXT,error_code TEXT,error_message TEXT,validation_json TEXT,runner_version TEXT NOT NULL,validator_version TEXT NOT NULL,work_dir TEXT NOT NULL);
+      CREATE INDEX idx_local_execution_project ON local_execution(project_id,created_at DESC,id DESC);
+      CREATE TABLE local_execution_log(id TEXT PRIMARY KEY,execution_id TEXT NOT NULL REFERENCES local_execution(id),seq INTEGER NOT NULL,timestamp TEXT NOT NULL,level TEXT NOT NULL,step TEXT NOT NULL,message TEXT NOT NULL,UNIQUE(execution_id,seq));
+      CREATE TABLE local_artifact(id TEXT PRIMARY KEY,execution_id TEXT NOT NULL REFERENCES local_execution(id),name TEXT NOT NULL CHECK(name IN ('task.sql','input.json','result.json')),sha256 TEXT NOT NULL,size INTEGER NOT NULL,UNIQUE(execution_id,name));
+      PRAGMA user_version=5;
+    `);
+  });
+  if(version<6)transaction(db,()=>{
+    db.exec(`
+      CREATE TABLE local_repair_session(
+        id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES local_project(id),execution_id TEXT NOT NULL REFERENCES local_execution(id),
+        base_revision_id TEXT NOT NULL REFERENCES local_revision(id),base_hash TEXT NOT NULL,
+        status TEXT NOT NULL CHECK(status IN ('QUEUED','RUNNING','PENDING_APPROVAL','NO_CANDIDATE','FAILED','CANCELLED','INTERRUPTED','APPROVED','REJECTED','EXPIRED','STALE','APPLY_FAILED')),
+        provider_mode TEXT NOT NULL CHECK(provider_mode IN ('LIVE','MOCK')),model TEXT NOT NULL,
+        diagnosis TEXT,candidate_sql TEXT,candidate_hash TEXT,diff_text TEXT,evidence_ids_json TEXT,
+        verification_command_id TEXT NOT NULL DEFAULT 'orders-sql-v1',
+        expires_at TEXT,approved_revision_id TEXT REFERENCES local_revision(id),verification_execution_id TEXT REFERENCES local_execution(id),
+        error_code TEXT,model_requests INTEGER NOT NULL DEFAULT 0,usage_json TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL
+      );
+      CREATE INDEX idx_local_repair_execution ON local_repair_session(execution_id,created_at DESC);
+      CREATE TABLE local_repair_tool(
+        id TEXT PRIMARY KEY,session_id TEXT NOT NULL REFERENCES local_repair_session(id),seq INTEGER NOT NULL,
+        name TEXT NOT NULL,args_json TEXT NOT NULL,result_json TEXT,error_code TEXT,created_at TEXT NOT NULL,UNIQUE(session_id,seq)
+      );
+      CREATE TABLE local_repair_evidence(
+        id TEXT PRIMARY KEY,session_id TEXT NOT NULL REFERENCES local_repair_session(id),source_type TEXT NOT NULL,
+        source_id TEXT NOT NULL,source_version TEXT NOT NULL,excerpt TEXT NOT NULL,created_at TEXT NOT NULL
+      );
+      PRAGMA user_version=6;
+    `);
+  });
+  // Early v6 installations were created before this field was added to the
+  // CREATE TABLE statement. Upgrade those databases without replacing rows.
+  if(version<7)transaction(db,()=>{
+    const columns=db.prepare('PRAGMA table_info(local_repair_session)').all() as {name:string}[];
+    if(!columns.some(column=>column.name==='verification_command_id')){
+      db.exec("ALTER TABLE local_repair_session ADD COLUMN verification_command_id TEXT NOT NULL DEFAULT 'orders-sql-v1'");
+    }
+    db.exec('PRAGMA user_version=7');
+  });
+  if(version<8)transaction(db,()=>{
+    db.exec(`
+      CREATE TABLE local_repair_loop(
+        id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES local_project(id),
+        initial_execution_id TEXT NOT NULL REFERENCES local_execution(id),
+        status TEXT NOT NULL CHECK(status IN ('ACTIVE','SUCCEEDED','FAILED','LIMIT_REACHED','TIMED_OUT','CANCELLED','INTERRUPTED')),
+        provider_mode TEXT NOT NULL CHECK(provider_mode IN ('LIVE','MOCK')),model TEXT NOT NULL,
+        max_rounds INTEGER NOT NULL CHECK(max_rounds=3),max_model_requests INTEGER NOT NULL CHECK(max_model_requests=36),
+        writable_file TEXT NOT NULL CHECK(writable_file='task.sql'),verification_command_id TEXT NOT NULL CHECK(verification_command_id='orders-sql-v1'),
+        deadline_at TEXT NOT NULL,current_execution_id TEXT NOT NULL REFERENCES local_execution(id),
+        error_code TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,finished_at TEXT
+      );
+      CREATE UNIQUE INDEX idx_one_active_local_loop ON local_repair_loop(project_id) WHERE status='ACTIVE';
+      CREATE INDEX idx_local_loop_project ON local_repair_loop(project_id,created_at DESC);
+      CREATE TABLE local_repair_loop_round(
+        loop_id TEXT NOT NULL REFERENCES local_repair_loop(id),round_no INTEGER NOT NULL CHECK(round_no BETWEEN 1 AND 3),
+        repair_id TEXT NOT NULL UNIQUE REFERENCES local_repair_session(id),created_at TEXT NOT NULL,
+        PRIMARY KEY(loop_id,round_no)
+      );
+      PRAGMA user_version=8;
+    `);
+  });
+  if(version<9)transaction(db,()=>{
+    db.exec("ALTER TABLE local_repair_loop ADD COLUMN cancel_requested_at TEXT; PRAGMA user_version=9;");
   });
 }
 const seedTime='2026-09-25T09:00:00.000Z';
