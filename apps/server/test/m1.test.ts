@@ -62,7 +62,7 @@ it('upgrades a version-one database without replacing existing run rows',()=>iso
  db.prepare('INSERT INTO task_definition VALUES (?,?,?,?,?,?)').run('order_daily','旧任务','保留',1,'[]','2026-01-01T00:00:00Z');
  db.prepare('INSERT INTO task_run VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run('old-run','order_daily','FIXTURE','S00','old-instance',null,'SUCCEEDED',JSON.stringify({read:'SUCCEEDED',validate:'SUCCEEDED',load:'SUCCEEDED',aggregate:'SUCCEEDED'}),'{}','2026-01-01T00:00:00Z','2026-01-01T00:00:00Z','2026-01-01T00:00:01Z',null,null,'{}');
  migrate(db);expect(getRun(db,'old-run')?.status).toBe('SUCCEEDED');
- expect(db.prepare('PRAGMA user_version').get()).toMatchObject({user_version:9});
+ expect(db.prepare('PRAGMA user_version').get()).toMatchObject({user_version:10});
  expect(db.prepare('SELECT count(*) n FROM local_project').get()).toMatchObject({n:0});db.close();
 }));
 it('rejects invalid list/log query boundaries without returning internal details',async()=>{

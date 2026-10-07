@@ -1,8 +1,25 @@
 # FlowLens
 
-基于 Vue 3 和 TypeScript 的数据任务 Agent 诊断工作台。用户可查看模拟任务的运行状态与日志，让 DeepSeek 或确定性 Mock 调用只读工具分析故障、追溯证据，并在人工审批后执行**模拟**重试。另有独立的本地 SQL 执行、单次修复与有限修复循环实验。当前为 Windows 本地单用户演示，旧任务使用 FIXTURE、本地实验使用 SYNTHETIC 合成输入，均不连接真实业务系统。
+基于 Vue 3 和 TypeScript 的数据任务 Agent 诊断工作台。主入口 `/pipeline` 使用自行生成的车辆事件：编辑 SQL → 真实 SQLite 查询与独立校验 → Agent 工具取证与 Diff → 人工批准隔离验证 → 只读预检 → 批准事务入库 → SQL 查询复查 → 撤销最新有效批次。当前为 Windows 本地单用户 Demo，车辆链路标记 SYNTHETIC，不连接公司环境。
 
-## 功能
+旧 `/runs` FIXTURE 模拟任务、诊断历史和 `/local` 订单实验继续保留，入口折叠在侧栏“早期实验与历史”中；这些历史诊断属于早期模拟链路。车辆 Pipeline 的执行、诊断、版本与入库记录在各项目工作台查看。真实车辆执行与模型来源 LIVE/MOCK 分别显示，不把旧模拟时间线当作真实执行证据。
+
+## 车辆 Pipeline Demo
+
+- 每个项目独立只读源库和目标库；10 条合成事件含速度/时长边界与对照，Demo 规则为速度 < 1 m/s、持续 ≥ 3 秒，独立验证期望 4 行及完整字段值。
+- A 列错误由 SQLite 实际报错；B 查询成功后因输出别名缺 `car_series` 校验失败；C 正常预检及重复入库实际跳过重复业务键。
+- SQL 新版本不可变，只有 `task.sql` 可编辑。Agent 复用现有模型网关、共享 LIVE 预算与 ToolRegistry，读取本次 SQL、实际 Schema、日志、输出和固定规则；服务端核对引用并计算 Diff。
+- “批准修复并验证”创建独立候选版本和隔离目标库，实际提交与重跑验证通过才发布；失败保留当前版本及全部失败历史。该按钮不会向项目目标库入库。
+- “批准本次入库”绑定执行、SQL/input/output hash、目标版本和 10 分钟有效期。参数化写入、完整前快照、批次凭证、数据版本推进在目标库同一事务提交；失败显式回滚。
+- “撤销本次入库”恢复固定业务表的完整前数据，保留诊断、版本和审批历史。只允许最新尚未撤销且有实际新增的批次；零新增重跑不移动数据头。恢复版本单调增长，损坏快照/旧头/数据漂移/活动操作会拒绝恢复。目标凭证用于重启与响应丢失后的事实核对。
+- `/pipeline/projects/:projectId/database` 独立只读查询源表、当前目标表和选定入库前快照，支持字段、WHERE、ORDER BY、LIMIT、COUNT；单条小语法 + 表白名单 + 只读 SQLite，禁写入/系统表/跨库/多语句。默认200、最多500行，子进程10秒超时及256 KiB输出限制。源数据固定小规模，查询不推进业务数据版本。
+- 持久 SSE 游标、同读事务快照、重连/去重/缺口同步；项目切换隔离、执行选择 URL、取消与迟到请求保护。浏览器 sessionStorage 保存不确定响应的幂等键，重复批准仍由后端执行/批次唯一凭证保护。
+
+2026-10-07 的实际验收、失败修正与限制见 [Pipeline 验收记录](docs/pipeline-acceptance.md)，演示见 [五分钟操作稿](docs/pipeline-demo-script.md)。LIVE A/B 脚本及 A 浏览器实测共6次 DeepSeek 请求、9712 usage tokens，每例6个实际只读工具，均经过隔离验证、入库、查询与撤销。这些测试使用隔离数据和自动化批准，人工验收等待用户进行。[A/B报告](docs/evals/pipeline-live-20261007.json)、[LIVE浏览器报告](docs/evals/pipeline-live-browser-20261007.json) 与 [录屏](docs/demos/pipeline-live-browser-20261007.webm) 可核对。
+
+主页面按当前 SQL 版本提示下一步，旧执行仍保持独立历史。Agent 区按工具取证、诊断结论、修复候选排列，正文证据编号可打开实际工具返回内容；原始编号与版本可展开核对。批准修复仅触发隔离验证，业务写入仍需另行批准。撤销时先展示恢复范围，点击“确认撤销并恢复”才提交恢复操作。
+
+## 保留的早期实验
 
 - S00 正常、S01 缺字段、S02 SQL 列错误、S03 重复订单、S04 上游超时、S05 信息不足六个演示场景；运行状态和日志由 SQLite 持久化。
 - 诊断会话、流式事件、只读工具轨迹、结构化结论与日志/Runbook 引用定位。
@@ -15,11 +32,22 @@
 
 回答展示：查询与校验期间只显示进度，初稿及修正过程不作为正文显示。最终结论通过服务端校验后，新消息按顺序逐步呈现；刷新或切换会话后直接显示已完成历史。该效果由前端逐步展示已校验的完整结果实现，因此正文开始前仍需等待模型生成和校验；开启系统“减少动态效果”时直接显示全文。
 
+车辆 Pipeline 的新诊断也在校验后逐步呈现正文，随后显示处理类型、Diff 与批准按钮；刷新及切换旧执行直接恢复全文，重复快照不重放。SSE 同步真实任务状态和工具记录，正文逐步呈现由前端完成，未实现模型 token 的实时 SSE 推送。
+
 ## 技术栈
 
 Vue 3、TypeScript、Vite、Pinia、Element Plus；Node.js、Express、SQLite、Zod；SSE、Vitest、Playwright。前后端与共享契约使用 pnpm workspace。
 
 ## 本地运行
+
+直接验收可使用独立持久演示库，保留默认开发数据库和用户历史：
+
+```powershell
+pnpm build
+pnpm demo:pipeline
+```
+
+打开 <http://127.0.0.1:5180/pipeline>。该命令在 `data/pipeline-demo/` 中准备 A/B 真实失败现场与 C 正常任务；初始化只运行 SQL，不调用模型。模型沿用现有配置，点击 Agent 后才请求。Ctrl+C 停止两项服务，重新运行保留演示历史；端口4180/5180已被占用时明确失败。需要其他端口可在当前终端设置 `FLOWLENS_DEMO_API_PORT`、`FLOWLENS_DEMO_WEB_PORT`。当前入口与项目链接记录在 `data/pipeline-demo/manifest.json`。
 
 验证环境为 Node.js 24.14.1、pnpm 11.5.0、Windows 与 Chrome。Windows PowerShell 中执行：
 
@@ -31,7 +59,9 @@ pnpm db:seed
 pnpm dev
 ```
 
-打开 <http://127.0.0.1:5173/runs>。默认 `MODEL_MODE=MOCK`，无需 API Key。进入 S04，创建会话提问“这次为什么失败？”，可查看证据并申请模拟重试；S00 是正常任务，S05 故意缺少根因信息，不允许重试。开发 API 默认仅监听本机 `127.0.0.1:4173`。
+打开 <http://127.0.0.1:5173/pipeline>（根路径自动跳转）。选择 A/B/C 模板创建车辆任务，按按钮完成真实链路。无 `.env.local` 时 `MODEL_MODE=MOCK`，无需密钥；已有 `.env.local` 沿用其配置。若仅希望本次终端离线演示，启动前设置 `$env:MODEL_MODE='MOCK'`，不需修改持久配置。开发 API 默认仅监听本机 `127.0.0.1:4173`。
+
+旧模拟入口 <http://127.0.0.1:5173/runs>：进入 S04 创建会话提问“这次为什么失败？”，可申请模拟重试；S00 正常、S05 信息不足且不允许重试。新迁移 v10 增加 Pipeline 表，保留原数据库与用户历史。源库、目标库及隔离验证库保存在应用数据库旁的 `pipeline-projects/`，请连同主库一起保留，不要删除旧库重建。
 
 侧栏的“历史诊断”打开 `/diagnoses`，支持按标题、任务名或运行ID搜索，打开后URL携带指定session；“演示场景”打开 `/demo`，创建任意一个新模拟运行。运行列表的创建时间范围按本地时间填写，包含起止时刻，和状态/任务搜索组合生效。M5 具体操作见 [人工验收清单](docs/m5-manual-acceptance.md)。
 
@@ -55,7 +85,10 @@ pnpm lint
 pnpm test
 pnpm build
 pnpm test:e2e
+pnpm check:pipeline:start       # build 后运行；隔离库 + MOCK 验证 start/preview
 ```
+
+已配置并授权 LIVE 时，可运行 `pnpm eval:pipeline:live` 或 `pnpm eval:pipeline:live:browser`：**会实际调用付费模型**。前者在独立库以脚本测试批准验证 A/B；后者以浏览器点击验证 A 的完整操作并录屏。每次进程总上限为现有预算与8次取较小值，不改 `.env.local`。完整 SQL、工具与结果保存为报告；测试批准不能标成用户人工审批验收。普通 `pnpm test`、Playwright 与 `check:pipeline:start` 都使用 MOCK，不产生模型费用。
 
 `test:e2e` 使用本机 Chrome、独立临时 SQLite 和测试端口，不修改开发库。实际 M4 命令与环境证据见 [P0 验收报告](docs/p0-acceptance.md)；M3 已于 2026-10-01 获用户人工确认。服务端输出不含密钥、完整 Prompt 和工具正文的 JSON 结构化日志，可用 request_id、session_id、turn_id 关联问题；logs/、data/、.env.local 不纳入仓库。
 

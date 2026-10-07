@@ -16,7 +16,11 @@
     "preview": "pnpm --filter @flowlens/web exec vite preview --host 127.0.0.1 --port 5173 --strictPort",
     "eval:live": "node --env-file-if-exists=.env.local scripts/eval-p0.mjs",
     "eval:mock": "node scripts/eval-p0.mjs --mock",
-    "check:start": "node scripts/check-start.mjs"
+    "check:start": "node scripts/check-start.mjs",
+    "check:pipeline:start": "node scripts/check-pipeline-start.mjs",
+    "demo:pipeline": "node --env-file-if-exists=.env.local scripts/pipeline-demo.mjs",
+    "eval:pipeline:live:browser": "node --env-file-if-exists=.env.local scripts/check-pipeline-start.mjs --execute-live --approve-test-candidate",
+    "eval:pipeline:live": "node --env-file-if-exists=.env.local scripts/eval-pipeline-live.mjs --execute-live --approve-test-candidate"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0"

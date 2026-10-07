@@ -14,11 +14,15 @@ import {LocalRepairService} from './local-repair.js';
 import {localRepairSchema,localLoopAuthorizeSchema,localRepairLoopSchema} from '@flowlens/contracts';
 import {LocalRepairLoopService} from './local-repair-loop.js';
 import {databasePath} from './runtime.js';
+import {PipelineService} from './pipeline.js';
+import {PipelineAgent} from './pipeline-agent.js';
+import {pipelineRouter} from './pipeline-http.js';
+import {dirname,join} from 'node:path';
 
 class HttpError extends Error {constructor(public status:number,public code:string,public safeMessage:string){super(code);}}
 type Handler=(req:Request,res:Response)=>unknown;
 const wrap=(fn:Handler)=>(req:Request,res:Response,next:NextFunction)=>{try{return fn(req,res);}catch(error){next(error);}};
-export function createApp(db:DatabaseSync,sink?:(line:string)=>void,localService?:LocalExecutionService,repairService?:LocalRepairService,loopService?:LocalRepairLoopService):express.Express {
+export function createApp(db:DatabaseSync,sink?:(line:string)=>void,localService?:LocalExecutionService,repairService?:LocalRepairService,loopService?:LocalRepairLoopService,pipelineService?:PipelineService,pipelineAgent?:PipelineAgent):express.Express {
   const app=express();const log=createLogger(sink);
   let local=localService;const getLocal=()=>local??(local=new LocalExecutionService(db,localRootForDatabase(databasePath())));
   let repair=repairService;const getRepair=()=>repair??(repair=new LocalRepairService(db,getLocal()));
@@ -142,12 +146,14 @@ export function createApp(db:DatabaseSync,sink?:(line:string)=>void,localService
   }));
   app.get('/api/v1/local-repair-loops/:id',wrap((req,res)=>{const id=localIdSchema.parse(req.params.id);res.json({data:localRepairLoopSchema.parse(getLoop().get(id))});}));
   app.post('/api/v1/local-repair-loops/:id/cancel',wrap(async(req,res)=>{const id=localIdSchema.parse(req.params.id);localEmptyBodySchema.parse(req.body??{});res.json({data:localRepairLoopSchema.parse(await getLoop().cancel(id))});}));
+  let pipeline=pipelineService,agent=pipelineAgent;
+  app.use('/api/v1/pipeline',(req,res,next)=>{pipeline??=new PipelineService(db,join(dirname(databasePath()),'pipeline-projects'));agent??=new PipelineAgent(pipeline);return pipelineRouter(pipeline,agent)(req,res,next);});
   app.use((req,res)=>res.status(404).json({error:{code:'NOT_FOUND',message:'接口不存在',retryable:false,request_id:res.locals.requestId??requestId()}}));
   app.use((error:unknown,_req:Request,res:Response,_next:NextFunction)=>{
     void _next;
     const status=error instanceof HttpError||error instanceof DomainError||error instanceof LocalError?error.status:error instanceof ZodError||error instanceof SyntaxError?400:error instanceof Error&&error.message==='IDEMPOTENCY_CONFLICT'?409:500;
     const code=error instanceof HttpError||error instanceof DomainError||error instanceof LocalError?error.code:error instanceof ZodError?'INVALID_ARGUMENTS':error instanceof SyntaxError?'INVALID_JSON':status===409?'IDEMPOTENCY_CONFLICT':'INTERNAL_ERROR';
-    const message=error instanceof HttpError?error.safeMessage:error instanceof DomainError||error instanceof LocalError?'操作未完成：'+code:status===500?'服务暂时不可用':status===409?'幂等键对应不同请求':'请求参数无效';
+    const message=error instanceof HttpError?error.safeMessage:error instanceof DomainError||error instanceof LocalError?'操作未完成：'+code+(error.message!==code?' · '+error.message:''):status===500?'服务暂时不可用':status===409?'幂等键对应不同请求':'请求参数无效';
     log('request.failed',{request_id:res.locals.requestId,error_code:code,status},status===500?'error':'warn');
     res.status(status).json({error:{code,message,retryable:status>=500,request_id:res.locals.requestId??requestId()}});
   });

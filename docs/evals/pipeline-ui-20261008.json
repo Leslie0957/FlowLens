@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-08",
+  "scope": "Pipeline presentation and navigation",
+  "status": "DEVELOPMENT_CHECKS_PASSED_HUMAN_ACCEPTANCE_PENDING",
+  "web_tests": {
+    "passed": 32,
+    "failed": 0
+  },
+  "browser_tests": {
+    "startTime": "2026-10-07T18:34:22.694Z",
+    "duration": 154911.091,
+    "expected": 39,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "browser_report": "logs/m5/e2e-2026-10-07T18-34-22-691Z.json",
+  "first_browser_run": {
+    "reason": "archive initialized open before the initial route resolved",
+    "fixed": true,
+    "failed": 1,
+    "passed": 38,
+    "report": "logs/m5/e2e-2026-10-07T18-30-04-050Z.json"
+  },
+  "build": "web vue-tsc and Vite PASSED",
+  "lint": "workspace PASSED",
+  "built_mock_report": "logs/pipeline/build-start-2026-10-07T18-35-11-237Z/report.json",
+  "existing_live_readonly_report": "logs/pipeline/presentation-readonly-20261008.json",
+  "new_live_requests": 0,
+  "user_data_mutations": 0,
+  "preserved": [
+    "legacy routes and history",
+    "model configuration",
+    "runner and validator",
+    "approval and transaction boundaries"
+  ],
+  "screenshots": [
+    "docs/demos/pipeline-overview-20261008.png",
+    "docs/demos/pipeline-workflow-20261008.png",
+    "docs/demos/pipeline-live-presentation-20261008.png"
+  ],
+  "unverified": [
+    "user acceptance of the redesigned UI",
+    "new LIVE generation after this UI change"
+  ]
+}

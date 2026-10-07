@@ -18,7 +18,7 @@ function transaction<T>(db:DatabaseSync,fn:()=>T):T {
 export {transaction};
 export function migrate(db:DatabaseSync):void {
   const version=(db.prepare('PRAGMA user_version').get() as {user_version:number}).user_version;
-  if(version>9)throw new Error('DB_SCHEMA_TOO_NEW');
+  if(version>10)throw new Error('DB_SCHEMA_TOO_NEW');
   if(version<1)transaction(db,()=>{
     db.exec(`
       CREATE TABLE task_definition(id TEXT PRIMARY KEY,name TEXT NOT NULL,description TEXT NOT NULL,schema_version INTEGER NOT NULL,steps_json TEXT NOT NULL,created_at TEXT NOT NULL);
@@ -152,6 +152,12 @@ export function migrate(db:DatabaseSync):void {
   });
   if(version<9)transaction(db,()=>{
     db.exec("ALTER TABLE local_repair_loop ADD COLUMN cancel_requested_at TEXT; PRAGMA user_version=9;");
+  });
+  if(version<10)transaction(db,()=>{
+    db.exec(`CREATE TABLE pipeline_entity(id TEXT PRIMARY KEY,project_id TEXT NOT NULL,kind TEXT NOT NULL,json TEXT NOT NULL);
+      CREATE INDEX idx_pipeline_entity ON pipeline_entity(project_id,kind);
+      CREATE TABLE pipeline_event(project_id TEXT NOT NULL,seq INTEGER NOT NULL,type TEXT NOT NULL,entity_id TEXT NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(project_id,seq));
+      PRAGMA user_version=10;`);
   });
 }
 const seedTime='2026-09-25T09:00:00.000Z';
