@@ -58,7 +58,20 @@ LIVE 会实际请求付费模型，页面展示实际来源。仅在明确接受
 
 ## 测试与评测
 
-[首页](../README.md#验证结果)列出完整离线检查命令。Playwright 依赖通过 `pnpm exec playwright install chrome ffmpeg` 安装；E2E、`check:pipeline:start`、P0 / M5 MOCK 评测使用独立数据库和端口，保留开发库。
+Playwright 依赖通过 `pnpm exec playwright install chrome ffmpeg` 安装；E2E、`check:pipeline:start`、P0 / M5 MOCK 评测使用独立数据库和端口，保留开发库。完整离线检查命令如下：
+
+```powershell
+pnpm exec playwright install chrome ffmpeg
+pnpm format:check
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm build
+pnpm test:e2e
+pnpm check:pipeline:start
+pnpm eval:mock
+pnpm eval:mock --m5
+```
 
 以下是显式 LIVE 评测入口，调用前须配置上述授权和预算：
 
