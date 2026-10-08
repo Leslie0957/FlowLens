@@ -157,6 +157,7 @@ it('real stdio SDK discovers all six strict tools, reads actual databases and pa
   }
 });
 
+// Six real stdio services are started sequentially for the binding scenarios.
 it('rejects unknown tools/arguments/cursors and stale/cross-project/execution/revision/input bindings', async () => {
   const s = await setup();
   try {
@@ -202,7 +203,7 @@ it('rejects unknown tools/arguments/cursors and stale/cross-project/execution/re
   } finally {
     await s.close();
   }
-});
+}, 60000);
 
 it('server opens read-only connections and refuses a changed execution/log range or stopped diagnosis', async () => {
   const s = await setup();
@@ -256,6 +257,7 @@ it('discovery rejects missing/extra/changed definitions and closes its actual ch
   }
 });
 
+// Five real services exercise different result failures and the byte cap.
 it('validates structured results, sources, business isError and the full response byte cap', async () => {
   const s = await setup();
   vi.stubEnv('MODEL_API_KEY', 'never-pass-this-to-the-tool-service');
@@ -291,8 +293,9 @@ it('validates structured results, sources, business isError and the full respons
     vi.unstubAllEnvs();
     await s.close();
   }
-});
+}, 60000);
 
+// Four child processes plus the deliberate per-call timeout share this case.
 it('times out/cancels calls and handles malformed protocol or unexpected process exit without fallback', async () => {
   const s = await setup();
   try {
@@ -324,7 +327,7 @@ it('times out/cancels calls and handles malformed protocol or unexpected process
   } finally {
     await s.close();
   }
-});
+}, 60000);
 
 it('Agent marks real MCP calls, writes paged results back by call ID and keeps a durable cited range', async () => {
   const s = await setup();

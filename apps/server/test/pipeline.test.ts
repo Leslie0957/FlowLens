@@ -859,6 +859,7 @@ it('one explicit combined approval checks SQL once, commits that output and rest
   }
 });
 
+// Five complete diagnosis/approval flows run sequentially in this one case.
 it('combined approval stops on invalid results, changed targets, expired or tampered outputs and a real rollback', async () => {
   const s = setup();
   try {
@@ -945,7 +946,7 @@ it('combined approval stops on invalid results, changed targets, expired or tamp
   } finally {
     await s.close();
   }
-});
+}, 60000);
 
 it('combined approval cancellation prevents commit and restart reconciles only actual receipts without replaying uncommitted approval', async () => {
   const s = setup();

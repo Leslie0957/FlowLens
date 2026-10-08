@@ -413,6 +413,7 @@ it('initial evidence alone supports conservative advice; one SQL tool plus initi
   }
 });
 
+// Eight diagnosis sessions share this case; the outer timeout covers all of them.
 it('missing SQL, duplicate/foreign/version-invalid citations, wrong failure stage and NO_CHANGE receive precise bounded feedback', async () => {
   const s = setup();
   try {
@@ -487,7 +488,7 @@ it('missing SQL, duplicate/foreign/version-invalid citations, wrong failure stag
   } finally {
     await s.close();
   }
-});
+}, 60000);
 
 it('invalid arguments are returned by call ID and can be corrected, while unauthorized tools and changed scope stop', async () => {
   const s = setup();
