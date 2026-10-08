@@ -1,2 +1,2 @@
 import tseslint from 'typescript-eslint';
-export default tseslint.config(...tseslint.configs.recommended,{ignores:['dist/**']});
+export default tseslint.config(...tseslint.configs.recommended, { ignores: ['dist/**'] });

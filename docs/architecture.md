@@ -32,13 +32,13 @@ flowchart LR
 
 ## 层与事实来源
 
-| 层 | 入口 | 当前责任 |
-|---|---|---|
-| 页面 | apps/web/src/pages | 运行列表、日志、会话、诊断和按钮审批；模型来源与数据来源分别标识。 |
-| 协议 | packages/contracts/src/index.ts | HTTP DTO、轮次/证据/审批、事件 envelope、诊断结果的 Zod 契约。 |
-| HTTP | apps/server/src/http.ts | 参数校验、错误和 request_id、幂等 API、快照、SSE；消息返回 202 后启动 Agent。 |
-| Agent | diagnosis-agent.ts、diagnosis-context.ts | 有界多轮上下文、工具循环、流式落库、一次格式/语义修复、超时/取消。 |
-| 适配 | model-gateway.ts、diagnosis-tools.ts、tool-registry.ts | 模型与数据/检索替换点；可信代码注册，禁止模型或 HTTP 注册任意执行能力。 |
+| 层     | 入口                                                                                           | 当前责任                                                                                                                                 |
+| ------ | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 页面   | apps/web/src/pages                                                                             | 运行列表、日志、会话、诊断和按钮审批；模型来源与数据来源分别标识。                                                                       |
+| 协议   | packages/contracts/src/index.ts                                                                | HTTP DTO、轮次/证据/审批、事件 envelope、诊断结果的 Zod 契约。                                                                           |
+| HTTP   | apps/server/src/http.ts                                                                        | 参数校验、错误和 request_id、幂等 API、快照、SSE；消息返回 202 后启动 Agent。                                                            |
+| Agent  | diagnosis-agent.ts、diagnosis-context.ts                                                       | 有界多轮上下文、工具循环、流式落库、一次格式/语义修复、超时/取消。                                                                       |
+| 适配   | model-gateway.ts、diagnosis-tools.ts、tool-registry.ts                                         | 模型与数据/检索替换点；可信代码注册，禁止模型或 HTTP 注册任意执行能力。                                                                  |
 | 持久化 | db.ts、diagnosis-store.ts、store.ts、local-execution.ts、local-repair.ts、local-repair-loop.ts | SQLite schema v9；旧 FIXTURE 表不重建，本地执行、修复会话和有限循环使用独立表。当前用例直接使用 SQLite，不宣称有完整通用 Repository 层。 |
 
 SQLite 是事实来源；前端流式文本只是预览，结构化结果必须经服务端校验。事件 seq 按会话递增，快照事务读取 last_event_seq，随后订阅 after_seq。前端以 session_id、seq 去重，以 generation、AbortController 和 evidenceTicket 阻止旧请求覆盖新会话。重试失败的模型流使用 message.reset 清除该次未验证片段。

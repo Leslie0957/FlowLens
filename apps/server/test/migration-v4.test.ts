@@ -1,38 +1,113 @@
-import {expect,it} from 'vitest';
-import {openDatabase,migrate,seed} from '../src/db.js';
-import {createSession,submitMessage,proposeRetry,resolveApproval} from '../src/diagnosis-store.js';
-import {runDiagnosis} from '../src/diagnosis-agent.js';
-it('upgrades legacy v3 initial-only simulation table and approves exactly one retry without losing history',async()=>{
- const db=openDatabase(':memory:');migrate(db);seed(db);
- db.exec("DROP TABLE pipeline_entity; DROP TABLE pipeline_event; DROP TABLE local_repair_loop_round; DROP TABLE local_repair_loop; DROP TABLE local_repair_evidence; DROP TABLE local_repair_tool; DROP TABLE local_repair_session; DROP TABLE local_artifact; DROP TABLE local_execution_log; DROP TABLE local_execution; DROP TABLE local_revision; DROP TABLE local_project; DROP TABLE simulation_state; CREATE TABLE simulation_state(run_id TEXT PRIMARY KEY REFERENCES task_run(id),fixture_version TEXT NOT NULL,timeline_variant TEXT NOT NULL CHECK(timeline_variant='initial'),next_event_index INTEGER NOT NULL,elapsed_ms INTEGER NOT NULL,updated_at TEXT NOT NULL); PRAGMA user_version=3;");
- db.prepare('INSERT INTO simulation_state VALUES (?,?,?,?,?,?)').run('seed_s00','1','initial',2,2000,'2026-09-27T00:00:00Z');
- const s=createSession(db,'seed_s04','legacy-session'),t=submitMessage(db,s.id,'诊断','legacy-turn','MOCK','mock');
- await runDiagnosis(db,{sessionId:s.id,turnId:t.turn_id,runId:'seed_s04',question:'诊断',mode:'MOCK',model:'mock',logSink:()=>{}});
- const p=proposeRetry(db,'seed_s04',t.turn_id,'超时重试','legacy-proposal');
- const logs=db.prepare('SELECT * FROM task_log ORDER BY id').all();
- migrate(db);migrate(db);
- const result=resolveApproval(db,p.id,'approve','legacy-approval');
- expect(result.status).toBe('APPROVED');expect(resolveApproval(db,p.id,'approve','legacy-repeat').child_run_id).toBe(result.child_run_id);
- expect(db.prepare('SELECT count(*) n FROM task_run WHERE parent_run_id=?').get('seed_s04')).toMatchObject({n:1});
- expect(db.prepare('SELECT * FROM task_log ORDER BY id').all()).toEqual(logs);
- expect(db.prepare('SELECT * FROM simulation_state WHERE run_id=?').get('seed_s00')).toMatchObject({timeline_variant:'initial',next_event_index:2,elapsed_ms:2000});
- expect(db.prepare('SELECT count(*) n FROM diagnosis_result WHERE turn_id=?').get(t.turn_id)).toMatchObject({n:1});
- expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);db.close();
+import { expect, it } from 'vitest';
+import { openDatabase, migrate, seed } from '../src/db.js';
+import {
+  createSession,
+  submitMessage,
+  proposeRetry,
+  resolveApproval,
+} from '../src/diagnosis-store.js';
+import { runDiagnosis } from '../src/diagnosis-agent.js';
+it('upgrades legacy v3 initial-only simulation table and approves exactly one retry without losing history', async () => {
+  const db = openDatabase(':memory:');
+  migrate(db);
+  seed(db);
+  db.exec(
+    "DROP TABLE pipeline_entity; DROP TABLE pipeline_event; DROP TABLE local_repair_loop_round; DROP TABLE local_repair_loop; DROP TABLE local_repair_evidence; DROP TABLE local_repair_tool; DROP TABLE local_repair_session; DROP TABLE local_artifact; DROP TABLE local_execution_log; DROP TABLE local_execution; DROP TABLE local_revision; DROP TABLE local_project; DROP TABLE simulation_state; CREATE TABLE simulation_state(run_id TEXT PRIMARY KEY REFERENCES task_run(id),fixture_version TEXT NOT NULL,timeline_variant TEXT NOT NULL CHECK(timeline_variant='initial'),next_event_index INTEGER NOT NULL,elapsed_ms INTEGER NOT NULL,updated_at TEXT NOT NULL); PRAGMA user_version=3;",
+  );
+  db.prepare('INSERT INTO simulation_state VALUES (?,?,?,?,?,?)').run(
+    'seed_s00',
+    '1',
+    'initial',
+    2,
+    2000,
+    '2026-09-27T00:00:00Z',
+  );
+  const s = createSession(db, 'seed_s04', 'legacy-session'),
+    t = submitMessage(db, s.id, '诊断', 'legacy-turn', 'MOCK', 'mock');
+  await runDiagnosis(db, {
+    sessionId: s.id,
+    turnId: t.turn_id,
+    runId: 'seed_s04',
+    question: '诊断',
+    mode: 'MOCK',
+    model: 'mock',
+    logSink: () => {},
+  });
+  const p = proposeRetry(db, 'seed_s04', t.turn_id, '超时重试', 'legacy-proposal');
+  const logs = db.prepare('SELECT * FROM task_log ORDER BY id').all();
+  migrate(db);
+  migrate(db);
+  const result = resolveApproval(db, p.id, 'approve', 'legacy-approval');
+  expect(result.status).toBe('APPROVED');
+  expect(resolveApproval(db, p.id, 'approve', 'legacy-repeat').child_run_id).toBe(
+    result.child_run_id,
+  );
+  expect(
+    db.prepare('SELECT count(*) n FROM task_run WHERE parent_run_id=?').get('seed_s04'),
+  ).toMatchObject({ n: 1 });
+  expect(db.prepare('SELECT * FROM task_log ORDER BY id').all()).toEqual(logs);
+  expect(db.prepare('SELECT * FROM simulation_state WHERE run_id=?').get('seed_s00')).toMatchObject(
+    { timeline_variant: 'initial', next_event_index: 2, elapsed_ms: 2000 },
+  );
+  expect(
+    db.prepare('SELECT count(*) n FROM diagnosis_result WHERE turn_id=?').get(t.turn_id),
+  ).toMatchObject({ n: 1 });
+  expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
+  db.close();
 });
-it('upgrades a v2 database with a running simulation without resetting progress',()=>{
- const db=openDatabase(':memory:');
- db.exec(`CREATE TABLE task_definition(id TEXT PRIMARY KEY,name TEXT NOT NULL,description TEXT NOT NULL,schema_version INTEGER NOT NULL,steps_json TEXT NOT NULL,created_at TEXT NOT NULL);
+it('upgrades a v2 database with a running simulation without resetting progress', () => {
+  const db = openDatabase(':memory:');
+  db.exec(`CREATE TABLE task_definition(id TEXT PRIMARY KEY,name TEXT NOT NULL,description TEXT NOT NULL,schema_version INTEGER NOT NULL,steps_json TEXT NOT NULL,created_at TEXT NOT NULL);
  CREATE TABLE task_run(id TEXT PRIMARY KEY,task_id TEXT NOT NULL REFERENCES task_definition(id),data_source TEXT NOT NULL,scenario_id TEXT NOT NULL,scenario_instance_id TEXT NOT NULL,parent_run_id TEXT,status TEXT NOT NULL,step_states_json TEXT NOT NULL,params_json TEXT NOT NULL,created_at TEXT NOT NULL,started_at TEXT,finished_at TEXT,error_code TEXT,error_message TEXT,summary_json TEXT);
  CREATE TABLE task_log(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES task_run(id),seq INTEGER NOT NULL,timestamp TEXT NOT NULL,level TEXT NOT NULL,step TEXT NOT NULL,message TEXT NOT NULL,UNIQUE(run_id,seq));
  CREATE TABLE simulation_state(run_id TEXT PRIMARY KEY REFERENCES task_run(id),fixture_version TEXT NOT NULL,timeline_variant TEXT NOT NULL CHECK(timeline_variant='initial'),next_event_index INTEGER NOT NULL,elapsed_ms INTEGER NOT NULL,updated_at TEXT NOT NULL);
  CREATE TABLE request_dedup(scope TEXT NOT NULL,idempotency_key TEXT NOT NULL,request_hash TEXT NOT NULL,response_json TEXT NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(scope,idempotency_key));PRAGMA user_version=2;`);
- db.prepare('INSERT INTO task_definition VALUES (?,?,?,?,?,?)').run('order_daily','旧任务','保留',1,'[]','2026-01-01T00:00:00Z');
- db.prepare('INSERT INTO task_run VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run('old-active','order_daily','FIXTURE','S04','old-instance',null,'RUNNING','{}','{}','2026-01-01T00:00:00Z','2026-01-01T00:00:00Z',null,null,null,null);
- db.prepare('INSERT INTO simulation_state VALUES (?,?,?,?,?,?)').run('old-active','1','initial',1,2500,'2026-01-01T00:00:02Z');
- migrate(db);migrate(db);seed(db);
- expect(db.prepare('PRAGMA user_version').get()).toMatchObject({user_version:10});
- expect(db.prepare('SELECT count(*) n FROM local_project').get()).toMatchObject({n:0});
- expect(db.prepare('SELECT next_event_index,elapsed_ms FROM simulation_state WHERE run_id=?').get('old-active')).toMatchObject({next_event_index:1,elapsed_ms:2500});
- expect(db.prepare('SELECT count(*) n FROM task_run WHERE id=?').get('old-active')).toMatchObject({n:1});
- expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);db.close();
+  db.prepare('INSERT INTO task_definition VALUES (?,?,?,?,?,?)').run(
+    'order_daily',
+    '旧任务',
+    '保留',
+    1,
+    '[]',
+    '2026-01-01T00:00:00Z',
+  );
+  db.prepare('INSERT INTO task_run VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(
+    'old-active',
+    'order_daily',
+    'FIXTURE',
+    'S04',
+    'old-instance',
+    null,
+    'RUNNING',
+    '{}',
+    '{}',
+    '2026-01-01T00:00:00Z',
+    '2026-01-01T00:00:00Z',
+    null,
+    null,
+    null,
+    null,
+  );
+  db.prepare('INSERT INTO simulation_state VALUES (?,?,?,?,?,?)').run(
+    'old-active',
+    '1',
+    'initial',
+    1,
+    2500,
+    '2026-01-01T00:00:02Z',
+  );
+  migrate(db);
+  migrate(db);
+  seed(db);
+  expect(db.prepare('PRAGMA user_version').get()).toMatchObject({ user_version: 10 });
+  expect(db.prepare('SELECT count(*) n FROM local_project').get()).toMatchObject({ n: 0 });
+  expect(
+    db
+      .prepare('SELECT next_event_index,elapsed_ms FROM simulation_state WHERE run_id=?')
+      .get('old-active'),
+  ).toMatchObject({ next_event_index: 1, elapsed_ms: 2500 });
+  expect(db.prepare('SELECT count(*) n FROM task_run WHERE id=?').get('old-active')).toMatchObject({
+    n: 1,
+  });
+  expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
+  db.close();
 });

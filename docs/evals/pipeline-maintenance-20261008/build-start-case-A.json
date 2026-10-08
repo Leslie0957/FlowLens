@@ -1,0 +1,462 @@
+{
+  "project": {
+    "id": "fc70c363-aab2-4fe4-8e1b-7cebe59d1ffd",
+    "name": "A · SQL 列错误",
+    "template": "A",
+    "input_source": "SYNTHETIC",
+    "input_hash": "3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+    "current_revision_id": "ae279411-16d5-461f-b92d-bf84d07f286b",
+    "created_at": "2026-10-08T10:10:13.173Z"
+  },
+  "revision": {
+    "id": "ae279411-16d5-461f-b92d-bf84d07f286b",
+    "project_id": "fc70c363-aab2-4fe4-8e1b-7cebe59d1ffd",
+    "parent_id": "bc45540b-642c-4165-99f1-7535ffa7c851",
+    "sql": "SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_mps < 1 AND end_us - start_us >= 3000000;",
+    "hash": "acf281dbaa72433794593cc46a37291d89a7a191948ef363da48ac6917cfc3b2",
+    "input_hash": "3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+    "source": "AGENT_APPROVED",
+    "created_at": "2026-10-08T10:10:15.125Z"
+  },
+  "revisions": [
+    {
+      "id": "ae279411-16d5-461f-b92d-bf84d07f286b",
+      "project_id": "fc70c363-aab2-4fe4-8e1b-7cebe59d1ffd",
+      "parent_id": "bc45540b-642c-4165-99f1-7535ffa7c851",
+      "sql": "SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_mps < 1 AND end_us - start_us >= 3000000;",
+      "hash": "acf281dbaa72433794593cc46a37291d89a7a191948ef363da48ac6917cfc3b2",
+      "input_hash": "3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+      "source": "AGENT_APPROVED",
+      "created_at": "2026-10-08T10:10:15.125Z"
+    },
+    {
+      "id": "bc45540b-642c-4165-99f1-7535ffa7c851",
+      "project_id": "fc70c363-aab2-4fe4-8e1b-7cebe59d1ffd",
+      "parent_id": null,
+      "sql": "SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_kph < 1 AND end_us - start_us >= 3000000;",
+      "hash": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26",
+      "input_hash": "3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+      "source": "TEMPLATE",
+      "created_at": "2026-10-08T10:10:13.173Z"
+    }
+  ],
+  "executions": [
+    {
+      "id": "87c54625-9b4d-4169-9e9e-60061416810e",
+      "project_id": "fc70c363-aab2-4fe4-8e1b-7cebe59d1ffd",
+      "revision_id": "ae279411-16d5-461f-b92d-bf84d07f286b",
+      "revision_hash": "acf281dbaa72433794593cc46a37291d89a7a191948ef363da48ac6917cfc3b2",
+      "input_hash": "3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+      "kind": "CANDIDATE_CHECK",
+      "status": "PRECHECK_PASSED",
+      "created_at": "2026-10-08T10:10:15.131Z",
+      "finished_at": "2026-10-08T10:10:15.202Z",
+      "logs": [
+        {
+          "at": "2026-10-08T10:10:15.132Z",
+          "step": "query",
+          "level": "INFO",
+          "message": "启动固定 Node 子进程，使用只读源库执行 task.sql"
+        },
+        {
+          "at": "2026-10-08T10:10:15.195Z",
+          "step": "query",
+          "level": "INFO",
+          "message": "SQLite 查询完成：4 行，1.5 ms"
+        },
+        {
+          "at": "2026-10-08T10:10:15.198Z",
+          "step": "validate",
+          "level": "INFO",
+          "message": "独立源数据规则、完整键集合与字段值一致"
+        },
+        {
+          "at": "2026-10-08T10:10:15.201Z",
+          "step": "precheck",
+          "level": "INFO",
+          "message": "只读预检：预计新增 4、跳过 0、冲突 0；目标版本 0"
+        }
+      ],
+      "columns": [
+        "dat",
+        "st",
+        "et",
+        "car_series"
+      ],
+      "rows": [
+        {
+          "dat": "synthetic_segment_01",
+          "st": 1700000000000000,
+          "et": 1700000004000000,
+          "car_series": "DEMO_ALPHA"
+        },
+        {
+          "dat": "synthetic_segment_02",
+          "st": 1700000010000000,
+          "et": 1700000013000000,
+          "car_series": "DEMO_BETA"
+        },
+        {
+          "dat": "synthetic_segment_06",
+          "st": 1700000050000000,
+          "et": 1700000057000000,
+          "car_series": "DEMO_BETA"
+        },
+        {
+          "dat": "synthetic_segment_08",
+          "st": 1700000070000000,
+          "et": 1700000073000001,
+          "car_series": "DEMO_BETA"
+        }
+      ],
+      "error_code": null,
+      "error_message": null,
+      "failed_step": null,
+      "exit_code": 0,
+      "validation": {
+        "passed": true,
+        "expected_count": 4,
+        "actual_count": 4,
+        "message": "独立源数据规则、完整键集合与字段值一致"
+      },
+      "precheck": {
+        "target_version": 0,
+        "target_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "output_hash": "e1eefa218eea8700e9907fec6877a62bbf2bf1ba2fbf82fd142997ea4c15031e",
+        "inserted": 4,
+        "skipped": 0,
+        "conflicts": 0,
+        "expires_at": "2026-10-08T10:20:15.201Z"
+      },
+      "verification": null
+    },
+    {
+      "id": "4bcccbe1-6f21-4d16-92cc-04143bd029e9",
+      "project_id": "fc70c363-aab2-4fe4-8e1b-7cebe59d1ffd",
+      "revision_id": "bc45540b-642c-4165-99f1-7535ffa7c851",
+      "revision_hash": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26",
+      "input_hash": "3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+      "kind": "PRECHECK",
+      "status": "FAILED",
+      "created_at": "2026-10-08T10:10:13.342Z",
+      "finished_at": "2026-10-08T10:10:13.413Z",
+      "logs": [
+        {
+          "at": "2026-10-08T10:10:13.345Z",
+          "step": "query",
+          "level": "INFO",
+          "message": "启动固定 Node 子进程，使用只读源库执行 task.sql"
+        },
+        {
+          "at": "2026-10-08T10:10:13.412Z",
+          "step": "query",
+          "level": "ERROR",
+          "message": "no such column: speed_kph"
+        }
+      ],
+      "columns": [],
+      "rows": [],
+      "error_code": "SQL_QUERY_FAILED",
+      "error_message": "no such column: speed_kph",
+      "failed_step": "query",
+      "exit_code": 2,
+      "validation": null,
+      "precheck": null,
+      "verification": null
+    }
+  ],
+  "repairs": [
+    {
+      "id": "14c3d93c-d9f2-4eda-9711-5e740a9f9744",
+      "project_id": "fc70c363-aab2-4fe4-8e1b-7cebe59d1ffd",
+      "execution_id": "4bcccbe1-6f21-4d16-92cc-04143bd029e9",
+      "base_revision_id": "bc45540b-642c-4165-99f1-7535ffa7c851",
+      "base_hash": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26",
+      "input_hash": "3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+      "status": "VERIFIED",
+      "provider_mode": "MOCK",
+      "model": "deepseek-flash",
+      "created_at": "2026-10-08T10:10:13.620Z",
+      "expires_at": "2026-10-08T10:20:14.079Z",
+      "tools": [
+        {
+          "id": "41846541-5597-46c2-8a22-65169a49dad8",
+          "request": 1,
+          "call_id": "mock-get_sql",
+          "name": "get_sql",
+          "status": "COMPLETED",
+          "args": {},
+          "result": {
+            "output": {
+              "file_path": "task.sql",
+              "sql": "SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_kph < 1 AND end_us - start_us >= 3000000;",
+              "base_hash": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26"
+            },
+            "evidence_ids": [
+              "7c094f9a-7da0-47d8-bfde-47b620d15f57"
+            ]
+          },
+          "error_code": null,
+          "transport": "MCP",
+          "tool_server": "flowlens-pipeline-readonly"
+        },
+        {
+          "id": "cbba2e5a-7aaa-4e6e-94c3-99c21fbdca8b",
+          "request": 2,
+          "call_id": "mock-get_schema",
+          "name": "get_schema",
+          "status": "COMPLETED",
+          "args": {},
+          "result": {
+            "output": {
+              "source": [
+                {
+                  "name": "event_id",
+                  "type": "INTEGER"
+                },
+                {
+                  "name": "dat",
+                  "type": "TEXT"
+                },
+                {
+                  "name": "start_us",
+                  "type": "INTEGER"
+                },
+                {
+                  "name": "end_us",
+                  "type": "INTEGER"
+                },
+                {
+                  "name": "speed_mps",
+                  "type": "REAL"
+                },
+                {
+                  "name": "car_series",
+                  "type": "TEXT"
+                }
+              ],
+              "target": [
+                {
+                  "name": "task_id",
+                  "type": "TEXT"
+                },
+                {
+                  "name": "dat",
+                  "type": "TEXT"
+                },
+                {
+                  "name": "st",
+                  "type": "INTEGER"
+                },
+                {
+                  "name": "et",
+                  "type": "INTEGER"
+                },
+                {
+                  "name": "car_series",
+                  "type": "TEXT"
+                },
+                {
+                  "name": "execution_id",
+                  "type": "TEXT"
+                }
+              ],
+              "contract": {
+                "rule": "speed_mps < 1 且 end_us - start_us >= 3000000；仅为 Demo 规则",
+                "columns": [
+                  "dat",
+                  "st",
+                  "et",
+                  "car_series"
+                ],
+                "business_key": [
+                  "task_id",
+                  "dat",
+                  "st",
+                  "et"
+                ],
+                "writable_file": "task.sql",
+                "runner": "vehicle-select-v1",
+                "validator": "vehicle-oracle-v1",
+                "input_version": "synthetic-vehicles-v1"
+              }
+            },
+            "evidence_ids": [
+              "92aa3f0c-2e99-4ae3-a881-6cd3126740f0"
+            ]
+          },
+          "error_code": null,
+          "transport": "MCP",
+          "tool_server": "flowlens-pipeline-readonly"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "27dbfc5b-afba-4d4f-97e7-799ddb2c55d2",
+          "type": "INITIAL_FAILURE",
+          "source_id": "4bcccbe1-6f21-4d16-92cc-04143bd029e9",
+          "source_version": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26:3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+          "excerpt": "{\"status\":\"FAILED\",\"failed_step\":\"query\",\"error_code\":\"SQL_QUERY_FAILED\",\"error_message\":\"no such column: speed_kph\"}"
+        },
+        {
+          "id": "7c094f9a-7da0-47d8-bfde-47b620d15f57",
+          "type": "get_sql",
+          "source_id": "bc45540b-642c-4165-99f1-7535ffa7c851",
+          "source_version": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26:3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+          "excerpt": "{\"file_path\":\"task.sql\",\"sql\":\"SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_kph < 1 AND end_us - start_us >= 3000000;\",\"base_hash\":\"66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26\"}"
+        },
+        {
+          "id": "92aa3f0c-2e99-4ae3-a881-6cd3126740f0",
+          "type": "get_schema",
+          "source_id": "4bcccbe1-6f21-4d16-92cc-04143bd029e9",
+          "source_version": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26:3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+          "excerpt": "{\"source\":[{\"name\":\"event_id\",\"type\":\"INTEGER\"},{\"name\":\"dat\",\"type\":\"TEXT\"},{\"name\":\"start_us\",\"type\":\"INTEGER\"},{\"name\":\"end_us\",\"type\":\"INTEGER\"},{\"name\":\"speed_mps\",\"type\":\"REAL\"},{\"name\":\"car_series\",\"type\":\"TEXT\"}],\"target\":[{\"name\":\"task_id\",\"type\":\"TEXT\"},{\"name\":\"dat\",\"type\":\"TEXT\"},{\"name\":\"st\",\"type\":\"INTEGER\"},{\"name\":\"et\",\"type\":\"INTEGER\"},{\"name\":\"car_series\",\"type\":\"TEXT\"},{\"name\":\"execution_id\",\"type\":\"TEXT\"}],\"contract\":{\"rule\":\"speed_mps < 1 且 end_us - start_us >= 3000000；仅为 Demo 规则\",\"columns\":[\"dat\",\"st\",\"et\",\"car_series\"],\"business_key\":[\"task_id\",\"dat\",\"st\",\"et\"],\"writable_file\":\"task.sql\",\"runner\":\"vehicle-select-v1\",\"validator\":\"vehicle-oracle-v1\",\"input_version\":\"synthetic-vehicles-v1\"}}"
+        }
+      ],
+      "diagnosis": "MOCK 离线演示：根据上一轮实际资料选择后续取证，提出候选；正确性仍需独立验证。",
+      "action": "SQL_PATCH",
+      "failed_step": "query",
+      "evidence_ids": [
+        "27dbfc5b-afba-4d4f-97e7-799ddb2c55d2",
+        "7c094f9a-7da0-47d8-bfde-47b620d15f57",
+        "92aa3f0c-2e99-4ae3-a881-6cd3126740f0"
+      ],
+      "candidate": {
+        "file_path": "task.sql",
+        "sql": "SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_mps < 1 AND end_us - start_us >= 3000000;",
+        "hash": "acf281dbaa72433794593cc46a37291d89a7a191948ef363da48ac6917cfc3b2",
+        "diff": "--- task.sql (base)\n+++ task.sql (candidate)\n-SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_kph < 1 AND end_us - start_us >= 3000000;\n+SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_mps < 1 AND end_us - start_us >= 3000000;"
+      },
+      "approved_revision_id": "ae279411-16d5-461f-b92d-bf84d07f286b",
+      "verification_execution_id": "87c54625-9b4d-4169-9e9e-60061416810e",
+      "error_code": null,
+      "error_message": null,
+      "diagnosis_limits": {
+        "max_requests": 100,
+        "max_tool_calls": 200,
+        "timeout_ms": 900000,
+        "max_stall_rounds": 3,
+        "max_context_bytes": 262144
+      },
+      "diagnosis_phase": null,
+      "model_turns": [
+        {
+          "request": 1,
+          "text": "{\"investigation\":{\"question\":\"实际 SQL 中哪些表达式与失败有关？\",\"reason\":\"初始失败给出了报错，还需要绑定版本的完整源码定位问题。\",\"evidence_ids\":[\"27dbfc5b-afba-4d4f-97e7-799ddb2c55d2\"]}}",
+          "finish_reason": "tool_calls",
+          "investigation": {
+            "question": "实际 SQL 中哪些表达式与失败有关？",
+            "reason": "初始失败给出了报错，还需要绑定版本的完整源码定位问题。",
+            "evidence_ids": [
+              "27dbfc5b-afba-4d4f-97e7-799ddb2c55d2"
+            ]
+          },
+          "calls": [
+            {
+              "id": "mock-get_sql",
+              "name": "get_sql",
+              "arguments": {}
+            }
+          ]
+        },
+        {
+          "request": 2,
+          "text": "{\"investigation\":{\"question\":\"源码中的字段是否存在于实际源表？\",\"reason\":\"上一轮获得报错 SQL，需要实际表结构核对字段。\",\"evidence_ids\":[\"7c094f9a-7da0-47d8-bfde-47b620d15f57\"]}}",
+          "finish_reason": "tool_calls",
+          "investigation": {
+            "question": "源码中的字段是否存在于实际源表？",
+            "reason": "上一轮获得报错 SQL，需要实际表结构核对字段。",
+            "evidence_ids": [
+              "7c094f9a-7da0-47d8-bfde-47b620d15f57"
+            ]
+          },
+          "calls": [
+            {
+              "id": "mock-get_schema",
+              "name": "get_schema",
+              "arguments": {}
+            }
+          ]
+        },
+        {
+          "request": 3,
+          "text": "{\"diagnosis\":\"MOCK 离线演示：根据上一轮实际资料选择后续取证，提出候选；正确性仍需独立验证。\",\"failed_step\":\"query\",\"action\":\"SQL_PATCH\",\"evidence_ids\":[\"27dbfc5b-afba-4d4f-97e7-799ddb2c55d2\",\"7c094f9a-7da0-47d8-bfde-47b620d15f57\",\"92aa3f0c-2e99-4ae3-a881-6cd3126740f0\"],\"candidate\":{\"file_path\":\"task.sql\",\"base_hash\":\"66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26\",\"new_content\":\"SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_mps < 1 AND end_us - start_us >= 3000000;\"}}",
+          "finish_reason": "stop",
+          "investigation": null,
+          "calls": []
+        }
+      ],
+      "commit_approval": {
+        "approved_at": "2026-10-08T10:10:15.125Z",
+        "target_version": 0,
+        "target_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "status": "COMMITTED",
+        "execution_id": "87c54625-9b4d-4169-9e9e-60061416810e",
+        "operation_id": "a4cc07ef-068e-4dc2-8541-7fd95788d080",
+        "batch_id": "f00e537c-3ab6-4c88-90ae-f34a60404d1e",
+        "error_code": null,
+        "error_message": null
+      },
+      "response_checks": [],
+      "model_requests": 3,
+      "usage": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0
+      }
+    }
+  ],
+  "batches": [
+    {
+      "id": "f00e537c-3ab6-4c88-90ae-f34a60404d1e",
+      "execution_id": "87c54625-9b4d-4169-9e9e-60061416810e",
+      "revision_id": "ae279411-16d5-461f-b92d-bf84d07f286b",
+      "status": "RESTORED",
+      "created_at": "2026-10-08T10:10:15.212Z",
+      "snapshot_id": "b0a9d533-ad61-4dfa-a55b-d39f9f6ee9c2",
+      "snapshot_storage": "INCREMENTAL",
+      "before_data_version": 0,
+      "inserted_hash": "ace939742b02278d0ff36a99f3831b1b3d0bcd6e56b2ca1e37609a2cb0553b67",
+      "before_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "after_hash": "ace939742b02278d0ff36a99f3831b1b3d0bcd6e56b2ca1e37609a2cb0553b67",
+      "before_count": 0,
+      "after_count": 4,
+      "inserted": 4,
+      "skipped": 0,
+      "previous_head": null,
+      "data_version": 1,
+      "restored_at": "2026-10-08T10:10:15.512Z",
+      "restore_id": "b58e96ae-9260-423b-8f72-80b279f63f99",
+      "can_restore": false
+    }
+  ],
+  "operations": [
+    {
+      "id": "df5a3d44-4d68-45e6-8cdd-203457e05053",
+      "type": "RESTORE",
+      "status": "SUCCEEDED",
+      "execution_id": null,
+      "batch_id": "f00e537c-3ab6-4c88-90ae-f34a60404d1e",
+      "error_code": null,
+      "error_message": null,
+      "created_at": "2026-10-08T10:10:15.504Z"
+    },
+    {
+      "id": "a4cc07ef-068e-4dc2-8541-7fd95788d080",
+      "type": "COMMIT",
+      "status": "SUCCEEDED",
+      "execution_id": "87c54625-9b4d-4169-9e9e-60061416810e",
+      "batch_id": "f00e537c-3ab6-4c88-90ae-f34a60404d1e",
+      "error_code": null,
+      "error_message": null,
+      "created_at": "2026-10-08T10:10:15.208Z"
+    }
+  ],
+  "target": {
+    "data_version": 2,
+    "head_batch_id": null,
+    "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "row_count": 0,
+    "preview": []
+  },
+  "cursor": 40
+}

@@ -26,6 +26,7 @@ jobs:
         with:
           version: '11.5.0'
       - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
       - run: pnpm exec playwright install chrome ffmpeg
       - run: pnpm typecheck
       - run: pnpm lint

@@ -1,0 +1,3 @@
+$ pnpm --filter @flowlens/server lint && pnpm --filter @flowlens/web lint
+$ eslint .
+$ eslint src --ext .ts,.vue

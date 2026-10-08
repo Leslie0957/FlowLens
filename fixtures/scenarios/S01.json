@@ -1,10 +1,45 @@
 {
- "scenario_id":"S01","version":"1","display_name":"输入缺少必填字段","description":"读取成功，校验发现缺少 amount；不能靠重试补字段","task_id":"order_daily",
- "params":{"business_date":"2026-09-25","source":"demo_missing_field"},
- "timeline":[
-  {"offset_ms":0,"step":"read","step_status":"RUNNING","run_status":"RUNNING","logs":[{"level":"INFO","message":"Starting read step (fixture)"}]},
-  {"offset_ms":2000,"step":"read","step_status":"SUCCEEDED","logs":[{"level":"INFO","message":"Read completed; observed fields=[order_id] (fixture)"}]},
-  {"offset_ms":4000,"step":"validate","step_status":"RUNNING","logs":[{"level":"INFO","message":"Validating required fields (fixture)"}]},
-  {"offset_ms":6000,"step":"validate","step_status":"FAILED","run_status":"FAILED","error_code":"SCHEMA_MISMATCH","error_message":"Missing required field amount","logs":[{"level":"ERROR","message":"Schema validation failed: required=[order_id,amount], observed=[order_id]; missing=[amount] (fixture)"}]}
- ]
+  "scenario_id": "S01",
+  "version": "1",
+  "display_name": "输入缺少必填字段",
+  "description": "读取成功，校验发现缺少 amount；不能靠重试补字段",
+  "task_id": "order_daily",
+  "params": { "business_date": "2026-09-25", "source": "demo_missing_field" },
+  "timeline": [
+    {
+      "offset_ms": 0,
+      "step": "read",
+      "step_status": "RUNNING",
+      "run_status": "RUNNING",
+      "logs": [{ "level": "INFO", "message": "Starting read step (fixture)" }]
+    },
+    {
+      "offset_ms": 2000,
+      "step": "read",
+      "step_status": "SUCCEEDED",
+      "logs": [
+        { "level": "INFO", "message": "Read completed; observed fields=[order_id] (fixture)" }
+      ]
+    },
+    {
+      "offset_ms": 4000,
+      "step": "validate",
+      "step_status": "RUNNING",
+      "logs": [{ "level": "INFO", "message": "Validating required fields (fixture)" }]
+    },
+    {
+      "offset_ms": 6000,
+      "step": "validate",
+      "step_status": "FAILED",
+      "run_status": "FAILED",
+      "error_code": "SCHEMA_MISMATCH",
+      "error_message": "Missing required field amount",
+      "logs": [
+        {
+          "level": "ERROR",
+          "message": "Schema validation failed: required=[order_id,amount], observed=[order_id]; missing=[amount] (fixture)"
+        }
+      ]
+    }
+  ]
 }

@@ -4,6 +4,8 @@
   "type": "module",
   "packageManager": "pnpm@11.5.0",
   "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "dev": "pnpm --filter @flowlens/contracts build && pnpm --parallel --filter @flowlens/server --filter @flowlens/web dev",
     "typecheck": "pnpm --filter @flowlens/contracts build && pnpm --filter @flowlens/server typecheck && pnpm --filter @flowlens/web typecheck",
     "lint": "pnpm --filter @flowlens/server lint && pnpm --filter @flowlens/web lint",
@@ -20,9 +22,11 @@
     "check:pipeline:start": "node scripts/check-pipeline-start.mjs",
     "demo:pipeline": "node --env-file-if-exists=.env.local scripts/pipeline-demo.mjs",
     "eval:pipeline:live:browser": "node --env-file-if-exists=.env.local scripts/check-pipeline-start.mjs --execute-live --approve-test-candidate",
-    "eval:pipeline:live": "node --env-file-if-exists=.env.local scripts/eval-pipeline-live.mjs --execute-live --approve-test-candidate"
+    "eval:pipeline:live": "node --env-file-if-exists=.env.local scripts/eval-pipeline-live.mjs --execute-live --approve-test-candidate",
+    "eval:pipeline:feedback": "node --env-file-if-exists=.env.local scripts/eval-pipeline-feedback.mjs --execute-live --approve-test-candidate"
   },
   "devDependencies": {
-    "@playwright/test": "1.63.0"
+    "@playwright/test": "1.63.0",
+    "prettier": "3.9.9"
   }
 }

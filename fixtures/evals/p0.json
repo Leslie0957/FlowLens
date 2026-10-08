@@ -1,8 +1,28 @@
 [
- {"scenario_id":"S00","question":"这次运行需要修复吗？","cause":"NONE","retry":false},
- {"scenario_id":"S00","question":"请核对这次任务的状态与证据。","cause":"NONE","retry":false},
- {"scenario_id":"S04","question":"为什么读取阶段失败？","cause":"UPSTREAM_TIMEOUT","retry":true},
- {"scenario_id":"S04","question":"这个问题重试有用吗？请说明限制。","cause":"UPSTREAM_TIMEOUT","retry":true},
- {"scenario_id":"S05","question":"现有日志能确定根因吗？","cause":"UNKNOWN","retry":false},
- {"scenario_id":"S05","question":"下一步还需要哪些信息？","cause":"UNKNOWN","retry":false}
+  { "scenario_id": "S00", "question": "这次运行需要修复吗？", "cause": "NONE", "retry": false },
+  {
+    "scenario_id": "S00",
+    "question": "请核对这次任务的状态与证据。",
+    "cause": "NONE",
+    "retry": false
+  },
+  {
+    "scenario_id": "S04",
+    "question": "为什么读取阶段失败？",
+    "cause": "UPSTREAM_TIMEOUT",
+    "retry": true
+  },
+  {
+    "scenario_id": "S04",
+    "question": "这个问题重试有用吗？请说明限制。",
+    "cause": "UPSTREAM_TIMEOUT",
+    "retry": true
+  },
+  {
+    "scenario_id": "S05",
+    "question": "现有日志能确定根因吗？",
+    "cause": "UNKNOWN",
+    "retry": false
+  },
+  { "scenario_id": "S05", "question": "下一步还需要哪些信息？", "cause": "UNKNOWN", "retry": false }
 ]

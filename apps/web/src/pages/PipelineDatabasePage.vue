@@ -29,7 +29,7 @@ let schemaController: AbortController | null = null;
 
 watch(
   projectId,
-  async pid => {
+  async (pid) => {
     const generation = ++schemaSeq;
     schemaController?.abort();
     schemaController = new AbortController();
@@ -38,11 +38,9 @@ watch(
     schemaError.value = '';
 
     try {
-      const next = await pipelineRead(
-        projectPath(pid) + '/schema',
-        pipelineDatabaseSchema,
-        { signal },
-      );
+      const next = await pipelineRead(projectPath(pid) + '/schema', pipelineDatabaseSchema, {
+        signal,
+      });
       if (generation === schemaSeq && !signal.aborted) {
         databaseSchema.value = next;
       }
@@ -60,8 +58,7 @@ const fields = computed(() =>
 );
 const sourceSql =
   'SELECT dat, speed_mps, start_us, end_us, car_series FROM raw_vehicle_events ORDER BY event_id LIMIT 20;';
-const targetSql =
-  'SELECT dat, st, et, car_series FROM mining_results ORDER BY dat, st LIMIT 20;';
+const targetSql = 'SELECT dat, st, et, car_series FROM mining_results ORDER BY dat, st LIMIT 20;';
 
 watch(
   () => [projectId.value, route.query.scope, route.query.batch],
@@ -170,7 +167,7 @@ function cancel() {
   queryError.value = '查询已取消';
 }
 
-const selectedBatch = computed(() => snapshot.value?.batches.find(b => b.id === batch.value));
+const selectedBatch = computed(() => snapshot.value?.batches.find((b) => b.id === batch.value));
 
 function batchPreset() {
   if (!selectedBatch.value) return;
@@ -238,6 +235,13 @@ function batchPreset() {
         {{ selectedBatch?.before_count }} 行 · {{ selectedBatch?.before_hash }} ·
         {{ selectedBatch?.created_at }}
       </p>
+      <p v-if="scope === 'snapshot' && selectedBatch" class="pipeline-muted">
+        {{
+          selectedBatch.snapshot_storage === 'INCREMENTAL'
+            ? '入库前数据由基线及批次变更记录重建。'
+            : '入库前数据来自保留的旧完整快照。'
+        }}
+      </p>
 
       <div class="pipeline-schema" aria-label="允许字段与实际类型">
         <p v-if="schemaError">字段结构读取失败：{{ schemaError }}</p>
@@ -252,7 +256,8 @@ function batchPreset() {
     <div class="pipeline-card">
       <h2>受限 SELECT</h2>
       <p>
-        支持字段、简单比较/算术、WHERE、ORDER BY、LIMIT 和 COUNT。禁止写入、跨库、系统表、JOIN 与多语句。默认最多200行。
+        支持字段、简单比较/算术、WHERE、ORDER BY、LIMIT 和 COUNT。禁止写入、跨库、系统表、JOIN
+        与多语句。默认最多200行。
       </p>
       <textarea
         v-model="sql"
@@ -283,11 +288,7 @@ function batchPreset() {
         >
           COUNT 模板
         </el-button>
-        <el-button
-          v-if="scope === 'target' && selectedBatch"
-          :disabled="busy"
-          @click="batchPreset"
-        >
+        <el-button v-if="scope === 'target' && selectedBatch" :disabled="busy" @click="batchPreset">
           本次实际新增行
         </el-button>
       </div>
@@ -317,11 +318,15 @@ function batchPreset() {
       </dl>
 
       <details class="pipeline-query-hash">
-        <summary>数据摘要 <code>{{ result.data_hash.slice(0, 16) }}…</code></summary>
+        <summary>
+          数据摘要 <code>{{ result.data_hash.slice(0, 16) }}…</code>
+        </summary>
         <p class="mono">{{ result.data_hash }}</p>
       </details>
       <details class="pipeline-schema-details">
-        <summary>实际 SQLite 字段结构 <span>{{ result.schema.length }} 个字段</span></summary>
+        <summary>
+          实际 SQLite 字段结构 <span>{{ result.schema.length }} 个字段</span>
+        </summary>
         <PipelineSchemaTable :fields="result.schema" label="本次查询的实际表结构" />
       </details>
 

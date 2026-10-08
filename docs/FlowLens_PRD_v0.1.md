@@ -21,16 +21,16 @@
 
 以下表格区分用户已经确认的决策和暂定方案。后续修改必须同步更新相关章节。
 
-| 决策 | 推荐默认值 | 状态 | 对实现的影响 |
-|---|---|---|---|
-| D01 前端技术栈 | Vue3 + TypeScript + Vite + Pinia + Element Plus | 用户已确认 | 组件、状态管理与测试方式 |
-| D02 任务数据来源 | 固定任务数据与日志，优先完成前端 | 用户已确认 | Node 场景模拟器，无需真实 Python/SQL 执行环境 |
-| D03 首版是否支持重试审批 | 需要；首版包含诊断—审批—重试闭环 | 用户已确认 | 第 12 节必须实现，业务任务重试为演示模拟 |
-| D04 模型与预算 | 真实模型 API + mock 开发测试模式 | 用户已确认；具体提供商与预算后续配置 | 需在 M0 验证流式输出和工具调用兼容性 |
-| D05 部署范围 | Windows 本地开发、单用户演示 | 暂定 | 不先建设多租户或公网账户体系 |
-| D06 Agent 基座 | 参考/复用 claude-code-from-scratch 的 TypeScript 实现 | 已有讨论方向，接入方式待源码验证 | 不要求直接搬入所有 CLI、文件和 Shell 能力 |
-| D07 交付原则 | 优先跑通基本闭环，同时交付较高完成度、可扩展的底座 | 用户已确认 | 分为 P0 底座验收和 P1 展示增强，关键质量不能后补 |
-| D08 仓库组织 | 独立 FlowLens 仓库，引用/抽取必要上游模块并记录来源 commit | 技术默认方案 | 业务代码与教程章节结构分离，不整仓混改后失去边界 |
+| 决策                     | 推荐默认值                                                 | 状态                                 | 对实现的影响                                     |
+| ------------------------ | ---------------------------------------------------------- | ------------------------------------ | ------------------------------------------------ |
+| D01 前端技术栈           | Vue3 + TypeScript + Vite + Pinia + Element Plus            | 用户已确认                           | 组件、状态管理与测试方式                         |
+| D02 任务数据来源         | 固定任务数据与日志，优先完成前端                           | 用户已确认                           | Node 场景模拟器，无需真实 Python/SQL 执行环境    |
+| D03 首版是否支持重试审批 | 需要；首版包含诊断—审批—重试闭环                           | 用户已确认                           | 第 12 节必须实现，业务任务重试为演示模拟         |
+| D04 模型与预算           | 真实模型 API + mock 开发测试模式                           | 用户已确认；具体提供商与预算后续配置 | 需在 M0 验证流式输出和工具调用兼容性             |
+| D05 部署范围             | Windows 本地开发、单用户演示                               | 暂定                                 | 不先建设多租户或公网账户体系                     |
+| D06 Agent 基座           | 参考/复用 claude-code-from-scratch 的 TypeScript 实现      | 已有讨论方向，接入方式待源码验证     | 不要求直接搬入所有 CLI、文件和 Shell 能力        |
+| D07 交付原则             | 优先跑通基本闭环，同时交付较高完成度、可扩展的底座         | 用户已确认                           | 分为 P0 底座验收和 P1 展示增强，关键质量不能后补 |
+| D08 仓库组织             | 独立 FlowLens 仓库，引用/抽取必要上游模块并记录来源 commit | 技术默认方案                         | 业务代码与教程章节结构分离，不整仓混改后失去边界 |
 
 首版页面必须持续显示“演示任务数据”；重试结果标记“模拟执行”。数据来源与模型来源分别展示：即使使用真实 LLM，任务日志依然来自 fixture。审批、状态流转、持久化和幂等校验需要实际实现，不能仅前端切换标签。
 
@@ -89,14 +89,14 @@
 
 同时用 S00（正常）和 S05（信息不足）验证 Agent 不编造失败原因。不能只演示一条永远成功的聊天脚本。
 
-| 范围 | P0 底座必须 | P1 展示增强 | P2 后续扩展 |
-|---|---|---|---|
-| 任务环境 | S00/S04/S05、持久化模拟器、服务重启恢复 | 补齐 S01/S02/S03 | 接入真实任务 / Prefect |
-| 诊断 | 单 Agent、只读 Tools、多轮会话、结构化结论 | 更多输入表达和失败分支 | 多 Agent、复杂意图路由 |
-| 前端 | 列表、工作台、引用、会话选择、审批和模拟重试 | 独立历史页、演示场景页、进阶筛选 | Diff 编辑器、自动修复工作台 |
-| 检索 | 简单 Runbook 检索、统一结果协议、引用溯源 | 标注更多检索案例 | 向量/混合检索、Rerank |
-| 质量 | 核心回归测试、3 场景 6 个问题、结构化错误记录 | 6 场景 12 个问题、长日志压力验证 | 评测看板、多模型对比平台 |
-| 部署 | Windows 本地启动、可构建运行、依赖锁定 | Docker 和演示发布准备 | 公网鉴权、多租户 |
+| 范围     | P0 底座必须                                   | P1 展示增强                      | P2 后续扩展                 |
+| -------- | --------------------------------------------- | -------------------------------- | --------------------------- |
+| 任务环境 | S00/S04/S05、持久化模拟器、服务重启恢复       | 补齐 S01/S02/S03                 | 接入真实任务 / Prefect      |
+| 诊断     | 单 Agent、只读 Tools、多轮会话、结构化结论    | 更多输入表达和失败分支           | 多 Agent、复杂意图路由      |
+| 前端     | 列表、工作台、引用、会话选择、审批和模拟重试  | 独立历史页、演示场景页、进阶筛选 | Diff 编辑器、自动修复工作台 |
+| 检索     | 简单 Runbook 检索、统一结果协议、引用溯源     | 标注更多检索案例                 | 向量/混合检索、Rerank       |
+| 质量     | 核心回归测试、3 场景 6 个问题、结构化错误记录 | 6 场景 12 个问题、长日志压力验证 | 评测看板、多模型对比平台    |
+| 部署     | Windows 本地启动、可构建运行、依赖锁定        | Docker 和演示发布准备            | 公网鉴权、多租户            |
 
 v0.1 中 Agent 没有写文件、运行任意命令或直接重跑任务的权限。重试建议经确定性策略和人工审批后，由服务端场景模拟器执行。MCP 作为后续工具协议适配项，不是首版诊断的前置条件。工具直接调用已经足以实现 Tool Calling。
 
@@ -122,29 +122,29 @@ v0.1 中 Agent 没有写文件、运行任意命令或直接重跑任务的权�
 
 ## 3. 典型用户故事
 
-| ID | 用户故事 | 成功条件 |
-|---|---|---|
-| US01 | 我想找到刚才失败的任务 | 可按状态、任务名和时间筛选运行记录 |
-| US02 | 我想了解本次运行发生了什么 | 能看阶段、输入参数、耗时与清楚标识来源的演示日志 |
-| US03 | 我想让 Agent 分析失败原因 | 点击按钮发起诊断，并看到工具开始、完成或失败 |
-| US04 | 我想核实结论是否有依据 | 点击引用定位到对应日志或 Runbook 片段 |
-| US05 | 我想追问“那应该先检查什么” | 仍以当前 run_id 和已有证据回答 |
-| US06 | 我想切到别的任务后回来继续 | 原会话可恢复，新任务不会混入原消息 |
-| US07 | 诊断时网络断开了 | 显示重连状态，恢复已有事件，不重复创建诊断 |
-| US08 | Agent 没有查到足够信息 | 明确输出信息不足及下一步建议，不编造错误根因 |
-| US09 | 我希望停止等待 | 点击停止后服务端停止后续 Agent 步骤，保留已有内容 |
-| US10 | 我希望检查此前的诊断 | 可查看历史结论、证据快照和工具耗时 |
+| ID   | 用户故事                   | 成功条件                                                   |
+| ---- | -------------------------- | ---------------------------------------------------------- |
+| US01 | 我想找到刚才失败的任务     | 可按状态、任务名和时间筛选运行记录                         |
+| US02 | 我想了解本次运行发生了什么 | 能看阶段、输入参数、耗时与清楚标识来源的演示日志           |
+| US03 | 我想让 Agent 分析失败原因  | 点击按钮发起诊断，并看到工具开始、完成或失败               |
+| US04 | 我想核实结论是否有依据     | 点击引用定位到对应日志或 Runbook 片段                      |
+| US05 | 我想追问“那应该先检查什么” | 仍以当前 run_id 和已有证据回答                             |
+| US06 | 我想切到别的任务后回来继续 | 原会话可恢复，新任务不会混入原消息                         |
+| US07 | 诊断时网络断开了           | 显示重连状态，恢复已有事件，不重复创建诊断                 |
+| US08 | Agent 没有查到足够信息     | 明确输出信息不足及下一步建议，不编造错误根因               |
+| US09 | 我希望停止等待             | 点击停止后服务端停止后续 Agent 步骤，保留已有内容          |
+| US10 | 我希望检查此前的诊断       | 可查看历史结论、证据快照和工具耗时                         |
 | US11 | 我想批准一次符合条件的重试 | 看到审批内容，批准后仅创建一个 child run，能跟踪其模拟状态 |
 
 ## 4. 信息架构与路由
 
-| 路由 | 页面 | 行为 |
-|---|---|---|
-| `/runs` | 运行列表 | 默认最近运行；筛选条件同步 URL query |
-| `/runs/:runId` | 任务诊断工作台 | 展示目标运行，可选择/新建诊断会话 |
-| `/runs/:runId?session=:sessionId` | 指定会话工作台 | 直接链接和刷新可恢复 |
-| `/diagnoses` | 历史诊断列表（P1） | P0 在工作台会话选择器查看；P1 再增加独立页面 |
-| `/demo` | 演示场景面板（P1） | P0 在运行列表页弹窗创建场景；后端接口首版即存在 |
+| 路由                              | 页面               | 行为                                            |
+| --------------------------------- | ------------------ | ----------------------------------------------- |
+| `/runs`                           | 运行列表           | 默认最近运行；筛选条件同步 URL query            |
+| `/runs/:runId`                    | 任务诊断工作台     | 展示目标运行，可选择/新建诊断会话               |
+| `/runs/:runId?session=:sessionId` | 指定会话工作台     | 直接链接和刷新可恢复                            |
+| `/diagnoses`                      | 历史诊断列表（P1） | P0 在工作台会话选择器查看；P1 再增加独立页面    |
+| `/demo`                           | 演示场景面板（P1） | P0 在运行列表页弹窗创建场景；后端接口首版即存在 |
 
 非法 runId/sessionId 显示明确的不存在页面；sessionId 不属于 runId 时返回错误，不静默加载另一任务。
 
@@ -232,15 +232,15 @@ P0 在工作台使用会话选择器展示当前运行的历史；列表型独�
 
 ### 5.8 通用状态
 
-| 场景 | UI 行为 |
-|---|---|
-| 首次加载 | 骨架屏，避免显示伪造默认结果 |
-| 无数据 | 解释原因并提供打开场景选择弹窗的入口 |
-| API 超时/失败 | 保留已有数据，局部错误提示与重试按钮 |
-| 模型未配置 | 提示配置位置，不展示假的真实模型回答 |
-| SSE 中断 | “连接中断，正在重连”，已收内容保留 |
-| 服务不可达 | 显示离线状态，禁用新增请求 |
-| 证据失效 | 展示历史快照并标注原始来源不可访问 |
+| 场景                   | UI 行为                              |
+| ---------------------- | ------------------------------------ |
+| 首次加载               | 骨架屏，避免显示伪造默认结果         |
+| 无数据                 | 解释原因并提供打开场景选择弹窗的入口 |
+| API 超时/失败          | 保留已有数据，局部错误提示与重试按钮 |
+| 模型未配置             | 提示配置位置，不展示假的真实模型回答 |
+| SSE 中断               | “连接中断，正在重连”，已收内容保留   |
+| 服务不可达             | 显示离线状态，禁用新增请求           |
+| 证据失效               | 展示历史快照并标注原始来源不可访问   |
 | 服务端重启导致诊断中断 | 显示 INTERRUPTED，允许重新发起新一轮 |
 
 ## 6. 固定任务数据与场景模拟器
@@ -263,14 +263,14 @@ P0 在工作台使用会话选择器展示当前运行的历史；列表型独�
 
 P0 实现 S00/S04/S05，P1 补齐其余场景；以下保留完整 fixture 设计便于后续增量开发。
 
-| ID | 场景 | fixture 内容 | 预期模拟结果 | 诊断重点 |
-|---|---|---|---|---|
-| S00 | 正常任务 | 全部阶段正常的日志与汇总 | SUCCEEDED，展示演示汇总 | 不应编造故障 |
-| S01 | 缺少必填字段 | 日志写明 required=[order_id,amount]、observed=[order_id] | validate 阶段失败 | Schema 与日志相互印证 |
-| S02 | SQL 引用错误 | `no such column: order_total` 与失败阶段信息 | aggregate 阶段失败 | 指出聚合阶段和具体列 |
-| S03 | 重复订单 | `UNIQUE constraint failed: orders.order_id` | load 阶段失败 | 重试不能自动解决输入问题 |
-| S04 | 上游服务超时 | 首次 read 阶段 ReadTimeout；child run 使用成功时间线 | 首次失败，批准重试后模拟恢复 | 区分上游不可达与 SQL 问题 |
-| S05 | 证据不足 | 只提供受控的简短异常日志，不提供底层原因 | 运行失败但信息不足 | 输出 UNKNOWN，建议补充信息 |
+| ID  | 场景         | fixture 内容                                             | 预期模拟结果                 | 诊断重点                   |
+| --- | ------------ | -------------------------------------------------------- | ---------------------------- | -------------------------- |
+| S00 | 正常任务     | 全部阶段正常的日志与汇总                                 | SUCCEEDED，展示演示汇总      | 不应编造故障               |
+| S01 | 缺少必填字段 | 日志写明 required=[order_id,amount]、observed=[order_id] | validate 阶段失败            | Schema 与日志相互印证      |
+| S02 | SQL 引用错误 | `no such column: order_total` 与失败阶段信息             | aggregate 阶段失败           | 指出聚合阶段和具体列       |
+| S03 | 重复订单     | `UNIQUE constraint failed: orders.order_id`              | load 阶段失败                | 重试不能自动解决输入问题   |
+| S04 | 上游服务超时 | 首次 read 阶段 ReadTimeout；child run 使用成功时间线     | 首次失败，批准重试后模拟恢复 | 区分上游不可达与 SQL 问题  |
+| S05 | 证据不足     | 只提供受控的简短异常日志，不提供底层原因                 | 运行失败但信息不足           | 输出 UNKNOWN，建议补充信息 |
 
 S04 每次新建场景获得独立 scenario_instance_id；首次运行选用 timeout 时间线，child run 选用 success 时间线。重试成功是演示设定，界面和 README 必须说明，不能作为 Agent 修复成功率的数据。无需真正访问上游 HTTP 服务。
 
@@ -298,12 +298,12 @@ fixture schema 至少包含 scenario_id、display_name、task_id、params、time
 
 ### 7.2 最小 Tools
 
-| Tool | 入参 | 返回内容 | 约束 |
-|---|---|---|---|
-| get_task_run | run_id | 状态、阶段、耗时、错误摘要 | 只能读当前会话绑定运行 |
-| get_task_definition | task_id | 阶段、输入 Schema、配置说明 | task 必须属于当前 run |
-| get_task_logs | run_id、level?、query?、cursor? | 最多 100 条日志、next_cursor、证据 ID | 限制输出大小并支持继续查询 |
-| search_runbook | query、category?、top_k? | 最多 5 段知识、版本、证据 ID | 只能读取允许的文档集合 |
+| Tool                | 入参                            | 返回内容                              | 约束                       |
+| ------------------- | ------------------------------- | ------------------------------------- | -------------------------- |
+| get_task_run        | run_id                          | 状态、阶段、耗时、错误摘要            | 只能读当前会话绑定运行     |
+| get_task_definition | task_id                         | 阶段、输入 Schema、配置说明           | task 必须属于当前 run      |
+| get_task_logs       | run_id、level?、query?、cursor? | 最多 100 条日志、next_cursor、证据 ID | 限制输出大小并支持继续查询 |
+| search_runbook      | query、category?、top_k?        | 最多 5 段知识、版本、证据 ID          | 只能读取允许的文档集合     |
 
 v0.1 无文件写入、任意 Shell、原始 SQL 执行工具。不存在真实跨任务依赖时，不添加名为 get_upstream_runs 的空壳工具；固定阶段状态已经足够。
 
@@ -377,21 +377,21 @@ v0.2 再考虑 pgvector / Embedding。先建立人工标注的检索问题与相
 
 ### 9.2 核心实体
 
-| 实体 | 必需字段 |
-|---|---|
-| task_definition | id、name、description、schema_version、steps_json、created_at |
-| task_run | id、task_id、data_source=FIXTURE、scenario_instance_id、parent_run_id?、status、step_states_json、params_json、created_at、started_at?、finished_at?、error_code?、error_message?、summary_json? |
-| simulation_state | run_id（唯一）、fixture_version、timeline_variant、next_event_index、elapsed_ms、updated_at |
-| task_log | id、run_id、seq、timestamp、level、step、message |
-| diagnosis_session | id、run_id、title、created_at、updated_at |
-| diagnosis_turn | id、session_id、status、provider_mode、model、prompt_version、error_code?、created_at、started_at?、finished_at? |
-| message | id、session_id、turn_id、role、content、is_partial、created_at |
-| tool_call | id、turn_id、name、args_json、status、result_summary_json、error_code?、started_at、finished_at? |
-| evidence | id、session_id、turn_id、type、source_id、source_version、locator_json、excerpt、created_at |
-| diagnosis_result | id、turn_id、summary、findings_json、missing_information_json、next_steps_json、proposed_action_json?、created_at |
-| agent_event | id、session_id、turn_id、seq、type、payload_json、created_at |
-| request_dedup | scope、idempotency_key、request_hash、response_json、created_at |
-| approval_request / action_execution | 按第 12.2 节定义，属于首版持久化数据 |
+| 实体                                | 必需字段                                                                                                                                                                                         |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| task_definition                     | id、name、description、schema_version、steps_json、created_at                                                                                                                                    |
+| task_run                            | id、task_id、data_source=FIXTURE、scenario_instance_id、parent_run_id?、status、step_states_json、params_json、created_at、started_at?、finished_at?、error_code?、error_message?、summary_json? |
+| simulation_state                    | run_id（唯一）、fixture_version、timeline_variant、next_event_index、elapsed_ms、updated_at                                                                                                      |
+| task_log                            | id、run_id、seq、timestamp、level、step、message                                                                                                                                                 |
+| diagnosis_session                   | id、run_id、title、created_at、updated_at                                                                                                                                                        |
+| diagnosis_turn                      | id、session_id、status、provider_mode、model、prompt_version、error_code?、created_at、started_at?、finished_at?                                                                                 |
+| message                             | id、session_id、turn_id、role、content、is_partial、created_at                                                                                                                                   |
+| tool_call                           | id、turn_id、name、args_json、status、result_summary_json、error_code?、started_at、finished_at?                                                                                                 |
+| evidence                            | id、session_id、turn_id、type、source_id、source_version、locator_json、excerpt、created_at                                                                                                      |
+| diagnosis_result                    | id、turn_id、summary、findings_json、missing_information_json、next_steps_json、proposed_action_json?、created_at                                                                                |
+| agent_event                         | id、session_id、turn_id、seq、type、payload_json、created_at                                                                                                                                     |
+| request_dedup                       | scope、idempotency_key、request_hash、response_json、created_at                                                                                                                                  |
+| approval_request / action_execution | 按第 12.2 节定义，属于首版持久化数据                                                                                                                                                             |
 
 task_log(run_id, seq)、agent_event(session_id, seq)、request_dedup(scope, idempotency_key) 必须唯一。turn 和 tool_call 的 ID 使用不可猜测的稳定 UUID。时间统一存 UTC ISO 8601，前端按浏览器时区显示。
 
@@ -423,24 +423,24 @@ task_log(run_id, seq)、agent_event(session_id, seq)、request_dedup(scope, idem
 
 ### 10.2 接口列表
 
-| 方法与路径 | 入参/响应要点 |
-|---|---|
-| GET `/health` | 服务可用状态，不泄露密钥 |
-| GET `/capabilities` | provider_mode、model_configured、retry_enabled=true、task_data_mode=FIXTURE |
-| GET `/tasks` | 返回固定任务定义列表 |
-| GET `/runs` | status?、task_id?、q?、from?、to?、page=1、limit=20 |
-| GET `/runs/:id` | 运行详情、阶段状态、retry_eligibility={allowed,reason_code,message}、child_run_id? |
-| GET `/runs/:id/logs` | query?、level?、before_seq? 或 after_seq?、limit；两种方向不可同时传 |
-| GET `/runs/:id/logs/:logId/context` | 返回目标日志及前后各 20 条 |
-| GET `/demo/scenarios` | 可创建场景和说明，仅用于本地演示 |
-| POST `/demo/runs` | `{scenario_id}`；202 返回新 run |
-| GET `/sessions` | run_id?、page、limit；用于历史记录 |
-| POST `/sessions` | `{run_id}`；201 返回 session |
-| GET `/sessions/:id` | 一致性快照：session、turns、messages、tool_calls、results、last_event_seq |
-| POST `/sessions/:id/messages` | `{content}`；202 返回 user_message_id、turn_id |
-| GET `/sessions/:id/events?after_seq=N` | SSE 重放及后续事件 |
-| POST `/turns/:id/cancel` | 设置取消状态；返回实际当前 turn 状态 |
-| GET `/sessions/:id/evidence/:evidenceId` | 引用快照与定位信息 |
+| 方法与路径                               | 入参/响应要点                                                                      |
+| ---------------------------------------- | ---------------------------------------------------------------------------------- |
+| GET `/health`                            | 服务可用状态，不泄露密钥                                                           |
+| GET `/capabilities`                      | provider_mode、model_configured、retry_enabled=true、task_data_mode=FIXTURE        |
+| GET `/tasks`                             | 返回固定任务定义列表                                                               |
+| GET `/runs`                              | status?、task_id?、q?、from?、to?、page=1、limit=20                                |
+| GET `/runs/:id`                          | 运行详情、阶段状态、retry_eligibility={allowed,reason_code,message}、child_run_id? |
+| GET `/runs/:id/logs`                     | query?、level?、before_seq? 或 after_seq?、limit；两种方向不可同时传               |
+| GET `/runs/:id/logs/:logId/context`      | 返回目标日志及前后各 20 条                                                         |
+| GET `/demo/scenarios`                    | 可创建场景和说明，仅用于本地演示                                                   |
+| POST `/demo/runs`                        | `{scenario_id}`；202 返回新 run                                                    |
+| GET `/sessions`                          | run_id?、page、limit；用于历史记录                                                 |
+| POST `/sessions`                         | `{run_id}`；201 返回 session                                                       |
+| GET `/sessions/:id`                      | 一致性快照：session、turns、messages、tool_calls、results、last_event_seq          |
+| POST `/sessions/:id/messages`            | `{content}`；202 返回 user_message_id、turn_id                                     |
+| GET `/sessions/:id/events?after_seq=N`   | SSE 重放及后续事件                                                                 |
+| POST `/turns/:id/cancel`                 | 设置取消状态；返回实际当前 turn 状态                                               |
+| GET `/sessions/:id/evidence/:evidenceId` | 引用快照与定位信息                                                                 |
 
 GET `/sessions/:id` 的快照和 last_event_seq 必须在同一数据库读取事务中生成；否则“先快照后订阅”可能漏掉中间事件。
 
@@ -467,16 +467,16 @@ data: {"schema_version":1,"event_id":"ev_42","seq":42,"session_id":"ses_1","turn
 
 ### 11.2 事件类型
 
-| type | 必要 payload | 前端动作 |
-|---|---|---|
-| turn.started | status=RUNNING | 设置执行状态 |
-| message.delta | message_id、delta | 追加指定 assistant message 的文本 |
-| tool.started | tool_call_id、name、args | 创建工具卡片 |
-| tool.completed | tool_call_id、summary、evidence_ids、duration_ms | 更新成功状态和证据 |
-| tool.failed | tool_call_id、code、message、retryable | 展示工具失败 |
-| tool.cancelled | tool_call_id | 结束该工具的等待状态 |
-| diagnosis.completed | result | 渲染经过校验的结构化结论 |
-| turn.finished | status、error? | 进入 COMPLETED/FAILED/CANCELLED/INTERRUPTED |
+| type                | 必要 payload                                     | 前端动作                                    |
+| ------------------- | ------------------------------------------------ | ------------------------------------------- |
+| turn.started        | status=RUNNING                                   | 设置执行状态                                |
+| message.delta       | message_id、delta                                | 追加指定 assistant message 的文本           |
+| tool.started        | tool_call_id、name、args                         | 创建工具卡片                                |
+| tool.completed      | tool_call_id、summary、evidence_ids、duration_ms | 更新成功状态和证据                          |
+| tool.failed         | tool_call_id、code、message、retryable           | 展示工具失败                                |
+| tool.cancelled      | tool_call_id                                     | 结束该工具的等待状态                        |
+| diagnosis.completed | result                                           | 渲染经过校验的结构化结论                    |
+| turn.finished       | status、error?                                   | 进入 COMPLETED/FAILED/CANCELLED/INTERRUPTED |
 
 assistant message 首个 delta 可创建消息，快照与事件均使用同一 message_id。最终消息正文由后端落库；刷新后用快照替换本地内容再追事件，避免文本重复追加。
 
@@ -623,14 +623,14 @@ bootstrap → 创建具体 adapters 并传给 services
 
 ### 13.5 首版必须落地的扩展边界
 
-| 边界 | P0 实现与职责 | 后续替换方式 | P0 验证 |
-|---|---|---|---|
-| AgentAdapter | 接收规范化会话、上下文、取消信号和注册工具；输出内部执行事件 | 更换 Agent 内核，无需改前端事件协议 | LIVE 和脚本 MOCK 都通过同一生命周期契约 |
-| ModelGateway | 在适配层封装当前一家模型的流式/工具调用与超时 | 新增另一模型提供商适配，不修改业务 Tools | 用协议 fixture 验证文本分片、工具参数和提供商错误 |
-| TaskBackend | 规范化任务/运行/日志查询、重试资格与批准后的执行；P0 对接 fixture | 对接 Python Worker 或外部调度 API | 测试替身返回不同运行数据时，现有页面与 Tools 不变 |
-| RunbookRetriever | 输入 query/filter/limit，返回统一 chunk、来源与排序信息 | 关键词 → 向量或混合检索，保留证据协议 | 检索实现替换后引用组件和 evidence API 仍通过测试 |
-| ToolRegistry / Executor | 注册 name/schema/handler/权限，统一超时、Trace 和输出限制 | 后续 MCP 在这里适配到同一工具模型 | 增加一个测试只读 Tool，Agent Loop 和通用 Tool 卡片无需改动 |
-| Repositories + transaction runner | 集中数据库映射、事务和约束，P0 SQLite | 实现 PostgreSQL 适配并迁移数据 | 服务用例测试不导入 SQLite 驱动；迁移保留历史记录 |
+| 边界                              | P0 实现与职责                                                     | 后续替换方式                             | P0 验证                                                    |
+| --------------------------------- | ----------------------------------------------------------------- | ---------------------------------------- | ---------------------------------------------------------- |
+| AgentAdapter                      | 接收规范化会话、上下文、取消信号和注册工具；输出内部执行事件      | 更换 Agent 内核，无需改前端事件协议      | LIVE 和脚本 MOCK 都通过同一生命周期契约                    |
+| ModelGateway                      | 在适配层封装当前一家模型的流式/工具调用与超时                     | 新增另一模型提供商适配，不修改业务 Tools | 用协议 fixture 验证文本分片、工具参数和提供商错误          |
+| TaskBackend                       | 规范化任务/运行/日志查询、重试资格与批准后的执行；P0 对接 fixture | 对接 Python Worker 或外部调度 API        | 测试替身返回不同运行数据时，现有页面与 Tools 不变          |
+| RunbookRetriever                  | 输入 query/filter/limit，返回统一 chunk、来源与排序信息           | 关键词 → 向量或混合检索，保留证据协议    | 检索实现替换后引用组件和 evidence API 仍通过测试           |
+| ToolRegistry / Executor           | 注册 name/schema/handler/权限，统一超时、Trace 和输出限制         | 后续 MCP 在这里适配到同一工具模型        | 增加一个测试只读 Tool，Agent Loop 和通用 Tool 卡片无需改动 |
+| Repositories + transaction runner | 集中数据库映射、事务和约束，P0 SQLite                             | 实现 PostgreSQL 适配并迁移数据           | 服务用例测试不导入 SQLite 驱动；迁移保留历史记录           |
 
 ModelGateway 可先作为 AgentAdapter 内部的小模块，避免叠加另一套框架。MOCK 仍应使用真实 ToolExecutor 查询 fixture，并走相同持久化/SSE 路径；仅模型决策和生成事件可按脚本控制。
 
@@ -659,14 +659,14 @@ TaskBackend 的执行入口接收 run_id、approval_id、action_execution_id 作
 
 ### 13.8 允许的后续演进
 
-| 扩展 | 主要修改位置 | 应保持稳定的部分 |
-|---|---|---|
-| 接入真实 Pipeline | TaskBackend 实现、任务配置、后端同步逻辑 | 运行详情、日志、会话和证据展示 |
-| 增加 RAG | RunbookRetriever 实现、索引流程、检索测试 | Tool 返回契约、引用卡片、审批 |
-| 增加 MCP | 工具适配模块和注册逻辑 | ToolExecutor 策略、Trace、通用卡片 |
-| 换模型 | ModelGateway/AgentAdapter 配置与适配 | 业务 Tools、API、前端 |
-| 增加图表或历史页 | 前端 feature、必要的查询 API | 诊断主流程和事件 reducer |
-| 改 PostgreSQL | 数据库适配、迁移、事务兼容测试 | 前端 contracts 和业务用例语义 |
+| 扩展              | 主要修改位置                              | 应保持稳定的部分                   |
+| ----------------- | ----------------------------------------- | ---------------------------------- |
+| 接入真实 Pipeline | TaskBackend 实现、任务配置、后端同步逻辑  | 运行详情、日志、会话和证据展示     |
+| 增加 RAG          | RunbookRetriever 实现、索引流程、检索测试 | Tool 返回契约、引用卡片、审批      |
+| 增加 MCP          | 工具适配模块和注册逻辑                    | ToolExecutor 策略、Trace、通用卡片 |
+| 换模型            | ModelGateway/AgentAdapter 配置与适配      | 业务 Tools、API、前端              |
+| 增加图表或历史页  | 前端 feature、必要的查询 API              | 诊断主流程和事件 reducer           |
+| 改 PostgreSQL     | 数据库适配、迁移、事务兼容测试            | 前端 contracts 和业务用例语义      |
 
 以上是降低耦合的目标，不承诺未来功能零成本接入。自动改代码和多 Agent 会改变产品边界，后续另开设计，不提前塞进本版运行循环。
 
@@ -674,13 +674,13 @@ TaskBackend 的执行入口接收 run_id、approval_id、action_execution_id 作
 
 ### 14.1 自动化测试层级
 
-| 层级 | 工具建议 | 必测内容 |
-|---|---|---|
-| 单元 | Vitest | SSE 跨分片解析、seq 去重、会话切换隔离、状态 reducer、引用校验、参数校验 |
-| 组件 | Vue Test Utils + Vitest | 输入法发送、按钮禁用、工具状态、引用抽屉、滚动跟随 |
-| 服务集成 | Vitest + 临时 SQLite | 请求幂等、活动 turn 限制、事件重放、取消竞态、模拟日志持久化、审批幂等 |
-| 浏览器 E2E | Playwright | 完整诊断、刷新恢复、断线重连、证据定位、切换会话、取消 |
-| Agent 评测 | 独立脚本 | 根因与证据正确性、缺证据拒绝猜测、工具越界行为 |
+| 层级       | 工具建议                | 必测内容                                                                 |
+| ---------- | ----------------------- | ------------------------------------------------------------------------ |
+| 单元       | Vitest                  | SSE 跨分片解析、seq 去重、会话切换隔离、状态 reducer、引用校验、参数校验 |
+| 组件       | Vue Test Utils + Vitest | 输入法发送、按钮禁用、工具状态、引用抽屉、滚动跟随                       |
+| 服务集成   | Vitest + 临时 SQLite    | 请求幂等、活动 turn 限制、事件重放、取消竞态、模拟日志持久化、审批幂等   |
+| 浏览器 E2E | Playwright              | 完整诊断、刷新恢复、断线重连、证据定位、切换会话、取消                   |
+| Agent 评测 | 独立脚本                | 根因与证据正确性、缺证据拒绝猜测、工具越界行为                           |
 
 确定性 CI 使用 mock 模型与固定工具返回；真实模型评测单独运行并标注模型、Prompt 版本、日期与费用（若提供商返回）。mock 成绩不能用于宣称真实模型准确率。
 
@@ -688,32 +688,32 @@ TaskBackend 的执行入口接收 run_id、approval_id、action_execution_id 作
 
 P0 执行 AC01、AC03～AC15、AC17～AC19、AC21～AC24；AC20 在 P0 验证 S05/正常运行拒绝重试，其余场景 P1 补齐。AC02 和 AC16 属于 P1。任何 P0 用例失败必须报告，不以页面能打开代替验收。
 
-| ID | 场景/操作 | 必须观察到的结果 |
-|---|---|---|
-| AC01 | 从演示页启动正常任务 | 按 fixture 推进阶段，演示汇总可查看，来源标识明显 |
-| AC02 | 启动缺字段任务并诊断 | 显示模拟失败，诊断引用对应 fixture 日志 |
-| AC03 | 诊断正常运行 | 不无依据声称失败，说明运行成功 |
-| AC04 | 中文字符和 JSON 在网络层被任意切分 | 字符完整，事件不丢不重复，无解析崩溃 |
-| AC05 | 同一事件被回放两次 | 文本和工具卡片不重复 |
-| AC06 | 流断开后重连 | 使用 after_seq 恢复，不新增用户消息或 turn |
-| AC07 | 诊断中刷新 | 快照恢复历史，继续显示新事件 |
-| AC08 | A 会话运行时切换到 B | B 不出现 A 的消息，返回 A 可恢复 |
-| AC09 | 点击引用，目标不在当前日志页 | 查询上下文并定位高亮正确 log_id |
-| AC10 | 点击停止后工具晚到结果 | turn 保持 CANCELLED，不跳回完成/运行 |
-| AC11 | Tool 超时或日志为空 | 卡片给出错误，结论说明限制或轮次失败 |
-| AC12 | 模型返回不存在的证据 ID | 不展示可点击的伪引用，尝试修复或明确失败 |
-| AC13 | 用户重复点击发送或请求响应丢失 | 同一幂等键只产生一个 turn |
-| AC14 | 服务在诊断中重启 | 重连显示 INTERRUPTED，可新建后续 turn |
-| AC15 | 不配置模型 API | mock/未配置标志可见，不冒充真实诊断 |
-| AC16 | 1 万条日志、200 个工具事件的测试 fixture | 分页/窗口化生效，浏览器不一次挂载全部行 |
-| AC17 | 多次批准同一重试 | 只创建一个 child run，服务端持久化校验 |
-| AC18 | 拒绝或过期审批 | 不启动模拟运行，给出明确状态 |
-| AC19 | S04 诊断后批准重试 | 展示 PENDING/RUNNING/SUCCEEDED 与新日志，标注模拟恢复 |
-| AC20 | S01/S02/S03/S05 请求重试 | 后端拒绝，前端明确原因，不因模型建议绕过 |
-| AC21 | 模拟重试中服务重启 | 从已保存进度恢复，日志和 child run 不重复 |
-| AC22 | 替换 TaskBackend / Retriever 的测试实现 | Tools、页面协议和引用格式不变，契约测试通过 |
-| AC23 | 新注册一个只读测试 Tool | 通用卡片可展示，无需改 Agent 主循环或组件分支 |
-| AC24 | 空库初始化、重复 seed、保留已有会话后迁移 | 启动可复现，不覆盖用户数据，历史记录可读 |
+| ID   | 场景/操作                                 | 必须观察到的结果                                      |
+| ---- | ----------------------------------------- | ----------------------------------------------------- |
+| AC01 | 从演示页启动正常任务                      | 按 fixture 推进阶段，演示汇总可查看，来源标识明显     |
+| AC02 | 启动缺字段任务并诊断                      | 显示模拟失败，诊断引用对应 fixture 日志               |
+| AC03 | 诊断正常运行                              | 不无依据声称失败，说明运行成功                        |
+| AC04 | 中文字符和 JSON 在网络层被任意切分        | 字符完整，事件不丢不重复，无解析崩溃                  |
+| AC05 | 同一事件被回放两次                        | 文本和工具卡片不重复                                  |
+| AC06 | 流断开后重连                              | 使用 after_seq 恢复，不新增用户消息或 turn            |
+| AC07 | 诊断中刷新                                | 快照恢复历史，继续显示新事件                          |
+| AC08 | A 会话运行时切换到 B                      | B 不出现 A 的消息，返回 A 可恢复                      |
+| AC09 | 点击引用，目标不在当前日志页              | 查询上下文并定位高亮正确 log_id                       |
+| AC10 | 点击停止后工具晚到结果                    | turn 保持 CANCELLED，不跳回完成/运行                  |
+| AC11 | Tool 超时或日志为空                       | 卡片给出错误，结论说明限制或轮次失败                  |
+| AC12 | 模型返回不存在的证据 ID                   | 不展示可点击的伪引用，尝试修复或明确失败              |
+| AC13 | 用户重复点击发送或请求响应丢失            | 同一幂等键只产生一个 turn                             |
+| AC14 | 服务在诊断中重启                          | 重连显示 INTERRUPTED，可新建后续 turn                 |
+| AC15 | 不配置模型 API                            | mock/未配置标志可见，不冒充真实诊断                   |
+| AC16 | 1 万条日志、200 个工具事件的测试 fixture  | 分页/窗口化生效，浏览器不一次挂载全部行               |
+| AC17 | 多次批准同一重试                          | 只创建一个 child run，服务端持久化校验                |
+| AC18 | 拒绝或过期审批                            | 不启动模拟运行，给出明确状态                          |
+| AC19 | S04 诊断后批准重试                        | 展示 PENDING/RUNNING/SUCCEEDED 与新日志，标注模拟恢复 |
+| AC20 | S01/S02/S03/S05 请求重试                  | 后端拒绝，前端明确原因，不因模型建议绕过              |
+| AC21 | 模拟重试中服务重启                        | 从已保存进度恢复，日志和 child run 不重复             |
+| AC22 | 替换 TaskBackend / Retriever 的测试实现   | Tools、页面协议和引用格式不变，契约测试通过           |
+| AC23 | 新注册一个只读测试 Tool                   | 通用卡片可展示，无需改 Agent 主循环或组件分支         |
+| AC24 | 空库初始化、重复 seed、保留已有会话后迁移 | 启动可复现，不覆盖用户数据，历史记录可读              |
 
 ### 14.3 首版诊断评测
 
@@ -736,15 +736,15 @@ P0 执行 AC01、AC03～AC15、AC17～AC19、AC21～AC24；AC20 在 P0 验证 S0
 
 ## 15. 实施里程碑与交付物
 
-| 阶段 | 交付物 | 进入下一阶段条件 |
-|---|---|---|
-| M0 技术验证 | 核验上游源码/许可证，固定 commit；真实 API 流式与工具调用验证；记录适配边界 | 默认技术方案可运行，已知限制写入 ADR |
-| M1 工程基础与页面 | workspace、contracts、迁移、错误处理、S00/S04/S05、列表和详情 | seed 可重入，状态/日志由服务端提供，typecheck/test/build 可运行 |
-| M2 诊断—审批—重试闭环 | Agent/Tools、SSE、引用、结构化诊断、审批、child run | 实际跑通第 2.1 节全流程，审批幂等测试通过 |
-| M3 底座可靠性 | 刷新/断线恢复、取消、会话切换、并发审批、服务重启、适配器契约测试 | 所有 P0 验收用例通过 |
-| M4 P0 交付 | CI、6 条真实模型评测记录、README、架构和扩展文档、录屏 | 新环境按文档启动；可解释未通过案例；交付 P0 验收报告 |
-| M5 P1 展示增强 | 其余场景、12 条评测、独立页面、压力测试、UI 精修 | P0 已通过；每项增量有回归测试 |
-| M6 P2 扩展 | 真实任务、向量检索、MCP 等按实际需要选择 | 单独明确范围与验收，再进入实现 |
+| 阶段                  | 交付物                                                                      | 进入下一阶段条件                                                |
+| --------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| M0 技术验证           | 核验上游源码/许可证，固定 commit；真实 API 流式与工具调用验证；记录适配边界 | 默认技术方案可运行，已知限制写入 ADR                            |
+| M1 工程基础与页面     | workspace、contracts、迁移、错误处理、S00/S04/S05、列表和详情               | seed 可重入，状态/日志由服务端提供，typecheck/test/build 可运行 |
+| M2 诊断—审批—重试闭环 | Agent/Tools、SSE、引用、结构化诊断、审批、child run                         | 实际跑通第 2.1 节全流程，审批幂等测试通过                       |
+| M3 底座可靠性         | 刷新/断线恢复、取消、会话切换、并发审批、服务重启、适配器契约测试           | 所有 P0 验收用例通过                                            |
+| M4 P0 交付            | CI、6 条真实模型评测记录、README、架构和扩展文档、录屏                      | 新环境按文档启动；可解释未通过案例；交付 P0 验收报告            |
+| M5 P1 展示增强        | 其余场景、12 条评测、独立页面、压力测试、UI 精修                            | P0 已通过；每项增量有回归测试                                   |
+| M6 P2 扩展            | 真实任务、向量检索、MCP 等按实际需要选择                                    | 单独明确范围与验收，再进入实现                                  |
 
 每阶段交付可运行代码、启动方式、测试结果和已知问题。总工作量需在 M0 检查源码接入成本后重新估算；此前最小 Demo 的估时不覆盖本文全部恢复机制与自动化测试。
 
@@ -779,12 +779,12 @@ P0 执行 AC01、AC03～AC15、AC17～AC19、AC21～AC24；AC20 在 P0 验证 S0
 
 ## 17. 讨论与变更记录
 
-| 日期 | 版本 | 内容 |
-|---|---|---|
-| 2026-09-26 | v0.1 初稿 | 将项目收敛为前端主导的智能诊断工作台，定义页面、协议、状态和验收 |
-| 2026-09-26 | v0.1 决策更新 | 用户确认 Vue3 技术栈、固定任务数据、首版包含审批重试；移除首版 Python Worker，采用可持久化的场景模拟器 |
-| 2026-09-26 | v0.1 可实施需求稿 | 用户确认真实模型 API + mock 测试模式；首版范围与核心交互已确定 |
-| 2026-09-26 | v0.1-r2 | 用户要求基本流程与高完成度底座优先；划分 P0/P1/P2，首轮缩为 3 场景，补充依赖边界、适配契约、事务约束、迁移和质量门禁 |
+| 日期       | 版本              | 内容                                                                                                                 |
+| ---------- | ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 2026-09-26 | v0.1 初稿         | 将项目收敛为前端主导的智能诊断工作台，定义页面、协议、状态和验收                                                     |
+| 2026-09-26 | v0.1 决策更新     | 用户确认 Vue3 技术栈、固定任务数据、首版包含审批重试；移除首版 Python Worker，采用可持久化的场景模拟器               |
+| 2026-09-26 | v0.1 可实施需求稿 | 用户确认真实模型 API + mock 测试模式；首版范围与核心交互已确定                                                       |
+| 2026-09-26 | v0.1-r2           | 用户要求基本流程与高完成度底座优先；划分 P0/P1/P2，首轮缩为 3 场景，补充依赖边界、适配契约、事务约束、迁移和质量门禁 |
 
 当前无必须由用户再决定的架构问题。沿用本地单用户、独立仓库、Vue3、Node.js、SQLite、pnpm workspace 默认方案。模型名称、API 地址和密钥由用户在开始真实模型接入时通过本地环境变量提供，不写入 PRD。若届时无可用凭据，先完成独立工程与 mock 测试，真实模型验收明确标为未完成。后续实现不得恢复为旧版真实 Worker 或删掉审批功能。
 

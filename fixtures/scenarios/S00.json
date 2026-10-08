@@ -1,11 +1,43 @@
 {
-  "scenario_id":"S00","version":"1","display_name":"正常完成","description":"订单日报四个阶段均完成","task_id":"order_daily",
-  "params":{"business_date":"2026-09-25","source":"demo_orders"},
-  "timeline":[
-    {"offset_ms":0,"step":"read","step_status":"RUNNING","run_status":"RUNNING","logs":[{"level":"INFO","message":"Starting read step"}]},
-    {"offset_ms":1500,"step":"read","step_status":"SUCCEEDED","logs":[{"level":"INFO","message":"Read 1000 demo orders"}]},
-    {"offset_ms":3000,"step":"validate","step_status":"SUCCEEDED","logs":[{"level":"INFO","message":"Required columns present"}]},
-    {"offset_ms":4500,"step":"load","step_status":"SUCCEEDED","logs":[{"level":"INFO","message":"Demo orders loaded"}]},
-    {"offset_ms":6000,"step":"aggregate","step_status":"SUCCEEDED","run_status":"SUCCEEDED","logs":[{"level":"INFO","message":"Report generated (fixture)"}],"summary":{"rows":1000,"data_source":"FIXTURE"}}
+  "scenario_id": "S00",
+  "version": "1",
+  "display_name": "正常完成",
+  "description": "订单日报四个阶段均完成",
+  "task_id": "order_daily",
+  "params": { "business_date": "2026-09-25", "source": "demo_orders" },
+  "timeline": [
+    {
+      "offset_ms": 0,
+      "step": "read",
+      "step_status": "RUNNING",
+      "run_status": "RUNNING",
+      "logs": [{ "level": "INFO", "message": "Starting read step" }]
+    },
+    {
+      "offset_ms": 1500,
+      "step": "read",
+      "step_status": "SUCCEEDED",
+      "logs": [{ "level": "INFO", "message": "Read 1000 demo orders" }]
+    },
+    {
+      "offset_ms": 3000,
+      "step": "validate",
+      "step_status": "SUCCEEDED",
+      "logs": [{ "level": "INFO", "message": "Required columns present" }]
+    },
+    {
+      "offset_ms": 4500,
+      "step": "load",
+      "step_status": "SUCCEEDED",
+      "logs": [{ "level": "INFO", "message": "Demo orders loaded" }]
+    },
+    {
+      "offset_ms": 6000,
+      "step": "aggregate",
+      "step_status": "SUCCEEDED",
+      "run_status": "SUCCEEDED",
+      "logs": [{ "level": "INFO", "message": "Report generated (fixture)" }],
+      "summary": { "rows": 1000, "data_source": "FIXTURE" }
+    }
   ]
 }

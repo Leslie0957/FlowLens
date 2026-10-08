@@ -1,0 +1,222 @@
+{
+  "at": "2026-10-08T11:42:39.249Z",
+  "mode": "MOCK",
+  "isolated_db": true,
+  "request_cap": 0,
+  "approval": "automated browser test approval in isolated DB",
+  "commands": [
+    "pnpm start",
+    "pnpm preview --port 12382"
+  ],
+  "apiPort": 12381,
+  "webPort": 12382,
+  "status": "PASSED",
+  "project_id": "bf252fc0-50ff-4b05-9b49-4a9c24e9921f",
+  "diagnosis_elapsed_ms": 1413,
+  "target_storage": {
+    "schema_version": 2,
+    "baselines": 1,
+    "full_snapshots": 0,
+    "snapshot_metadata": 1,
+    "insert_events": 4,
+    "undo_events": 4
+  },
+  "tool_transport": "MCP stdio, compiled dist service",
+  "model": [
+    {
+      "provider_mode": "MOCK",
+      "model": "deepseek-flash",
+      "requests": 3,
+      "diagnosis_limits": {
+        "max_requests": 100,
+        "max_tool_calls": 200,
+        "timeout_ms": 900000,
+        "max_stall_rounds": 3,
+        "max_context_bytes": 262144
+      },
+      "usage": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0
+      },
+      "status": "VERIFIED",
+      "tools": [
+        {
+          "id": "cf9813f4-60b4-4229-ac13-1493216f9fe3",
+          "request": 1,
+          "call_id": "mock-get_sql",
+          "name": "get_sql",
+          "status": "COMPLETED",
+          "args": {},
+          "result": {
+            "output": {
+              "file_path": "task.sql",
+              "sql": "SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_kph < 1 AND end_us - start_us >= 3000000;",
+              "base_hash": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26"
+            },
+            "evidence_ids": [
+              "32dba201-297b-4b1b-92dd-012e97ae1de7"
+            ]
+          },
+          "error_code": null,
+          "transport": "MCP",
+          "tool_server": "flowlens-pipeline-readonly"
+        },
+        {
+          "id": "d72e2d9b-9c28-4836-b091-ce8ea7ebf934",
+          "request": 2,
+          "call_id": "mock-get_schema",
+          "name": "get_schema",
+          "status": "COMPLETED",
+          "args": {},
+          "result": {
+            "output": {
+              "source": [
+                {
+                  "name": "event_id",
+                  "type": "INTEGER"
+                },
+                {
+                  "name": "dat",
+                  "type": "TEXT"
+                },
+                {
+                  "name": "start_us",
+                  "type": "INTEGER"
+                },
+                {
+                  "name": "end_us",
+                  "type": "INTEGER"
+                },
+                {
+                  "name": "speed_mps",
+                  "type": "REAL"
+                },
+                {
+                  "name": "car_series",
+                  "type": "TEXT"
+                }
+              ],
+              "target": [
+                {
+                  "name": "task_id",
+                  "type": "TEXT"
+                },
+                {
+                  "name": "dat",
+                  "type": "TEXT"
+                },
+                {
+                  "name": "st",
+                  "type": "INTEGER"
+                },
+                {
+                  "name": "et",
+                  "type": "INTEGER"
+                },
+                {
+                  "name": "car_series",
+                  "type": "TEXT"
+                },
+                {
+                  "name": "execution_id",
+                  "type": "TEXT"
+                }
+              ],
+              "contract": {
+                "rule": "speed_mps < 1 且 end_us - start_us >= 3000000；仅为 Demo 规则",
+                "columns": [
+                  "dat",
+                  "st",
+                  "et",
+                  "car_series"
+                ],
+                "business_key": [
+                  "task_id",
+                  "dat",
+                  "st",
+                  "et"
+                ],
+                "writable_file": "task.sql",
+                "runner": "vehicle-select-v1",
+                "validator": "vehicle-oracle-v1",
+                "input_version": "synthetic-vehicles-v1"
+              }
+            },
+            "evidence_ids": [
+              "90ddbbaa-e4aa-4ca3-b8bd-52bc480d616f"
+            ]
+          },
+          "error_code": null,
+          "transport": "MCP",
+          "tool_server": "flowlens-pipeline-readonly"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "79b0aee9-6ab7-49ff-9824-5130cf8b05ec",
+          "type": "INITIAL_FAILURE",
+          "source_id": "fdc4ccae-389f-47dc-b51f-a4a03d94350e",
+          "source_version": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26:3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+          "excerpt": "{\"status\":\"FAILED\",\"failed_step\":\"query\",\"error_code\":\"SQL_QUERY_FAILED\",\"error_message\":\"no such column: speed_kph\"}"
+        },
+        {
+          "id": "32dba201-297b-4b1b-92dd-012e97ae1de7",
+          "type": "get_sql",
+          "source_id": "05b47393-4240-4288-aaf9-8daba019703e",
+          "source_version": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26:3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+          "excerpt": "{\"file_path\":\"task.sql\",\"sql\":\"SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_kph < 1 AND end_us - start_us >= 3000000;\",\"base_hash\":\"66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26\"}"
+        },
+        {
+          "id": "90ddbbaa-e4aa-4ca3-b8bd-52bc480d616f",
+          "type": "get_schema",
+          "source_id": "fdc4ccae-389f-47dc-b51f-a4a03d94350e",
+          "source_version": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26:3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+          "excerpt": "{\"source\":[{\"name\":\"event_id\",\"type\":\"INTEGER\"},{\"name\":\"dat\",\"type\":\"TEXT\"},{\"name\":\"start_us\",\"type\":\"INTEGER\"},{\"name\":\"end_us\",\"type\":\"INTEGER\"},{\"name\":\"speed_mps\",\"type\":\"REAL\"},{\"name\":\"car_series\",\"type\":\"TEXT\"}],\"target\":[{\"name\":\"task_id\",\"type\":\"TEXT\"},{\"name\":\"dat\",\"type\":\"TEXT\"},{\"name\":\"st\",\"type\":\"INTEGER\"},{\"name\":\"et\",\"type\":\"INTEGER\"},{\"name\":\"car_series\",\"type\":\"TEXT\"},{\"name\":\"execution_id\",\"type\":\"TEXT\"}],\"contract\":{\"rule\":\"speed_mps < 1 且 end_us - start_us >= 3000000；仅为 Demo 规则\",\"columns\":[\"dat\",\"st\",\"et\",\"car_series\"],\"business_key\":[\"task_id\",\"dat\",\"st\",\"et\"],\"writable_file\":\"task.sql\",\"runner\":\"vehicle-select-v1\",\"validator\":\"vehicle-oracle-v1\",\"input_version\":\"synthetic-vehicles-v1\"}}"
+        }
+      ],
+      "response_checks": []
+    }
+  ],
+  "target": {
+    "data_version": 2,
+    "head_batch_id": null,
+    "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "row_count": 0,
+    "preview": []
+  },
+  "batches": [
+    {
+      "id": "b7bc4a43-80ac-42f7-871f-7d0ffcec883e",
+      "execution_id": "7d5d21f6-8f32-4b19-a7b0-1ab2e0653429",
+      "revision_id": "b2b70f19-1524-4243-9c88-1e206142804d",
+      "status": "RESTORED",
+      "created_at": "2026-10-08T11:42:43.389Z",
+      "snapshot_id": "08751590-bf75-4cad-ac97-31ce2709d975",
+      "snapshot_storage": "INCREMENTAL",
+      "before_data_version": 0,
+      "inserted_hash": "07c5e05aa81dee331e528caf7739156d8f60043aa0f94ea18712fd31d35455cc",
+      "before_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "after_hash": "07c5e05aa81dee331e528caf7739156d8f60043aa0f94ea18712fd31d35455cc",
+      "before_count": 0,
+      "after_count": 4,
+      "inserted": 4,
+      "skipped": 0,
+      "previous_head": null,
+      "data_version": 1,
+      "restored_at": "2026-10-08T11:42:44.287Z",
+      "restore_id": "22bfec68-c404-4109-89dd-b883d4ebe948",
+      "can_restore": false
+    }
+  ],
+  "browser": "154.0.8037.98",
+  "checks": [
+    "built frontend default /pipeline",
+    "real child SQLite failure",
+    "actual variable tool trace and valid evidence",
+    "no writes before approval",
+    "single bound approval verifies, prechecks and commits COUNT=4",
+    "real restore COUNT=0 and receipt after refresh",
+    "data-only undo preserves current SQL revision and project revision pointer",
+    "no browser pageerror"
+  ]
+}

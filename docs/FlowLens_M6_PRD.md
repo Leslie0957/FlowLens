@@ -10,11 +10,11 @@
 
 这里的“真实”指本机子进程实际执行任务代码、实际查询 SQLite 并产生结果。输入仍为合成订单数据，不连接真实业务服务；本地验证成功不能证明生产故障已经修复。
 
-| 阶段 | 必须交付 | 阶段边界 |
-|---|---|---|
-| M6.1 执行基础 | 专用工作目录、可信任务运行器、运行/日志/产物持久化、超时/取消、本地执行页面 | 用户按钮触发固定任务；无模型修复、Diff 应用或自动循环 |
+| 阶段              | 必须交付                                                                              | 阶段边界                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| M6.1 执行基础     | 专用工作目录、可信任务运行器、运行/日志/产物持久化、超时/取消、本地执行页面           | 用户按钮触发固定任务；无模型修复、Diff 应用或自动循环                        |
 | M6.2 单次受控修复 | Agent 查询本地任务证据和允许读取的源码，生成补丁、展示 Diff、人工审批、应用和实际验证 | 一次批准只授权一份绑定具体版本的补丁与一次验证；失败可以生成下一份待审批补丁 |
-| M6.3 有限循环 | 失败结果回传 Agent，授权范围内继续尝试，轮次/预算/取消/停止记录 | 用户显式批准循环后才自动继续；进程重启后不从中断点 Continue |
+| M6.3 有限循环     | 失败结果回传 Agent，授权范围内继续尝试，轮次/预算/取消/停止记录                       | 用户显式批准循环后才自动继续；进程重启后不从中断点 Continue                  |
 
 先交付并人工验收 M6.1，再实施 M6.2/M6.3。用户在 M6.2 页面反馈暂未发现问题后明确要求“开始下一步”，据此实施 M6.3；该反馈尚未被记为明确的 M6.2 人工验收通过。本文中的数值和接口是设计默认值，不是实测结果或用户逐项确认过的技术选择。实现者可以调整局部命名，但必须同步文档；扩大可写文件、执行命令、自动继续权限或业务范围须先向用户说明并确认。
 
@@ -107,29 +107,29 @@ M6.1 提供“SQL 列错误”和“正常对照”两种预置项目，均实�
 
 M6.1 使用独立契约和持久化表，保留原有 Run、审批、模拟器和来源标识。建议增加一次版本化迁移，建立以下实体；版本号须在实施时以当时 PRAGMA user_version 为准，不修改已经应用的旧迁移。
 
-| 实体 | 核心字段与约束 |
-|---|---|
-| local_project | id、template_id、name、input_source=SYNTHETIC、current_revision_id、created_at |
-| local_revision | id、project_id、parent_revision_id、源码/输入快照或稳定位置、SHA-256、创建来源；版本不可变 |
-| local_execution | id、project_id、revision_id、status、created/started/finished_at、exit_code、termination_reason、验证结果、runner_version、validator_version；一次请求只生成一个 execution |
-| local_execution_log | id、execution_id、seq、timestamp、level、step、message；UNIQUE(execution_id,seq) |
-| local_artifact | id、execution_id、允许的产物名、内容hash、大小；产物与执行绑定 |
+| 实体                | 核心字段与约束                                                                                                                                                             |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| local_project       | id、template_id、name、input_source=SYNTHETIC、current_revision_id、created_at                                                                                             |
+| local_revision      | id、project_id、parent_revision_id、源码/输入快照或稳定位置、SHA-256、创建来源；版本不可变                                                                                 |
+| local_execution     | id、project_id、revision_id、status、created/started/finished_at、exit_code、termination_reason、验证结果、runner_version、validator_version；一次请求只生成一个 execution |
+| local_execution_log | id、execution_id、seq、timestamp、level、step、message；UNIQUE(execution_id,seq)                                                                                           |
+| local_artifact      | id、execution_id、允许的产物名、内容hash、大小；产物与执行绑定                                                                                                             |
 
 幂等可复用 request_dedup 的独立 scope，不复用模拟运行 scope。请求键与 body/project/revision 的摘要绑定，同键不同内容返回 409，HTTP 超时重试不会启动第二个进程。持久化/工作目录/启动之间失败要落到可解释的终态，不能返回成功但没有执行记录。
 
 建议 API（均为计划，不是现有接口）：
 
-| 方法与路径 | 作用 |
-|---|---|
-| GET /api/v1/local-projects | 有界分页项目列表 |
-| POST /api/v1/local-projects | 选择注册 template_id 创建项目，要求 Idempotency-Key；不执行 |
-| GET /api/v1/local-projects/:id | 获取项目及当前版本的只读源码/输入 |
-| POST /api/v1/local-projects/:id/executions | 快照当前版本并实际运行，要求 Idempotency-Key，不接受 command/path/env/SQL 正文 |
-| GET /api/v1/local-projects/:id/executions | 分页执行历史 |
-| GET /api/v1/local-executions/:id | 状态、版本hash、退出与验证结果 |
-| GET /api/v1/local-executions/:id/logs | 序号游标获取有界日志 |
-| GET /api/v1/local-executions/:id/artifacts/:artifactId | 获取当前执行登记的有界产物，不接受文件路径 |
-| POST /api/v1/local-executions/:id/cancel | 幂等请求停止当前执行 |
+| 方法与路径                                             | 作用                                                                           |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| GET /api/v1/local-projects                             | 有界分页项目列表                                                               |
+| POST /api/v1/local-projects                            | 选择注册 template_id 创建项目，要求 Idempotency-Key；不执行                    |
+| GET /api/v1/local-projects/:id                         | 获取项目及当前版本的只读源码/输入                                              |
+| POST /api/v1/local-projects/:id/executions             | 快照当前版本并实际运行，要求 Idempotency-Key，不接受 command/path/env/SQL 正文 |
+| GET /api/v1/local-projects/:id/executions              | 分页执行历史                                                                   |
+| GET /api/v1/local-executions/:id                       | 状态、版本hash、退出与验证结果                                                 |
+| GET /api/v1/local-executions/:id/logs                  | 序号游标获取有界日志                                                           |
+| GET /api/v1/local-executions/:id/artifacts/:artifactId | 获取当前执行登记的有界产物，不接受文件路径                                     |
+| POST /api/v1/local-executions/:id/cancel               | 幂等请求停止当前执行                                                           |
 
 所有 body/query 经共享 schema 校验，错误沿用 request_id 格式。快照/产物读取校验项目与执行归属；对不存在、越界、冲突和忙碌给出稳定错误，不泄漏绝对路径。
 

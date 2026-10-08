@@ -1,0 +1,11 @@
+$ node scripts/eval-p0.mjs --mock
+(node:14948) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"case":"S00-1","status":"COMPLETED","model_requests":0,"elapsed_ms":142}
+{"case":"S00-2","status":"COMPLETED","model_requests":0,"elapsed_ms":59}
+{"case":"S04-1","status":"COMPLETED","model_requests":0,"elapsed_ms":72}
+{"case":"S04-2","status":"COMPLETED","model_requests":0,"elapsed_ms":74}
+{"case":"S04-approved-extra","status":"COMPLETED","model_requests":0,"elapsed_ms":74}
+{"case":"S05-1","status":"COMPLETED","model_requests":0,"elapsed_ms":108}
+{"case":"S05-2","status":"COMPLETED","model_requests":0,"elapsed_ms":72}
+{"status":"MECHANICAL_CHECKS_PASSED_SEMANTIC_REVIEW_REQUIRED","artifact_folder":"D:\\Downloaad\\FlowLens\\logs\\m4\\mock-yikWyD","model_requests":0,"usage_tokens":0,"metrics":{"questions":6,"cause_correct":6,"citation_valid":6,"minimum_evidence":6,"tool_succeeded":12,"tool_total":12,"abstention_correct":2,"abstention_total":2}}

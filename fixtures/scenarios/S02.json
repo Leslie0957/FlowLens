@@ -1,11 +1,49 @@
 {
- "scenario_id":"S02","version":"1","display_name":"聚合 SQL 引用错误","description":"读取、校验、入库成功，聚合引用不存在的 order_total 列","task_id":"order_daily",
- "params":{"business_date":"2026-09-25","source":"demo_sql_column"},
- "timeline":[
-  {"offset_ms":0,"step":"read","step_status":"RUNNING","run_status":"RUNNING","logs":[{"level":"INFO","message":"Starting read step (fixture)"}]},
-  {"offset_ms":1500,"step":"read","step_status":"SUCCEEDED","logs":[{"level":"INFO","message":"Read completed (fixture)"}]},
-  {"offset_ms":3000,"step":"validate","step_status":"SUCCEEDED","logs":[{"level":"INFO","message":"Input schema validation passed (fixture)"}]},
-  {"offset_ms":4500,"step":"load","step_status":"SUCCEEDED","logs":[{"level":"INFO","message":"Load completed (fixture; no real business writes)"}]},
-  {"offset_ms":6000,"step":"aggregate","step_status":"FAILED","run_status":"FAILED","error_code":"SQL_COLUMN_ERROR","error_message":"no such column: order_total","logs":[{"level":"ERROR","message":"Aggregation failed: no such column: order_total; stored query=SELECT SUM(order_total) FROM orders (fixture; query not executed)"}]}
- ]
+  "scenario_id": "S02",
+  "version": "1",
+  "display_name": "聚合 SQL 引用错误",
+  "description": "读取、校验、入库成功，聚合引用不存在的 order_total 列",
+  "task_id": "order_daily",
+  "params": { "business_date": "2026-09-25", "source": "demo_sql_column" },
+  "timeline": [
+    {
+      "offset_ms": 0,
+      "step": "read",
+      "step_status": "RUNNING",
+      "run_status": "RUNNING",
+      "logs": [{ "level": "INFO", "message": "Starting read step (fixture)" }]
+    },
+    {
+      "offset_ms": 1500,
+      "step": "read",
+      "step_status": "SUCCEEDED",
+      "logs": [{ "level": "INFO", "message": "Read completed (fixture)" }]
+    },
+    {
+      "offset_ms": 3000,
+      "step": "validate",
+      "step_status": "SUCCEEDED",
+      "logs": [{ "level": "INFO", "message": "Input schema validation passed (fixture)" }]
+    },
+    {
+      "offset_ms": 4500,
+      "step": "load",
+      "step_status": "SUCCEEDED",
+      "logs": [{ "level": "INFO", "message": "Load completed (fixture; no real business writes)" }]
+    },
+    {
+      "offset_ms": 6000,
+      "step": "aggregate",
+      "step_status": "FAILED",
+      "run_status": "FAILED",
+      "error_code": "SQL_COLUMN_ERROR",
+      "error_message": "no such column: order_total",
+      "logs": [
+        {
+          "level": "ERROR",
+          "message": "Aggregation failed: no such column: order_total; stored query=SELECT SUM(order_total) FROM orders (fixture; query not executed)"
+        }
+      ]
+    }
+  ]
 }

@@ -1,8 +1,26 @@
 {
-  "scenario_id":"S05","version":"1","display_name":"信息不足","description":"运行失败，但日志不足以判断底层原因","task_id":"order_daily",
-  "params":{"business_date":"2026-09-25","source":"demo_unknown"},
-  "timeline":[
-    {"offset_ms":0,"step":"read","step_status":"RUNNING","run_status":"RUNNING","logs":[{"level":"INFO","message":"Starting read step"}]},
-    {"offset_ms":6000,"step":"read","step_status":"FAILED","run_status":"FAILED","error_code":"UNKNOWN_FAILURE","error_message":"Read step stopped; diagnostic detail unavailable","logs":[{"level":"ERROR","message":"Read step stopped; diagnostic detail unavailable"}]}
+  "scenario_id": "S05",
+  "version": "1",
+  "display_name": "信息不足",
+  "description": "运行失败，但日志不足以判断底层原因",
+  "task_id": "order_daily",
+  "params": { "business_date": "2026-09-25", "source": "demo_unknown" },
+  "timeline": [
+    {
+      "offset_ms": 0,
+      "step": "read",
+      "step_status": "RUNNING",
+      "run_status": "RUNNING",
+      "logs": [{ "level": "INFO", "message": "Starting read step" }]
+    },
+    {
+      "offset_ms": 6000,
+      "step": "read",
+      "step_status": "FAILED",
+      "run_status": "FAILED",
+      "error_code": "UNKNOWN_FAILURE",
+      "error_message": "Read step stopped; diagnostic detail unavailable",
+      "logs": [{ "level": "ERROR", "message": "Read step stopped; diagnostic detail unavailable" }]
+    }
   ]
 }

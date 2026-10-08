@@ -1,0 +1,4 @@
+$ node scripts/check-pipeline-start.mjs
+(node:34696) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"report":"D:\\Downloaad\\FlowLens\\logs\\pipeline\\build-start-2026-10-08T11-42-39-228Z\\report.json","status":"PASSED","project_id":"bf252fc0-50ff-4b05-9b49-4a9c24e9921f"}

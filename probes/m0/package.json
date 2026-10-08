@@ -2,7 +2,9 @@
   "name": "@flowlens/m0-probe",
   "private": true,
   "type": "module",
-  "engines": {"node": ">=24 <25"},
+  "engines": {
+    "node": ">=24 <25"
+  },
   "packageManager": "pnpm@11.5.0",
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -13,6 +15,14 @@
     "probe:failure": "node dist/cli.js failure",
     "probe:live": "node --env-file-if-exists=../../.env.local dist/cli.js live"
   },
-  "dependencies": {"zod": "4.1.12"},
-  "devDependencies": {"@types/node": "24.5.2", "typescript": "5.9.3", "vitest": "3.2.4", "eslint": "9.36.0", "typescript-eslint": "8.44.1"}
+  "dependencies": {
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "24.5.2",
+    "typescript": "5.9.3",
+    "vitest": "3.2.4",
+    "eslint": "9.36.0",
+    "typescript-eslint": "8.44.1"
+  }
 }

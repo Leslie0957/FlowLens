@@ -1,0 +1,510 @@
+{
+  "at": "2026-10-08T08:01:19.997Z",
+  "status": "PASSED",
+  "baseline_commit": "0074bbf",
+  "checks": {
+    "typecheck": "PASSED",
+    "lint": "PASSED",
+    "build": "PASSED",
+    "server_tests": 146,
+    "web_tests": 43,
+    "full_browser_tests": 44,
+    "build_start": "PASSED"
+  },
+  "browser": {
+    "stats": {
+      "startTime": "2026-10-08T07:56:54.327Z",
+      "duration": 181798.73200000002,
+      "expected": 44,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "tests": [
+      {
+        "file": "final-answer.spec.ts",
+        "title": "only the verified answer is revealed once across reset, snapshot replay and refresh",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 4675
+          }
+        ]
+      },
+      {
+        "file": "m1.spec.ts",
+        "title": "shows persisted fixture runs and opens S04 detail with server logs",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 549
+          }
+        ]
+      },
+      {
+        "file": "m1.spec.ts",
+        "title": "creates a new S04 demo run and observes its persisted terminal state",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 9909
+          }
+        ]
+      },
+      {
+        "file": "m1.spec.ts",
+        "title": "keeps list filters in the URL and shows a clear unknown-run state",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 724
+          }
+        ]
+      },
+      {
+        "file": "m1.spec.ts",
+        "title": "expands and collapses a multiline server log",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 544
+          }
+        ]
+      },
+      {
+        "file": "m2.spec.ts",
+        "title": "mock diagnosis shows evidence, follow-up, approval, and one simulated child run",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 9791
+          }
+        ]
+      },
+      {
+        "file": "m2.spec.ts",
+        "title": "diagnosis panel stays accessible without whole-page horizontal overflow",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 1172
+          }
+        ]
+      },
+      {
+        "file": "m3.spec.ts",
+        "title": "an idle session reconnects automatically after the first stream request fails",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 1037
+          }
+        ]
+      },
+      {
+        "file": "m3.spec.ts",
+        "title": "late snapshot from another session does not overwrite the selected session",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 877
+          }
+        ]
+      },
+      {
+        "file": "m3.spec.ts",
+        "title": "a lost submit response can be retried without creating a second user message",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 826
+          }
+        ]
+      },
+      {
+        "file": "m3.spec.ts",
+        "title": "a log citation outside the visible log slice opens context with the exact log highlighted",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 1121
+          }
+        ]
+      },
+      {
+        "file": "m3.spec.ts",
+        "title": "refresh from an in-progress snapshot replays the completed turn once",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 791
+          }
+        ]
+      },
+      {
+        "file": "m3.spec.ts",
+        "title": "information-poor demo makes unavailable diagnostics and retry eligibility explicit",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 632
+          }
+        ]
+      },
+      {
+        "file": "m3.spec.ts",
+        "title": "citation button toggles its popover and a closed loading response cannot reopen it",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 1379
+          }
+        ]
+      },
+      {
+        "file": "m4.spec.ts",
+        "title": "AC01 creates a normal fixture run and shows persisted success and summary",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 10394
+          }
+        ]
+      },
+      {
+        "file": "m4.spec.ts",
+        "title": "AC23 displays an unfamiliar read-only tool name through the generic snapshot renderer",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 1574
+          }
+        ]
+      },
+      {
+        "file": "m4.spec.ts",
+        "title": "creating a new session prevents editing the outgoing composer until the new snapshot is ready",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 790
+          }
+        ]
+      },
+      {
+        "file": "m5-pages.spec.ts",
+        "title": "history opens an exact older session, survives refresh and rejects a mismatched run",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 2122
+          }
+        ]
+      },
+      {
+        "file": "m5-pages.spec.ts",
+        "title": "demo page lists six fixtures and creates a new persisted run",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 10034
+          }
+        ]
+      },
+      {
+        "file": "m5-pages.spec.ts",
+        "title": "creation time range composes with search and status, survives refresh and clears",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 1345
+          }
+        ]
+      },
+      {
+        "file": "m5-pages.spec.ts",
+        "title": "10000 real stored logs and 200 stored tools stay bounded and evidence outside the page is reachable",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 1096
+          }
+        ]
+      },
+      {
+        "file": "m5-pages.spec.ts",
+        "title": "pages remain within the viewport at 360, 768 and 1440 widths",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 9478
+          }
+        ]
+      },
+      {
+        "file": "m5.spec.ts",
+        "title": "S01 can be created, diagnosed, cited, followed up and restored without retry",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 14011
+          }
+        ]
+      },
+      {
+        "file": "m5.spec.ts",
+        "title": "S02 can be created, diagnosed, cited, followed up and restored without retry",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 14079
+          }
+        ]
+      },
+      {
+        "file": "m5.spec.ts",
+        "title": "S03 can be created, diagnosed, cited, followed up and restored without retry",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 13477
+          }
+        ]
+      },
+      {
+        "file": "m6-local.spec.ts",
+        "title": "local SQL execution keeps real failures, a preset control, history and FIXTURE isolation",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 7320
+          }
+        ]
+      },
+      {
+        "file": "m6-local.spec.ts",
+        "title": "local experiment fits 360px and keeps keyboard navigation",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 595
+          }
+        ]
+      },
+      {
+        "file": "m6-local.spec.ts",
+        "title": "local experiment fits 768px and keeps keyboard navigation",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 593
+          }
+        ]
+      },
+      {
+        "file": "m6-local.spec.ts",
+        "title": "local experiment fits 1440px and keeps keyboard navigation",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 584
+          }
+        ]
+      },
+      {
+        "file": "m6-loop.spec.ts",
+        "title": "an explicitly authorized bounded loop performs one real verification and restores its history",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 3998
+          }
+        ]
+      },
+      {
+        "file": "m6-repair.spec.ts",
+        "title": "one approved local Agent candidate creates a real verified revision while old failure remains",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 5529
+          }
+        ]
+      },
+      {
+        "file": "pipeline-diagnosis.spec.ts",
+        "title": "new validated diagnosis reveals gradually, refresh and execution reselection show history immediately",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 2192
+          }
+        ]
+      },
+      {
+        "file": "pipeline-history.spec.ts",
+        "title": "actual rounds and evidence survive refresh; history distinguishes failure, verification, approved precheck and ordinary rerun",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 5187
+          }
+        ]
+      },
+      {
+        "file": "pipeline-presentation.spec.ts",
+        "title": "Pipeline is primary and archived experiments remain reachable and fit narrow windows",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 988
+          }
+        ]
+      },
+      {
+        "file": "pipeline-presentation.spec.ts",
+        "title": "evidence opens real bound facts and one repair approval reaches committed results while retaining history",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 4400
+          }
+        ]
+      },
+      {
+        "file": "pipeline-presentation.spec.ts",
+        "title": "reload during repair approval follows the persisted backend approval through exactly one precheck and commit",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 2428
+          }
+        ]
+      },
+      {
+        "file": "pipeline-result.spec.ts",
+        "title": "lost commit acknowledgement recovers from the actual receipt, opens results and restores there without repeating writes on reload",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 2559
+          }
+        ]
+      },
+      {
+        "file": "pipeline-result.spec.ts",
+        "title": "a rejected commit request stays on the approval screen and can be retried without a false success page",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 1249
+          }
+        ]
+      },
+      {
+        "file": "pipeline-sync.spec.ts",
+        "title": "a real execution finishes on screen without reload even when the open SSE stream loses its events",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 1777
+          }
+        ]
+      },
+      {
+        "file": "pipeline-table.spec.ts",
+        "title": "actual output and SQL query tables align headers while scrolling, reopening and resizing",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 2004
+          }
+        ]
+      },
+      {
+        "file": "pipeline.spec.ts",
+        "title": "user SQL revisions execute their actual text and older execution SQL remains immutable after correction",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 1895
+          }
+        ]
+      },
+      {
+        "file": "pipeline.spec.ts",
+        "title": "real vehicle A repair, human UI approval, precheck/commit/rerun/query/snapshot/restore retain history",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 8278
+          }
+        ]
+      },
+      {
+        "file": "pipeline.spec.ts",
+        "title": "SQL page rejects writes and unknown fields, cancels late query/error/loading after source change",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 1570
+          }
+        ]
+      },
+      {
+        "file": "pipeline.spec.ts",
+        "title": "SSE disconnect/resume and rapid project changes keep records scoped without replay duplication",
+        "status": "expected",
+        "results": [
+          {
+            "status": "passed",
+            "duration": 3091
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "at": "2026-10-08T07:59:24.237Z",
+  "status": "PASSED",
+  "checks": [
+    {
+      "fixture": "A",
+      "model_requests": 4,
+      "successful_tool_rounds": [
+        2,
+        3
+      ],
+      "exact_call_id_and_body_feedback": true,
+      "evidence_dependent_choices": [
+        {
+          "request": 3,
+          "question": "raw_vehicle_events 表真实存在哪些列，speed_kph 对应哪一列？",
+          "reason": "已确知 SQL 使用 speed_kph 但该列不存在，需要 schema 来映射正确列名，决定候选 SQL。",
+          "prior_tool_evidence_ids": [
+            "c3231c63-1646-4940-b022-beb836faa4b5"
+          ]
+        }
+      ],
+      "verification": "PASSED",
+      "commit": "COMMITTED",
+      "restore": "RESTORED",
+      "target_rows_after_restore": 0
+    },
+    {
+      "fixture": "B",
+      "model_requests": 4,
+      "successful_tool_rounds": [
+        1,
+        2,
+        3
+      ],
+      "exact_call_id_and_body_feedback": true,
+      "evidence_dependent_choices": [
+        {
+          "request": 2,
+          "question": "输出契约对列名和类型的确切要求是什么？",
+          "reason": "输出列名为 vehicle_type 而校验消息要求 car_series，需确认契约的精确列名/类型/边界规则",
+          "prior_tool_evidence_ids": [
+            "7e7189e4-0b86-4867-8361-bd98d7727134"
+          ]
+        },
+        {
+          "request": 3,
+          "question": "当前 task.sql 的投影列名与来源列（是否已别名）如何书写？",
+          "reason": "契约要求输出列 car_series，而实际输出为 vehicle_type，需查看SQL确认是别名缺失还是源列名不同",
+          "prior_tool_evidence_ids": [
+            "7e7189e4-0b86-4867-8361-bd98d7727134",
+            "86f74cf3-ccf3-47c7-b2c9-d344eed6c5fd"
+          ]
+        }
+      ],
+      "verification": "PASSED",
+      "commit": "COMMITTED",
+      "restore": "RESTORED",
+      "target_rows_after_restore": 0
+    }
+  ],
+  "attempts": [
+    {
+      "file": "json-mode-failure.json",
+      "status": "FAILED",
+      "actual_requests": 4,
+      "usage": {
+        "prompt_tokens": 5738,
+        "completion_tokens": 513
+      }
+    },
+    {
+      "file": "single-tool-round.json",
+      "status": "FAILED",
+      "actual_requests": 2,
+      "usage": {
+        "prompt_tokens": 3215,
+        "completion_tokens": 534
+      }
+    },
+    {
+      "file": "actual-feedback-live.json",
+      "status": "PASSED",
+      "actual_requests": 8,
+      "usage": {
+        "prompt_tokens": 14470,
+        "completion_tokens": 1358
+      }
+    }
+  ],
+  "total_paid_requests": 14,
+  "scope": "isolated synthetic SQLite, no user project writes; note citations establish observed dependency, not a counterfactual causal proof"
+}

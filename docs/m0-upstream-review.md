@@ -18,30 +18,30 @@
 
 将来实际抽取时，在 FlowLens 保留上游完整 LICENSE 文本及版权声明；来源说明记录仓库 URL、完整 commit、原文件/符号、FlowLens 目标文件和改动范围，并在 README 区分上游贡献与 FlowLens 新增功能。建议使用第三方声明文件和对应许可副本，不将整个 FlowLens 的许可证自动改成上游许可证。依赖有各自许可证，根 MIT 不能覆盖全部依赖；最终选定依赖仍需逐包核验许可/NOTICE。
 
-| 直接依赖 | package.json 范围 | 锁文件实际版本 | 锁文件许可元数据 | FlowLens 建议 |
-|---|---|---|---|---|
-| @anthropic-ai/sdk | ^0.52.0 | 0.52.0 | MIT | 首版 DeepSeek 不需要；移除对其 Tool 类型的依赖 |
-| openai | ^6.33.0 | 6.33.0 | Apache-2.0 | 可作为 DeepSeek gateway 候选，必须验证官方协议和实际行为后锁定 |
-| chalk | ^5.4.1 | 5.6.2 | MIT | 终端显示依赖，不随 Agent 抽入 |
-| glob | ^11.0.1 | 11.1.0 | BlueOak-1.0.0 | 文件搜索依赖，不随 Agent 抽入 |
-| @types/node（开发） | ^22.15.3 | 22.19.15 | MIT | 与 FlowLens 选定 Node 版本协调，不直接照搬 |
-| typescript（开发） | ^5.8.3 | 5.9.3 | Apache-2.0 | 可参考配置，版本按 FlowLens 验证结果确定 |
+| 直接依赖            | package.json 范围 | 锁文件实际版本 | 锁文件许可元数据 | FlowLens 建议                                                  |
+| ------------------- | ----------------- | -------------- | ---------------- | -------------------------------------------------------------- |
+| @anthropic-ai/sdk   | ^0.52.0           | 0.52.0         | MIT              | 首版 DeepSeek 不需要；移除对其 Tool 类型的依赖                 |
+| openai              | ^6.33.0           | 6.33.0         | Apache-2.0       | 可作为 DeepSeek gateway 候选，必须验证官方协议和实际行为后锁定 |
+| chalk               | ^5.4.1            | 5.6.2          | MIT              | 终端显示依赖，不随 Agent 抽入                                  |
+| glob                | ^11.0.1           | 11.1.0         | BlueOak-1.0.0    | 文件搜索依赖，不随 Agent 抽入                                  |
+| @types/node（开发） | ^22.15.3          | 22.19.15       | MIT              | 与 FlowLens 选定 Node 版本协调，不直接照搬                     |
+| typescript（开发）  | ^5.8.3            | 5.9.3          | Apache-2.0       | 可参考配置，版本按 FlowLens 验证结果确定                       |
 
 锁文件还包含 MIT、ISC、BlueOak-1.0.0 等间接依赖；表中许可仅为锁文件元数据，未完成所有依赖的原文核验。根 package.json 无 engines/packageManager；使用 npm lockfile，TS strict=true、ES2022、ESNext、bundler 解析。锁文件中已声明的 Node engines 没有显见排斥当前 Node 24 的条件，但这不是运行兼容性通过。Python 和部分 steps 脚本依赖 python3、.venv/bin/python 等环境，不整体移入 Windows/pnpm/Node 的 FlowLens。
 
 ## 3. 对照 PRD 的复用边界
 
-| 能力 | 源码证据（行号为本地固定版本） | 判断与 FlowLens 处理 |
-|---|---|---|
-| Agent Loop | src/agent.ts:1898 chatOpenAI；1638 chatAnthropic | 可有限抽取“模型选择工具→执行→返回结果→继续”的流程及调用/结果 ID 配对逻辑。不能直接实例化完整 Agent：它依赖 UI、文件会话、MCP、记忆、技能、子 Agent 和自治。改成 PRD §13.5 的可注入 gateway/executor、规范化输入及内部 AgentEvent 输出 |
-| 模型流与工具参数拼接 | agent.ts:115 toOpenAITools；2065 callOpenAIStream | 可抽取工具 schema 映射及按 tool index 累加 arguments 的小段逻辑；迁入 ModelGateway 并测试。SSE 字节解码由 SDK承担，上游循环消费 SDK chunk；不能声称这里已实现 FlowLens 浏览器 SSE 协议 |
-| DeepSeek 配置 | agent.ts:260 构造；cli.ts:336 配置选择 | 现有 OpenAI-compatible baseURL 是接入候选，不是 DeepSeek 已验证。FlowLens 用显式 MODEL_PROVIDER / MODEL_NAME / MODEL_BASE_URL / MODEL_API_KEY、配置校验和 LIVE/MOCK；不能沿用凭环境自动选择双后端或 Claude 默认模型 |
-| 工具注册/执行 | tools.ts:24 ToolDef、746 executeTool；agent.ts:1389 executeToolCall | schema/handler 分离思路可参考；现有 ToolDef 依赖 Anthropic 类型，customTools 只能换定义，执行仍走内置 switch/特殊工具，并非任意注入 handler 的完整注册表。重做 FlowLens ToolRegistry/Executor，仅注册 PRD §7.2 四种只读业务工具 |
-| 工具权限 | tools.ts:641 checkPermission | 不复用权限模式体系。末尾默认 allow；plan 模式允许计划文件写入，还可经特殊工具派发。因此不能只设 plan 或 dontAsk 就当成 FlowLens 的权限边界。必须显式白名单、参数运行时 schema、run/task/session 绑定及输出限制 |
-| 多轮与压缩 | agent.ts:1028–1295 | 可参考保留 tool call/result 配对和限制工具结果占用的原则。现有按利用率截断、保留最近 3 个工具结果、5 分钟冷却后清理、额外模型摘要，与 PRD §7.5 不同。实现最近 6 个完整 turn、早期已验证诊断摘要、证据引用、每轮新运行摘要；不照搬四层压缩 |
-| 会话保存 | session.ts:25、33；agent.ts:1010 | 不复用文件持久化。它保存供应商消息 JSON 到用户目录，autoSave 静默吞错；不能提供 FlowLens SQLite 事务、消息/事件一致性、幂等、恢复和会话证据边界 |
-| 可观察性 | agent.ts:513 emitText、1984 附近 printToolCall、tools.ts 错误字符串 | 替换为脱敏结构化日志和类型化事件，携带 trace_id/turn_id/tool_call_id；SDK 类型和终端文本不作为前端契约。FlowLens 应用服务负责公共事件 seq/持久化，adapter 不直接写 HTTP |
-| 现有测试 | test/integration/backend-parity.test.mjs、streaming-loop.test.mjs、retry.test.mjs、harness.mjs | 可参考传输层 Mock、分片参数、实际工具结果回传、隔离 HOME/cwd 和意外额外请求检测。断言需迁成 FlowLens 业务行为，不能搬 Shell/文件编辑测试来证明只读诊断合格 |
+| 能力                 | 源码证据（行号为本地固定版本）                                                                 | 判断与 FlowLens 处理                                                                                                                                                                                                                      |
+| -------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent Loop           | src/agent.ts:1898 chatOpenAI；1638 chatAnthropic                                               | 可有限抽取“模型选择工具→执行→返回结果→继续”的流程及调用/结果 ID 配对逻辑。不能直接实例化完整 Agent：它依赖 UI、文件会话、MCP、记忆、技能、子 Agent 和自治。改成 PRD §13.5 的可注入 gateway/executor、规范化输入及内部 AgentEvent 输出     |
+| 模型流与工具参数拼接 | agent.ts:115 toOpenAITools；2065 callOpenAIStream                                              | 可抽取工具 schema 映射及按 tool index 累加 arguments 的小段逻辑；迁入 ModelGateway 并测试。SSE 字节解码由 SDK承担，上游循环消费 SDK chunk；不能声称这里已实现 FlowLens 浏览器 SSE 协议                                                    |
+| DeepSeek 配置        | agent.ts:260 构造；cli.ts:336 配置选择                                                         | 现有 OpenAI-compatible baseURL 是接入候选，不是 DeepSeek 已验证。FlowLens 用显式 MODEL_PROVIDER / MODEL_NAME / MODEL_BASE_URL / MODEL_API_KEY、配置校验和 LIVE/MOCK；不能沿用凭环境自动选择双后端或 Claude 默认模型                       |
+| 工具注册/执行        | tools.ts:24 ToolDef、746 executeTool；agent.ts:1389 executeToolCall                            | schema/handler 分离思路可参考；现有 ToolDef 依赖 Anthropic 类型，customTools 只能换定义，执行仍走内置 switch/特殊工具，并非任意注入 handler 的完整注册表。重做 FlowLens ToolRegistry/Executor，仅注册 PRD §7.2 四种只读业务工具           |
+| 工具权限             | tools.ts:641 checkPermission                                                                   | 不复用权限模式体系。末尾默认 allow；plan 模式允许计划文件写入，还可经特殊工具派发。因此不能只设 plan 或 dontAsk 就当成 FlowLens 的权限边界。必须显式白名单、参数运行时 schema、run/task/session 绑定及输出限制                            |
+| 多轮与压缩           | agent.ts:1028–1295                                                                             | 可参考保留 tool call/result 配对和限制工具结果占用的原则。现有按利用率截断、保留最近 3 个工具结果、5 分钟冷却后清理、额外模型摘要，与 PRD §7.5 不同。实现最近 6 个完整 turn、早期已验证诊断摘要、证据引用、每轮新运行摘要；不照搬四层压缩 |
+| 会话保存             | session.ts:25、33；agent.ts:1010                                                               | 不复用文件持久化。它保存供应商消息 JSON 到用户目录，autoSave 静默吞错；不能提供 FlowLens SQLite 事务、消息/事件一致性、幂等、恢复和会话证据边界                                                                                           |
+| 可观察性             | agent.ts:513 emitText、1984 附近 printToolCall、tools.ts 错误字符串                            | 替换为脱敏结构化日志和类型化事件，携带 trace_id/turn_id/tool_call_id；SDK 类型和终端文本不作为前端契约。FlowLens 应用服务负责公共事件 seq/持久化，adapter 不直接写 HTTP                                                                   |
+| 现有测试             | test/integration/backend-parity.test.mjs、streaming-loop.test.mjs、retry.test.mjs、harness.mjs | 可参考传输层 Mock、分片参数、实际工具结果回传、隔离 HOME/cwd 和意外额外请求检测。断言需迁成 FlowLens 业务行为，不能搬 Shell/文件编辑测试来证明只读诊断合格                                                                                |
 
 ## 4. 关键适配风险（静态证据，未运行复现）
 
@@ -82,6 +82,5 @@ git diff --exit-code HEAD -- README.md LICENSE package.json package-lock.json ts
 再按本报告行号阅读实现并对照 FlowLens PRD §7、§8、§9–13。以上命令只核对本地版本及差异，不能证明远端真实性、构建通过或模型兼容。
 
 本轮没有启动服务、没有生成应用日志；无需执行上游 npm test/npm start 来复查报告。模型请求、结构化日志失败定位、Windows 依赖/SQLite smoke、Mock 回归和真实 DeepSeek 往返均未执行。DeepSeek Key 仍缺，LIVE 验收未完成；不进入 M1。
-
 
 后续 M0 收尾补证（2026-09-26）：经 `gh api repos/Windy3f3f3f3f/claude-code-from-scratch/git/commits/0b452360866433fde0dc77cd37ada9d303546592` 只读查询，远端对象 SHA 与本地一致。本报告此前的“未联网核对”与“未执行探针”描述保留为当时只读核验的历史状态；现况见 [实施进度](implementation-progress.md)。

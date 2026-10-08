@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-08T08:15:57.177Z",
+  "status": "PASSED",
+  "existing_history_checked_read_only": true,
+  "public_notes_shown": 4,
+  "repeated_sql_points_to_request": 3,
+  "deferred_batch_explained": true,
+  "new_model_requests": 0,
+  "target_rows": 0
+}

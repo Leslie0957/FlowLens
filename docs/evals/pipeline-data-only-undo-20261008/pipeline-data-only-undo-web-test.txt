@@ -1,0 +1,24 @@
+$ vitest run --silent
+
+ RUN  v3.2.4 D:/Downloaad/FlowLens/apps/web
+
+ ✓ src/diagnosis-presentation.test.ts (1 test) 3ms
+ ✓ src/agent-connection.test.ts (2 tests) 6ms
+ ✓ src/time-range.test.ts (1 test) 7ms
+ ✓ src/SafeMarkdown.test.ts (1 test) 18ms
+ ✓ src/agent-reducer.test.ts (4 tests) 9ms
+ ✓ src/EvidencePopover.test.ts (1 test) 35ms
+ ✓ src/agent-stream.test.ts (3 tests) 13ms
+ ✓ src/store/runs.test.ts (1 test) 8ms
+ ✓ src/pipeline-diagnosis-present.test.ts (5 tests) 13ms
+ ✓ src/ToolTraceCard.test.ts (2 tests) 38ms
+ ✓ src/DiagnosisAnswer.test.ts (6 tests) 74ms
+ ✓ src/ToolTraceList.test.ts (1 test) 232ms
+ ✓ src/pipeline-client.test.ts (6 tests) 1903ms
+   ✓ reconnects after a failed snapshot from the last applied cursor, then reads the replayed completion  1246ms
+ ✓ src/PipelineDiagnosis.test.ts (14 tests) 357ms
+
+ Test Files  14 passed (14)
+      Tests  48 passed (48)
+   Start at  19:40:34
+   Duration  4.29s (transform 1.85s, setup 0ms, collect 8.84s, tests 2.71s, environment 9.73s, prepare 4.10s)

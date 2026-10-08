@@ -1,5 +1,7 @@
 # Pipeline Agent 自主取证实施验收
 
+本页是提交 `0074bbf` 前的实施基线。后续首轮取证约束、实际 LIVE 多轮轨迹与历史关联修复见 [补充验收](pipeline-feedback-history-acceptance.md)；下文“未提交 / 未运行付费 LIVE”描述基线验收时的状态。
+
 2026-10-08，按 `pipeline-agent-adaptive-plan.md` 在当前未提交工作区实施。原有合并审批、结果页、同步与数据库页修改保留；没有 reset、提交 Git、修改 `.env.local` 或连接用户业务库。此前固定六工具与八请求的验收属于历史版本，本记录描述当前实现。
 
 ## 当前行为
@@ -12,12 +14,12 @@ SQL_PATCH 必须引用本版本 get_sql 和实际失败依据；证据 ID 非空
 
 默认上限如下；配置以正整数解析，构造器可覆盖，每次新会话保存有效快照。旧记录 diagnosis_limits=null，界面明确上限未知，不按新配置推断。
 
-| 环境变量 | 默认值 |
-| --- | ---: |
-| FLOWLENS_PIPELINE_DIAG_MAX_REQUESTS | 100 |
-| FLOWLENS_PIPELINE_DIAG_MAX_TOOL_CALLS | 200 |
-| FLOWLENS_PIPELINE_DIAG_TIMEOUT_MS | 900000 |
-| FLOWLENS_PIPELINE_DIAG_MAX_STALL_ROUNDS | 3 |
+| 环境变量                                 | 默认值 |
+| ---------------------------------------- | -----: |
+| FLOWLENS_PIPELINE_DIAG_MAX_REQUESTS      |    100 |
+| FLOWLENS_PIPELINE_DIAG_MAX_TOOL_CALLS    |    200 |
+| FLOWLENS_PIPELINE_DIAG_TIMEOUT_MS        | 900000 |
+| FLOWLENS_PIPELINE_DIAG_MAX_STALL_ROUNDS  |      3 |
 | FLOWLENS_PIPELINE_DIAG_MAX_CONTEXT_BYTES | 262144 |
 
 每次 LIVE 请求前仍须共享预算 reserve。上述配置不会扩大付费授权；LIVE 评测默认独立 cap=8，可显式设置 FLOWLENS_PIPELINE_EVAL_LIVE_MAX_REQUESTS，仍取与既有授权的较小值。没有修改用户配置或发起付费 LIVE 调用。
@@ -39,10 +41,10 @@ $env:FLOWLENS_ADAPTIVE_TRACE_DIR = Join-Path (Get-Location) 'logs/pipeline/adapt
 pnpm --filter @flowlens/server exec vitest run test/pipeline-adaptive.test.ts
 ```
 
-| 受控故障 | 模型请求 1 | 请求 2 实际收到的资料及选择 | 请求 3 |
-| --- | --- | --- | --- |
-| 列不存在 | 初始 SQLite 报 no such column，选择 get_sql | SQL 实际含 speed_kph，选择 get_schema；返回源表确有 speed_mps | 用错误中的列名与 Schema 中的真实列生成候选 |
-| 输出契约失败 | 初始校验错误，选择 get_output_preview | 实际 columns 含 vehicle_type、validation.passed=false，选择同轮 get_sql + get_task_contract | 两个调用 ID 均有对应结果；从实际缺失/多余字段生成候选 |
+| 受控故障     | 模型请求 1                                  | 请求 2 实际收到的资料及选择                                                                 | 请求 3                                                |
+| ------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| 列不存在     | 初始 SQLite 报 no such column，选择 get_sql | SQL 实际含 speed_kph，选择 get_schema；返回源表确有 speed_mps                               | 用错误中的列名与 Schema 中的真实列生成候选            |
+| 输出契约失败 | 初始校验错误，选择 get_output_preview       | 实际 columns 含 vehicle_type、validation.passed=false，选择同轮 get_sql + get_task_contract | 两个调用 ID 均有对应结果；从实际缺失/多余字段生成候选 |
 
 两条路线均为三次模型请求，工具分别为 2 次和 3 次，不调用全部六工具。测试在每一步断言前一轮实际结果及 call ID 完整进入下一轮，后续选项依赖这些返回字段；候选通过绑定校验。未批准时执行数仍为 1、目标为 0；测试授权后真实隔离验证→预检→事务入库 4 行→恢复 0 行，凭证分别 COMMITTED/RESTORED。
 
@@ -50,15 +52,15 @@ pnpm --filter @flowlens/server exec vitest run test/pipeline-adaptive.test.ts
 
 ## 本次实际检查
 
-| 命令 | 本次结果 |
-| --- | --- |
-| pnpm typecheck | 通过，最终计时器类型修正后重新执行 |
-| pnpm lint | 通过 |
-| pnpm test | 服务端 142/142（23 文件）；前端 39/39（13 文件） |
-| pnpm build | 通过，最终版重新构建 |
-| pnpm test:e2e -- tests/e2e/pipeline.spec.ts tests/e2e/pipeline-diagnosis.spec.ts tests/e2e/pipeline-result.spec.ts tests/e2e/pipeline-sync.spec.ts tests/e2e/pipeline-presentation.spec.ts tests/e2e/pipeline-table.spec.ts | 12/12，45.317 秒，0 skipped/flaky/unexpected |
-| pnpm check:pipeline:start | PASSED；构建版随机端口、独立测试库、一次审批、COUNT=4、撤销 COUNT=0、刷新凭证、无 pageerror |
-| git diff --check | 通过 |
+| 命令                                                                                                                                                                                                                        | 本次结果                                                                                    |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| pnpm typecheck                                                                                                                                                                                                              | 通过，最终计时器类型修正后重新执行                                                          |
+| pnpm lint                                                                                                                                                                                                                   | 通过                                                                                        |
+| pnpm test                                                                                                                                                                                                                   | 服务端 142/142（23 文件）；前端 39/39（13 文件）                                            |
+| pnpm build                                                                                                                                                                                                                  | 通过，最终版重新构建                                                                        |
+| pnpm test:e2e -- tests/e2e/pipeline.spec.ts tests/e2e/pipeline-diagnosis.spec.ts tests/e2e/pipeline-result.spec.ts tests/e2e/pipeline-sync.spec.ts tests/e2e/pipeline-presentation.spec.ts tests/e2e/pipeline-table.spec.ts | 12/12，45.317 秒，0 skipped/flaky/unexpected                                                |
+| pnpm check:pipeline:start                                                                                                                                                                                                   | PASSED；构建版随机端口、独立测试库、一次审批、COUNT=4、撤销 COUNT=0、刷新凭证、无 pageerror |
+| git diff --check                                                                                                                                                                                                            | 通过                                                                                        |
 
 机器记录：[checks.json](evals/pipeline-adaptive-20261008/checks.json)，[本次浏览器报告](evals/pipeline-adaptive-20261008/e2e-report.json)，[构建启动报告](evals/pipeline-adaptive-20261008/build-start-report.json)。原启动日志/截图/完整状态在 `logs/pipeline/build-start-2026-10-08T07-11-02-255Z/`，E2E 原报告在 `logs/m5/e2e-2026-10-08T07-06-25-303Z.json`。
 

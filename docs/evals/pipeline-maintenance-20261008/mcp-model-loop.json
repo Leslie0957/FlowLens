@@ -1,0 +1,255 @@
+{
+  "id": "79e73620-e85d-4343-b529-c678aea5f77e",
+  "project_id": "5447b9bd-ae0f-4eb9-ab29-c461f78ba4bb",
+  "execution_id": "005fa7db-44fc-4e1d-aa29-55b358597c54",
+  "base_revision_id": "aaa6956c-b318-4f63-a9b6-9768034bfbad",
+  "base_hash": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26",
+  "input_hash": "3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+  "status": "NO_CANDIDATE",
+  "provider_mode": "MOCK",
+  "model": "mcp-feedback",
+  "created_at": "2026-10-08T09:50:18.528Z",
+  "expires_at": null,
+  "tools": [
+    {
+      "id": "8ad9cc49-ab16-425c-9775-eea532915394",
+      "request": 1,
+      "call_id": "recent",
+      "name": "get_logs",
+      "status": "COMPLETED",
+      "args": {
+        "limit": 10
+      },
+      "result": {
+        "output": {
+          "logs": [
+            {
+              "at": "2026-10-08T00:00:00Z",
+              "step": "validate",
+              "level": "INFO",
+              "message": "真实持久化日志46",
+              "seq": 46
+            },
+            {
+              "at": "2026-10-08T00:00:00Z",
+              "step": "query",
+              "level": "INFO",
+              "message": "真实持久化日志47",
+              "seq": 47
+            },
+            {
+              "at": "2026-10-08T00:00:00Z",
+              "step": "validate",
+              "level": "INFO",
+              "message": "真实持久化日志48",
+              "seq": 48
+            },
+            {
+              "at": "2026-10-08T00:00:00Z",
+              "step": "query",
+              "level": "INFO",
+              "message": "真实持久化日志49",
+              "seq": 49
+            },
+            {
+              "at": "2026-10-08T00:00:00Z",
+              "step": "validate",
+              "level": "INFO",
+              "message": "真实持久化日志50",
+              "seq": 50
+            },
+            {
+              "at": "2026-10-08T00:00:00Z",
+              "step": "query",
+              "level": "INFO",
+              "message": "真实持久化日志51",
+              "seq": 51
+            },
+            {
+              "at": "2026-10-08T00:00:00Z",
+              "step": "validate",
+              "level": "INFO",
+              "message": "真实持久化日志52",
+              "seq": 52
+            },
+            {
+              "at": "2026-10-08T00:00:00Z",
+              "step": "query",
+              "level": "INFO",
+              "message": "真实持久化日志53",
+              "seq": 53
+            },
+            {
+              "at": "2026-10-08T00:00:00Z",
+              "step": "validate",
+              "level": "INFO",
+              "message": "真实持久化日志54",
+              "seq": 54
+            },
+            {
+              "at": "2026-10-08T00:00:00Z",
+              "step": "query",
+              "level": "INFO",
+              "message": "真实持久化日志55",
+              "seq": 55
+            }
+          ],
+          "has_more": true,
+          "next_before_seq": 46,
+          "matched_count": 55,
+          "truncated_by_bytes": false
+        },
+        "evidence_ids": [
+          "4474fa7e-0cdc-421a-8724-6e6a3c579b52"
+        ]
+      },
+      "error_code": null,
+      "transport": "MCP",
+      "tool_server": "flowlens-pipeline-readonly"
+    },
+    {
+      "id": "8ae5c39f-329f-4252-a9b4-8c23a48eb437",
+      "request": 2,
+      "call_id": "older",
+      "name": "get_logs",
+      "status": "COMPLETED",
+      "args": {
+        "before_seq": 46,
+        "level": "ERROR"
+      },
+      "result": {
+        "output": {
+          "logs": [
+            {
+              "at": "2026-10-08T00:00:00Z",
+              "step": "query",
+              "level": "ERROR",
+              "message": "真实持久化日志3",
+              "seq": 3
+            }
+          ],
+          "has_more": false,
+          "next_before_seq": null,
+          "matched_count": 1,
+          "truncated_by_bytes": false
+        },
+        "evidence_ids": [
+          "c5d27d49-ca40-44b7-82dc-14d5faea9ecd"
+        ]
+      },
+      "error_code": null,
+      "transport": "MCP",
+      "tool_server": "flowlens-pipeline-readonly"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "422a7862-8ba1-4b1b-82d8-8f69ab17d57d",
+      "type": "INITIAL_FAILURE",
+      "source_id": "005fa7db-44fc-4e1d-aa29-55b358597c54",
+      "source_version": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26:3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+      "excerpt": "{\"status\":\"FAILED\",\"failed_step\":\"query\",\"error_code\":\"SQL_QUERY_FAILED\",\"error_message\":\"no such column: speed_kph\"}"
+    },
+    {
+      "id": "4474fa7e-0cdc-421a-8724-6e6a3c579b52",
+      "type": "get_logs",
+      "source_id": "005fa7db-44fc-4e1d-aa29-55b358597c54",
+      "source_version": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26:3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+      "excerpt": "{\"logs\":[{\"at\":\"2026-10-08T00:00:00Z\",\"step\":\"validate\",\"level\":\"INFO\",\"message\":\"真实持久化日志46\",\"seq\":46},{\"at\":\"2026-10-08T00:00:00Z\",\"step\":\"query\",\"level\":\"INFO\",\"message\":\"真实持久化日志47\",\"seq\":47},{\"at\":\"2026-10-08T00:00:00Z\",\"step\":\"validate\",\"level\":\"INFO\",\"message\":\"真实持久化日志48\",\"seq\":48},{\"at\":\"2026-10-08T00:00:00Z\",\"step\":\"query\",\"level\":\"INFO\",\"message\":\"真实持久化日志49\",\"seq\":49},{\"at\":\"2026-10-08T00:00:00Z\",\"step\":\"validate\",\"level\":\"INFO\",\"message\":\"真实持久化日志50\",\"seq\":50},{\"at\":\"2026-10-08T00:00:00Z\",\"step\":\"query\",\"level\":\"INFO\",\"message\":\"真实持久化日志51\",\"seq\":51},{\"at\":\"2026-10-08T00:00:00Z\",\"step\":\"validate\",\"level\":\"INFO\",\"message\":\"真实持久化日志52\",\"seq\":52},{\"at\":\"2026-10-08T00:00:00Z\",\"step\":\"query\",\"level\":\"INFO\",\"message\":\"真实持久化日志53\",\"seq\":53},{\"at\":\"2026-10-08T00:00:00Z\",\"step\":\"validate\",\"level\":\"INFO\",\"message\":\"真实持久化日志54\",\"seq\":54},{\"at\":\"2026-10-08T00:00:00Z\",\"step\":\"query\",\"level\":\"INFO\",\"message\":\"真实持久化日志55\",\"seq\":55}],\"has_more\":true,\"next_before_seq\":46,\"matched_count\":55,\"truncated_by_bytes\":false}",
+      "read_range": {
+        "execution_id": "005fa7db-44fc-4e1d-aa29-55b358597c54",
+        "logs_hash": "89489409bb47cda4755124936c472b63de2d9820fde67c2eafb86a85be4f3bbe",
+        "args": {
+          "limit": 10
+        },
+        "before_seq": 56,
+        "first_seq": 46,
+        "last_seq": 55
+      }
+    },
+    {
+      "id": "c5d27d49-ca40-44b7-82dc-14d5faea9ecd",
+      "type": "get_logs",
+      "source_id": "005fa7db-44fc-4e1d-aa29-55b358597c54",
+      "source_version": "66adbbbd4021670506c91ab788addf745b3c36bf0a1f96c5cea29881ab704b26:3865dbdb135c5094775f1d6f4ef90409aa57fecaa5f2558779db36371df954e9",
+      "excerpt": "{\"logs\":[{\"at\":\"2026-10-08T00:00:00Z\",\"step\":\"query\",\"level\":\"ERROR\",\"message\":\"真实持久化日志3\",\"seq\":3}],\"has_more\":false,\"next_before_seq\":null,\"matched_count\":1,\"truncated_by_bytes\":false}",
+      "read_range": {
+        "execution_id": "005fa7db-44fc-4e1d-aa29-55b358597c54",
+        "logs_hash": "89489409bb47cda4755124936c472b63de2d9820fde67c2eafb86a85be4f3bbe",
+        "args": {
+          "before_seq": 46,
+          "level": "ERROR"
+        },
+        "before_seq": 46,
+        "first_seq": 3,
+        "last_seq": 3
+      }
+    }
+  ],
+  "diagnosis": "较早页日志确认错误",
+  "action": "MANUAL_REQUIRED",
+  "failed_step": "query",
+  "evidence_ids": [
+    "c5d27d49-ca40-44b7-82dc-14d5faea9ecd"
+  ],
+  "candidate": null,
+  "approved_revision_id": null,
+  "verification_execution_id": null,
+  "error_code": null,
+  "error_message": null,
+  "diagnosis_limits": {
+    "max_requests": 100,
+    "max_tool_calls": 200,
+    "timeout_ms": 900000,
+    "max_stall_rounds": 3,
+    "max_context_bytes": 262144
+  },
+  "diagnosis_phase": null,
+  "model_turns": [
+    {
+      "request": 1,
+      "text": "",
+      "finish_reason": "tool_calls",
+      "investigation": null,
+      "calls": [
+        {
+          "id": "recent",
+          "name": "get_logs",
+          "arguments": {
+            "limit": 10
+          }
+        }
+      ]
+    },
+    {
+      "request": 2,
+      "text": "",
+      "finish_reason": "tool_calls",
+      "investigation": null,
+      "calls": [
+        {
+          "id": "older",
+          "name": "get_logs",
+          "arguments": {
+            "before_seq": 46,
+            "level": "ERROR"
+          }
+        }
+      ]
+    },
+    {
+      "request": 3,
+      "text": "{\"diagnosis\":\"较早页日志确认错误\",\"failed_step\":\"query\",\"action\":\"MANUAL_REQUIRED\",\"evidence_ids\":[\"c5d27d49-ca40-44b7-82dc-14d5faea9ecd\"],\"candidate\":null}",
+      "finish_reason": "stop",
+      "investigation": null,
+      "calls": []
+    }
+  ],
+  "commit_approval": null,
+  "response_checks": [],
+  "model_requests": 3,
+  "usage": {
+    "prompt_tokens": 0,
+    "completion_tokens": 0
+  }
+}

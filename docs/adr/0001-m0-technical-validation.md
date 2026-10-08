@@ -25,5 +25,4 @@
 - 无服务端持久化、公共 SSE、幂等、审批或 UI；这些属于 M1—M3。探针的进程内取消/预算测试不能证明数据库并发裁决。
 - 没有上游构建/测试结果；固定 commit 的远端 Git 对象已由 GitHub API 与本地 SHA 对照确认。
 
-
 第一次 LIVE 失败、修复与两次成功 LIVE 结果见 [实施进度](../implementation-progress.md)。

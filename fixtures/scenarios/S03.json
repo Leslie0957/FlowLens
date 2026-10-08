@@ -1,10 +1,43 @@
 {
- "scenario_id":"S03","version":"1","display_name":"订单主键重复","description":"入库阶段订单主键冲突；重试不能自动去重","task_id":"order_daily",
- "params":{"business_date":"2026-09-25","source":"demo_duplicate_order"},
- "timeline":[
-  {"offset_ms":0,"step":"read","step_status":"RUNNING","run_status":"RUNNING","logs":[{"level":"INFO","message":"Starting read step (fixture)"}]},
-  {"offset_ms":2000,"step":"read","step_status":"SUCCEEDED","logs":[{"level":"INFO","message":"Read completed (fixture)"}]},
-  {"offset_ms":4000,"step":"validate","step_status":"SUCCEEDED","logs":[{"level":"INFO","message":"Input schema validation passed (fixture)"}]},
-  {"offset_ms":6000,"step":"load","step_status":"FAILED","run_status":"FAILED","error_code":"DUPLICATE_DATA","error_message":"UNIQUE constraint failed: orders.order_id","logs":[{"level":"ERROR","message":"Load failed: UNIQUE constraint failed: orders.order_id; duplicate order_id=demo_order_001 (fixture; no real business writes)"}]}
- ]
+  "scenario_id": "S03",
+  "version": "1",
+  "display_name": "订单主键重复",
+  "description": "入库阶段订单主键冲突；重试不能自动去重",
+  "task_id": "order_daily",
+  "params": { "business_date": "2026-09-25", "source": "demo_duplicate_order" },
+  "timeline": [
+    {
+      "offset_ms": 0,
+      "step": "read",
+      "step_status": "RUNNING",
+      "run_status": "RUNNING",
+      "logs": [{ "level": "INFO", "message": "Starting read step (fixture)" }]
+    },
+    {
+      "offset_ms": 2000,
+      "step": "read",
+      "step_status": "SUCCEEDED",
+      "logs": [{ "level": "INFO", "message": "Read completed (fixture)" }]
+    },
+    {
+      "offset_ms": 4000,
+      "step": "validate",
+      "step_status": "SUCCEEDED",
+      "logs": [{ "level": "INFO", "message": "Input schema validation passed (fixture)" }]
+    },
+    {
+      "offset_ms": 6000,
+      "step": "load",
+      "step_status": "FAILED",
+      "run_status": "FAILED",
+      "error_code": "DUPLICATE_DATA",
+      "error_message": "UNIQUE constraint failed: orders.order_id",
+      "logs": [
+        {
+          "level": "ERROR",
+          "message": "Load failed: UNIQUE constraint failed: orders.order_id; duplicate order_id=demo_order_001 (fixture; no real business writes)"
+        }
+      ]
+    }
+  ]
 }

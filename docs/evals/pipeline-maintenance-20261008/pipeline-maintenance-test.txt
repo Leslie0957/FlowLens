@@ -1,0 +1,169 @@
+$ pnpm --filter @flowlens/contracts build && pnpm --filter @flowlens/server test && pnpm --filter @flowlens/web test
+$ tsc -p tsconfig.json
+$ vitest run --silent
+
+ RUN  v3.2.4 D:/Downloaad/FlowLens/apps/server
+
+(node:27000) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27724) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41592) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30552) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12164) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:29308) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24692) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16592) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:37776) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24252) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32156) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2432) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40304) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39588) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ test/tool-registry.test.ts (1 test) 12ms
+(node:18812) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:22140) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36188) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11604) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6696) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2104) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15716) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28620) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11516) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12892) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18676) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25736) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ test/pipeline-logs.test.ts (3 tests) 18ms
+ ✓ test/model-gateway-protocol.test.ts (2 tests) 12ms
+ ✓ test/migration-v4.test.ts (2 tests) 78ms
+ ✓ test/m3-contracts.test.ts (3 tests) 102ms
+ ✓ test/live-budget.test.ts (6 tests) 141ms
+ ✓ test/m5-quality.test.ts (6 tests) 198ms
+ ✓ test/m2-eval.test.ts (6 tests) 205ms
+ ✓ test/m4-metrics.test.ts (7 tests) 229ms
+ ✓ test/m3-guidance.test.ts (10 tests) 352ms
+ ✓ test/m5-pages.test.ts (2 tests) 147ms
+ ✓ test/m3-approval.test.ts (3 tests) 198ms
+ ✓ test/m5-scenarios.test.ts (3 tests) 280ms
+ ✓ test/migration-v6.test.ts (3 tests) 370ms
+   ✓ upgrades early v6 repair records missing verification command and keeps diagnosis usable  350ms
+ ✓ test/m6-repair-http.test.ts (1 test) 454ms
+   ✓ exposes isolated repair approval HTTP without accepting client patch, shell, or old fixture approval  453ms
+ ✓ test/m6-http.test.ts (1 test) 488ms
+   ✓ keeps local HTTP operations separate from fixture diagnosis and rejects arbitrary execution inputs  487ms
+ ✓ test/m1.test.ts (14 tests) 551ms
+ ✓ test/m2.test.ts (15 tests) 680ms
+ ✓ test/pipeline-incremental.test.ts (6 tests) 1438ms
+   ✓ one baseline with 2000 old rows stores only actual inserts and constant-size snapshot metadata  885ms
+ ✓ test/m6-repair.test.ts (9 tests) 1924ms
+   ✓ binds model evidence to one failed local execution, then applies one approved revision and actually verifies 3/100  446ms
+   ✓ keeps a wrong but runnable model candidate as a real verification failure  326ms
+ ✓ test/m6-loop.test.ts (5 tests) 1738ms
+   ✓ requires explicit loop authorization, feeds failed real verification into the next round, and stops only on 3/100  572ms
+   ✓ stops after three real failed validations and does not reset cumulative limits  428ms
+ ✓ test/m6-local.test.ts (7 tests) 2984ms
+   ✓ runs real SQLite in a child process and keeps immutable failures and a validated control  710ms
+   ✓ replays idempotency before busy checks, rejects changed requests, and actually stops children  1229ms
+   ✓ fails on oversized process output and result artifacts without claiming success  381ms
+   ✓ stops a child after abnormal parent exit and marks the persisted run interrupted on restart  398ms
+{"timestamp":"2026-10-08T09:58:23.960Z","level":"warn","module":"server","event":"turn.interrupted","outcome":"failure","session_id":"8b16d269-028a-4f69-8854-b2a82b264b89","turn_id":"225e8d6e-2931-49e2-8ef5-238951f743c4","error_code":"SERVER_RESTARTED"}
+ ✓ test/m3-process.test.ts (2 tests) 5266ms
+   ✓ a separate service process recovers an unfinished turn after restart  1393ms
+   ✓ a simulated child resumes in a service process and does not duplicate logs on a second start  3871ms
+ ✓ test/m3-recovery.test.ts (6 tests) 5274ms
+   ✓ a timed-out read-only tool is marked failed and its error is visible to the model  5043ms
+ ✓ test/pipeline.test.ts (19 tests) 26210ms
+   ✓ actual process exit after target commit/restore reconciles batch links and retries without repeating side effects  1270ms
+   ✓ A/B failures are real SQLite/output errors; Mock tools and read-only candidate checks publish only after passing  2221ms
+   ✓ D: executable semantic candidate fails independent oracle and never publishes or writes the project target  1083ms
+   ✓ reject/stale/expired/tampered/foreign approvals do not execute candidates; invalid tool args cannot cross scope  3684ms
+   ✓ precheck is bound to revision, result, target hash/version, expiry and project; active writes are excluded  315ms
+   ✓ startup upgrades each old project target once while read-only schema/query connections never migrate it  308ms
+   ✓ read-only queries inspect actual source/target/pre-snapshot, bounds, invalid columns and syntax without changing data_version  410ms
+   ✓ non-modification advice stays read-only, fabricated citations and unknown tools are refused, queued diagnosis can cancel without calling a model  2783ms
+   ✓ invalid answers without tools are corrected once with specific schema feedback and no SQL side effects  947ms
+   ✓ the correction can lead the model to call actual tools and return supported advice without backend fabricated repair  939ms
+   ✓ invalid JSON and invalid answer fields keep explicit error categories and bounded correction history after real tool evidence  1778ms
+   ✓ one explicit combined approval checks SQL once, commits that output and restores, while old validation-only approval cannot be widened  2050ms
+   ✓ combined approval stops on invalid results, changed targets, expired or tampered outputs and a real rollback  5468ms
+   ✓ combined approval cancellation prevents commit and restart reconciles only actual receipts without replaying uncommitted approval  2264ms
+ ✓ test/pipeline-mcp.test.ts (9 tests) 28819ms
+   ✓ real stdio SDK discovers all six strict tools, reads actual databases and pages immutable logs without writes  1751ms
+   ✓ rejects unknown tools/arguments/cursors and stale/cross-project/execution/revision/input bindings  5099ms
+   ✓ server opens read-only connections and refuses a changed execution/log range or stopped diagnosis  963ms
+   ✓ SDK discovers every tool across real paginated tools/list responses  1052ms
+   ✓ discovery rejects missing/extra/changed definitions and closes its actual child on failure  2831ms
+   ✓ validates structured results, sources, business isError and the full response byte cap  4323ms
+   ✓ times out/cancels calls and handles malformed protocol or unexpected process exit without fallback  7480ms
+   ✓ Agent marks real MCP calls, writes paged results back by call ID and keeps a durable cited range  1293ms
+   ✓ Agent connection failure does not call the model; cancellation/timeout of real MCP calls publishes no successful trace or evidence  4024ms
+ ✓ test/pipeline-adaptive.test.ts (16 tests) 39327ms
+   ✓ actual feedback determines two different routes; every batched call reaches the next request and approved candidates verify, commit and restore  2867ms
+   ✓ model reads recent logs then independently requests an earlier page and cites its persisted range  993ms
+   ✓ changing limits and filters on observed log rows does not reset progress; first empty observation allows subsequent bundles  1893ms
+   ✓ first-read bundles receive exact deferred feedback; model selects one source, observes it, then may batch later reads  1862ms
+   ✓ initial evidence alone supports conservative advice; one SQL tool plus initial failure supports a candidate  1950ms
+   ✓ missing SQL, duplicate/foreign/version-invalid citations, wrong failure stage and NO_CHANGE receive precise bounded feedback  7019ms
+   ✓ invalid arguments are returned by call ID and can be corrected, while unauthorized tools and changed scope stop  2585ms
+   ✓ repeated observations and alternating old observations stall despite fresh call and evidence UUIDs  1865ms
+   ✓ more than eight requests with new actual observations completes; request 101 never occurs at the default cap  4662ms
+   ✓ tool, context and request limits preserve evidence and never publish a candidate  3528ms
+   ✓ cancel and timeout race late model responses without publishing; restart and old budgets remain explicit  4090ms
+   ✓ LIVE per-session allowance still reserves the shared paid budget before every actual request  884ms
+   ✓ session limits are copied once and elapsed time cannot be bypassed by an immediate response  909ms
+   ✓ failed calls count toward the tool ceiling, and repeated reads can still finish before the stall threshold  1713ms
+   ✓ public investigation notes retain actual evidence dependencies and live phases; unsupported notes remain raw only  2500ms
+
+ Test Files  27 passed (27)
+      Tests  167 passed (167)
+   Start at  17:58:17
+   Duration  40.69s (transform 2.56s, setup 0ms, collect 20.46s, tests 117.49s, environment 6ms, prepare 4.86s)
+
+$ vitest run --silent
+
+ RUN  v3.2.4 D:/Downloaad/FlowLens/apps/web
+
+ ✓ src/diagnosis-presentation.test.ts (1 test) 4ms
+ ✓ src/time-range.test.ts (1 test) 5ms
+ ✓ src/agent-connection.test.ts (2 tests) 6ms
+ ✓ src/agent-reducer.test.ts (4 tests) 9ms
+ ✓ src/SafeMarkdown.test.ts (1 test) 23ms
+ ✓ src/agent-stream.test.ts (3 tests) 15ms
+ ✓ src/EvidencePopover.test.ts (1 test) 36ms
+ ✓ src/pipeline-diagnosis-present.test.ts (5 tests) 19ms
+ ✓ src/ToolTraceCard.test.ts (2 tests) 117ms
+ ✓ src/store/runs.test.ts (1 test) 11ms
+ ✓ src/DiagnosisAnswer.test.ts (6 tests) 77ms
+ ✓ src/ToolTraceList.test.ts (1 test) 265ms
+ ✓ src/PipelineDiagnosis.test.ts (14 tests) 122ms
+ ✓ src/pipeline-client.test.ts (6 tests) 1897ms
+   ✓ reconnects after a failed snapshot from the last applied cursor, then reads the replayed completion  1256ms
+
+ Test Files  14 passed (14)
+      Tests  48 passed (48)
+   Start at  17:58:59
+   Duration  3.58s (transform 2.17s, setup 0ms, collect 8.01s, tests 2.61s, environment 8.65s, prepare 2.65s)

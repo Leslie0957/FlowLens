@@ -1,0 +1,40 @@
+{
+  "initial_capture": "refs/codex/turn-diffs/captures/1791450997516/b7505d7f-ae90-4ec3-a711-2cd762d8e4d7/base",
+  "restored": [
+    {
+      "file": "docs/demos/pipeline-feedback-history.png",
+      "original_bytes": 248802,
+      "verified_bytes": 251519
+    },
+    {
+      "file": "docs/demos/pipeline-mock-diff.png",
+      "original_bytes": 238403,
+      "verified_bytes": 241830
+    },
+    {
+      "file": "docs/demos/pipeline-mock-workbench.png",
+      "original_bytes": 211483,
+      "verified_bytes": 211130
+    },
+    {
+      "file": "docs/demos/pipeline-overview-20261008.png",
+      "original_bytes": 85461,
+      "verified_bytes": 89265
+    },
+    {
+      "file": "docs/demos/pipeline-query-result-20261008.png",
+      "original_bytes": 38650,
+      "verified_bytes": 38374
+    },
+    {
+      "file": "docs/demos/pipeline-query-target.png",
+      "original_bytes": 90776,
+      "verified_bytes": 90749
+    },
+    {
+      "file": "docs/demos/pipeline-workflow-20261008.png",
+      "original_bytes": 231638,
+      "verified_bytes": 234620
+    }
+  ]
+}

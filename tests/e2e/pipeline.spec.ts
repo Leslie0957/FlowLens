@@ -1,45 +1,287 @@
-import {test,expect} from '@playwright/test';
-import {mkdirSync} from 'node:fs';
-import {resolve} from 'node:path';
+import { test, expect } from '@playwright/test';
+import { mkdirSync } from 'node:fs';
+import { resolve } from 'node:path';
 
-test('user SQL revisions execute their actual text and older execution SQL remains immutable after correction',async({page,request})=>{
- const project=(await (await request.post('/api/v1/pipeline/projects',{headers:{'Idempotency-Key':crypto.randomUUID()},data:{template_id:'C'}})).json()).data;
- const endpoint='/api/v1/pipeline/projects/'+project.id;const initial=(await (await request.get(endpoint)).json()).data;const original=initial.revision.sql;const bad=original.replace('speed_mps','user_missing_speed');
- await page.goto('/pipeline/projects/'+project.id);await page.getByRole('textbox',{name:'task.sql 编辑器'}).fill(bad);await expect(page.getByRole('button',{name:'运行只读预检'})).toBeDisabled();await page.getByRole('button',{name:'保存 SQL 新版本'}).click();await expect(page.getByRole('button',{name:'运行只读预检'})).toBeEnabled();await page.getByRole('button',{name:'运行只读预检'}).click();await expect(page.getByText('no such column: user_missing_speed',{exact:false}).first()).toBeVisible();
- const failed=(await (await request.get(endpoint)).json()).data;expect(failed.revisions).toHaveLength(2);expect(failed.revision).toMatchObject({sql:bad,source:'USER',parent_id:initial.revision.id});expect(failed.revisions.find((r:{id:string})=>r.id===initial.revision.id).sql).toBe(original);const oldExecution=failed.executions[0];expect(oldExecution.revision_id).toBe(failed.revision.id);
- await page.getByRole('textbox',{name:'task.sql 编辑器'}).fill(original);await page.getByRole('button',{name:'保存 SQL 新版本'}).click();await expect(page.getByRole('button',{name:'运行只读预检'})).toBeEnabled();await page.getByRole('button',{name:'运行只读预检'}).click();await expect(page.getByRole('button',{name:'批准本次入库'})).toBeEnabled();
- await page.getByRole('combobox',{name:'执行历史'}).press('ArrowDown');await page.getByRole('option',{name:new RegExp(oldExecution.id.slice(0,8))}).click();await page.getByText('本次不可变 task.sql',{exact:true}).click();await expect(page.locator('.pipeline-card pre').first()).toContainText('user_missing_speed');await expect(page.getByRole('button',{name:'Agent 取证并生成候选'})).toBeDisabled();await expect(page.getByRole('textbox',{name:'task.sql 编辑器'})).toHaveValue(original);
- const final=(await (await request.get(endpoint)).json()).data;expect(final.revisions).toHaveLength(3);expect(final.executions).toHaveLength(2);expect(final.executions.find((e:{id:string})=>e.id===oldExecution.id)).toMatchObject({status:'FAILED',revision_id:oldExecution.revision_id});expect(final.target).toMatchObject({row_count:0,data_version:0});expect(final.batches).toHaveLength(0);
+test('user SQL revisions execute their actual text and older execution SQL remains immutable after correction', async ({
+  page,
+  request,
+}) => {
+  const project = (
+    await (
+      await request.post('/api/v1/pipeline/projects', {
+        headers: { 'Idempotency-Key': crypto.randomUUID() },
+        data: { template_id: 'C' },
+      })
+    ).json()
+  ).data;
+  const endpoint = '/api/v1/pipeline/projects/' + project.id;
+  const initial = (await (await request.get(endpoint)).json()).data;
+  const original = initial.revision.sql;
+  const bad = original.replace('speed_mps', 'user_missing_speed');
+  await page.goto('/pipeline/projects/' + project.id);
+  await page.getByRole('textbox', { name: 'task.sql 编辑器' }).fill(bad);
+  await expect(page.getByRole('button', { name: '运行只读预检' })).toBeDisabled();
+  await page.getByRole('button', { name: '保存 SQL 新版本' }).click();
+  await expect(page.getByRole('button', { name: '运行只读预检' })).toBeEnabled();
+  await page.getByRole('button', { name: '运行只读预检' }).click();
+  await expect(
+    page.getByText('no such column: user_missing_speed', { exact: false }).first(),
+  ).toBeVisible();
+  const failed = (await (await request.get(endpoint)).json()).data;
+  expect(failed.revisions).toHaveLength(2);
+  expect(failed.revision).toMatchObject({
+    sql: bad,
+    source: 'USER',
+    parent_id: initial.revision.id,
+  });
+  expect(failed.revisions.find((r: { id: string }) => r.id === initial.revision.id).sql).toBe(
+    original,
+  );
+  const oldExecution = failed.executions[0];
+  expect(oldExecution.revision_id).toBe(failed.revision.id);
+  await page.getByRole('textbox', { name: 'task.sql 编辑器' }).fill(original);
+  await page.getByRole('button', { name: '保存 SQL 新版本' }).click();
+  await expect(page.getByRole('button', { name: '运行只读预检' })).toBeEnabled();
+  await page.getByRole('button', { name: '运行只读预检' }).click();
+  await expect(page.getByRole('button', { name: '批准本次入库' })).toBeEnabled();
+  await page.getByRole('combobox', { name: '执行历史' }).press('ArrowDown');
+  await page.getByRole('option', { name: new RegExp(oldExecution.id.slice(0, 8)) }).click();
+  await page.getByText('本次不可变 task.sql', { exact: true }).click();
+  await expect(page.locator('.pipeline-card pre').first()).toContainText('user_missing_speed');
+  await expect(page.getByRole('button', { name: 'Agent 取证并生成候选' })).toBeDisabled();
+  await expect(page.getByRole('textbox', { name: 'task.sql 编辑器' })).toHaveValue(original);
+  const final = (await (await request.get(endpoint)).json()).data;
+  expect(final.revisions).toHaveLength(3);
+  expect(final.executions).toHaveLength(2);
+  expect(final.executions.find((e: { id: string }) => e.id === oldExecution.id)).toMatchObject({
+    status: 'FAILED',
+    revision_id: oldExecution.revision_id,
+  });
+  expect(final.target).toMatchObject({ row_count: 0, data_version: 0 });
+  expect(final.batches).toHaveLength(0);
 });
 
-test('real vehicle A repair, human UI approval, precheck/commit/rerun/query/snapshot/restore retain history',async({page,request})=>{
- await page.goto('/pipeline');await page.getByRole('button',{name:'创建车辆任务'}).click();await expect(page.getByRole('heading',{name:'A · SQL 列错误'})).toBeVisible();const projectPath=new URL(page.url()).pathname;
- await page.getByRole('button',{name:'运行只读预检'}).click();await expect(page.getByText('no such column: speed_kph',{exact:false}).first()).toBeVisible();await page.getByRole('button',{name:'Agent 取证并生成候选'}).click();await expect(page.getByRole('button',{name:'批准修复并入库'})).toBeVisible();await expect(page.getByText('MOCK',{exact:true})).toBeVisible();await expect(page.locator('.pipeline-diff')).toContainText('speed_mps');await expect(page.locator('.pipeline-tools details')).toHaveCount(2);
- mkdirSync(resolve('docs/demos'),{recursive:true});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:'docs/demos/pipeline-mock-diff.png',fullPage:true});await page.reload();await expect(page.getByRole('button',{name:'批准修复并入库'})).toBeVisible();
- let approvals=0,browserCommits=0;page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/approve'))approvals++;if(r.method()==='POST'&&r.url().endsWith('/commit'))browserCommits++;});await page.getByRole('button',{name:'批准修复并入库'}).click();
- await expect(page.getByRole('heading',{name:'入库结果复查'})).toBeVisible();await expect(page.locator('.el-table__body')).toContainText('synthetic_segment_01');await expect(page.getByRole('region',{name:'本次入库结果'})).toContainText('本次入库已完成');expect(approvals).toBe(1);expect(browserCommits).toBe(0);
- const committed=(await (await request.get('/api/v1'+projectPath)).json()).data;expect(committed.target.row_count).toBe(4);expect(committed.batches).toHaveLength(1);expect(committed.executions).toHaveLength(3);expect(committed.repairs[0].commit_approval.status).toBe('COMMITTED');await page.getByRole('link',{name:'复查无误，完成'}).click();await expect(page.locator('.pipeline-batch')).toHaveCount(1);await expect(page.getByRole('region',{name:'入库操作入口'})).toHaveCount(0);await expect(page.getByText('当前目标：4 行',{exact:false})).toBeVisible();
- await page.getByRole('button',{name:'运行只读预检'}).click();await expect(page.getByText('预计新增 0、跳过 4',{exact:false}).last()).toBeVisible();await page.getByRole('button',{name:'批准本次入库'}).click();await expect(page.getByRole('heading',{name:'入库结果复查'})).toBeVisible();await expect(page.getByText('本次没有新增数据，无需撤销。')).toBeVisible();await page.getByRole('link',{name:'复查无误，完成'}).click();await expect(page.locator('.pipeline-batch')).toHaveCount(2);await expect(page.getByRole('button',{name:'撤销本次入库'})).toHaveCount(1);
- await page.getByRole('link',{name:'查看本次写入 / 撤销结果'}).last().click();await page.getByRole('link',{name:'打开只读 SQL 查询页 →'}).click();await page.getByRole('button',{name:'COUNT 模板'}).click();await page.getByRole('button',{name:'执行只读查询'}).click();await expect(page.locator('.el-table__body')).toContainText('4');await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:'docs/demos/pipeline-query-target.png',fullPage:true});await page.getByRole('link',{name:'← 执行工作台'}).click();
- const queryPage=await page.context().newPage();await queryPage.goto(projectPath+'/database?scope=target');await queryPage.getByRole('button',{name:'执行只读查询'}).click();await expect(queryPage.getByRole('heading',{name:'实际查询结果'})).toBeVisible();
- await page.getByRole('button',{name:'撤销本次入库'}).click();await expect(page.getByRole('region',{name:'确认恢复范围'})).toContainText('入库前的 0 行');await expect(queryPage.getByRole('heading',{name:'实际查询结果'})).toBeVisible();await page.getByRole('button',{name:'保留当前数据'}).click();await expect(page.getByRole('button',{name:'确认撤销并恢复'})).toHaveCount(0);await page.getByRole('button',{name:'撤销本次入库'}).click();await page.getByRole('button',{name:'确认撤销并恢复'}).click();await expect(page.getByText('恢复凭证',{exact:false})).toBeVisible();await expect(queryPage.getByText('旧结果已失效',{exact:false})).toBeVisible();await expect(queryPage.getByRole('heading',{name:'实际查询结果'})).toHaveCount(0);await queryPage.close();
- await page.getByRole('link',{name:'查看入库前数据'}).last().click();await page.getByRole('button',{name:'执行只读查询'}).click();await expect(page.getByText('查询成功，0 行')).toBeVisible();
- await page.getByRole('link',{name:'← 执行工作台'}).click();await page.reload();await expect(page.locator('.pipeline-batch')).toHaveCount(2);await expect(page.getByRole('button',{name:'撤销本次入库'})).toHaveCount(0);mkdirSync(resolve('docs/demos'),{recursive:true});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:'docs/demos/pipeline-mock-workbench.png',fullPage:true});
- for(const width of [360,768,1440]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBe(true);}
+test('real vehicle A repair, human UI approval, precheck/commit/rerun/query/snapshot/restore retain history', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/pipeline');
+  await page.getByRole('button', { name: '创建车辆任务' }).click();
+  await expect(page.getByRole('heading', { name: 'A · SQL 列错误' })).toBeVisible();
+  const projectPath = new URL(page.url()).pathname;
+  await page.getByRole('button', { name: '运行只读预检' }).click();
+  await expect(page.getByText('no such column: speed_kph', { exact: false }).first()).toBeVisible();
+  await page.getByRole('button', { name: 'Agent 取证并生成候选' }).click();
+  await expect(page.getByRole('button', { name: '批准修复并入库' })).toBeVisible();
+  await expect(page.getByText('MOCK', { exact: true })).toBeVisible();
+  await expect(page.locator('.pipeline-diff')).toContainText('speed_mps');
+  await expect(page.locator('.pipeline-tools details')).toHaveCount(2);
+  await expect(page.locator('.pipeline-tools').first()).toContainText(
+    'MCP · flowlens-pipeline-readonly',
+  );
+  const repairSnapshot = (await (await request.get('/api/v1' + projectPath)).json()).data;
+  expect(
+    repairSnapshot.repairs[0].tools.every(
+      (tool: { transport?: string; status: string }) =>
+        tool.transport === 'MCP' && tool.status === 'COMPLETED',
+    ),
+  ).toBe(true);
+  mkdirSync(resolve('docs/demos'), { recursive: true });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: 'docs/demos/pipeline-mock-diff.png', fullPage: true });
+  await page.reload();
+  await expect(page.getByRole('button', { name: '批准修复并入库' })).toBeVisible();
+  await expect(page.locator('.pipeline-tools').first()).toContainText(
+    'MCP · flowlens-pipeline-readonly',
+  );
+  let approvals = 0,
+    browserCommits = 0;
+  page.on('request', (r) => {
+    if (r.method() === 'POST' && r.url().endsWith('/approve')) approvals++;
+    if (r.method() === 'POST' && r.url().endsWith('/commit')) browserCommits++;
+  });
+  await page.getByRole('button', { name: '批准修复并入库' }).click();
+  await expect(page.getByRole('heading', { name: '入库结果复查' })).toBeVisible();
+  await expect(page.locator('.el-table__body')).toContainText('synthetic_segment_01');
+  await expect(page.getByRole('region', { name: '本次入库结果' })).toContainText('本次入库已完成');
+  expect(approvals).toBe(1);
+  expect(browserCommits).toBe(0);
+  const committed = (await (await request.get('/api/v1' + projectPath)).json()).data;
+  expect(committed.target.row_count).toBe(4);
+  expect(committed.batches).toHaveLength(1);
+  expect(committed.executions).toHaveLength(2);
+  expect(committed.repairs[0].commit_approval.status).toBe('COMMITTED');
+  await page.getByRole('link', { name: '复查无误，完成' }).click();
+  await expect(page.locator('.pipeline-batch')).toHaveCount(1);
+  await expect(page.getByRole('region', { name: '入库操作入口' })).toHaveCount(0);
+  await expect(page.getByText('当前目标：4 行', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: '运行只读预检' }).click();
+  await expect(page.getByText('预计新增 0、跳过 4', { exact: false }).last()).toBeVisible();
+  await page.getByRole('button', { name: '批准本次入库' }).click();
+  await expect(page.getByRole('heading', { name: '入库结果复查' })).toBeVisible();
+  await expect(page.getByText('本次没有新增数据，无需撤销。')).toBeVisible();
+  await page.getByRole('link', { name: '复查无误，完成' }).click();
+  await expect(page.locator('.pipeline-batch')).toHaveCount(2);
+  await expect(page.getByRole('button', { name: '只撤销本次数据' })).toHaveCount(1);
+  await page.getByRole('link', { name: '查看本次写入 / 撤销结果' }).last().click();
+  await page.getByRole('link', { name: '打开只读 SQL 查询页 →' }).click();
+  await page.getByRole('button', { name: 'COUNT 模板' }).click();
+  await page.getByRole('button', { name: '执行只读查询' }).click();
+  await expect(page.locator('.el-table__body')).toContainText('4');
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: 'docs/demos/pipeline-query-target.png', fullPage: true });
+  await page.getByRole('link', { name: '← 执行工作台' }).click();
+  const queryPage = await page.context().newPage();
+  await queryPage.goto(projectPath + '/database?scope=target');
+  await queryPage.getByRole('button', { name: '执行只读查询' }).click();
+  await expect(queryPage.getByRole('heading', { name: '实际查询结果' })).toBeVisible();
+  await page.getByRole('button', { name: '只撤销本次数据' }).click();
+  await expect(page.getByRole('region', { name: '确认数据撤销范围' })).toContainText(
+    '入库前的 0 行',
+  );
+  await expect(page.getByRole('region', { name: '确认数据撤销范围' })).toContainText(
+    '保留当前 SQL',
+  );
+  await expect(queryPage.getByRole('heading', { name: '实际查询结果' })).toBeVisible();
+  await page.getByRole('button', { name: '保留当前数据' }).click();
+  await expect(page.getByRole('button', { name: '确认只撤销数据' })).toHaveCount(0);
+  await page.getByRole('button', { name: '只撤销本次数据' }).click();
+  await page.getByRole('button', { name: '确认只撤销数据' }).click();
+  await expect(page.getByText('恢复凭证', { exact: false })).toBeVisible();
+  await expect(queryPage.getByText('旧结果已失效', { exact: false })).toBeVisible();
+  await expect(queryPage.getByRole('heading', { name: '实际查询结果' })).toHaveCount(0);
+  await queryPage.close();
+  await page.getByRole('link', { name: '查看入库前数据' }).last().click();
+  await page.getByRole('button', { name: '执行只读查询' }).click();
+  await expect(page.getByText('查询成功，0 行')).toBeVisible();
+  await page.getByRole('link', { name: '← 执行工作台' }).click();
+  await page.reload();
+  await expect(page.locator('.pipeline-batch')).toHaveCount(2);
+  await expect(page.getByRole('button', { name: '只撤销本次数据' })).toHaveCount(0);
+  const restored = (await (await request.get('/api/v1' + projectPath)).json()).data;
+  expect(restored.revision).toEqual(committed.revision);
+  expect(restored.project.current_revision_id).toBe(committed.project.current_revision_id);
+  expect(restored.target).toMatchObject({ row_count: 0, data_version: 2 });
+  await expect(page.getByRole('textbox', { name: 'task.sql 编辑器' })).toHaveValue(
+    committed.revision.sql,
+  );
+  mkdirSync(resolve('docs/demos'), { recursive: true });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: 'docs/demos/pipeline-mock-workbench.png', fullPage: true });
+  for (const width of [360, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1),
+    ).toBe(true);
+  }
+  await page.getByRole('button', { name: '运行只读预检' }).click();
+  await expect(page.getByRole('button', { name: '批准本次入库' })).toBeEnabled();
+  await expect(page.getByText('预计新增 4、跳过 0', { exact: false }).last()).toBeVisible();
+  const rechecked = (await (await request.get('/api/v1' + projectPath)).json()).data;
+  expect(rechecked.revision).toEqual(committed.revision);
+  expect(rechecked.target).toEqual(restored.target);
+  expect(rechecked.batches).toEqual(restored.batches);
+  expect(rechecked.executions).toHaveLength(restored.executions.length + 1);
 });
 
-test('SQL page rejects writes and unknown fields, cancels late query/error/loading after source change',async({page,request})=>{
- const project=(await (await request.post('/api/v1/pipeline/projects',{headers:{'Idempotency-Key':crypto.randomUUID()},data:{template_id:'C'}})).json()).data;const path='/pipeline/projects/'+project.id+'/database';await page.goto(path+'?scope=source');await expect(page.getByLabel('允许字段与实际类型').getByRole('row').filter({hasText:'speed_mps'})).toContainText('REAL');await expect(page.getByLabel('允许字段与实际类型').getByRole('row').filter({hasText:'start_us'})).toContainText('INTEGER');await page.getByRole('button',{name:'执行只读查询'}).click();await expect(page.locator('.el-table__body')).toContainText('synthetic_segment_01');
- await page.getByRole('textbox',{name:'只读 SQL 编辑器'}).fill('DELETE FROM raw_vehicle_events;');await page.getByRole('button',{name:'执行只读查询'}).click();await expect(page.getByText('SQL_POLICY_REJECTED',{exact:false})).toBeVisible();
- await page.getByRole('textbox',{name:'只读 SQL 编辑器'}).fill('SELECT missing FROM raw_vehicle_events;');await page.getByRole('button',{name:'执行只读查询'}).click();await expect(page.getByText('no such column: missing',{exact:false})).toBeVisible();
- let release!:()=>void;const held=new Promise<void>(r=>release=r);await page.route('**/query',async route=>{await held;try{await route.fulfill({status:422,contentType:'application/json',body:JSON.stringify({error:{message:'late old source error'}})});}catch{/* aborted request */}});
- await page.getByRole('button',{name:'执行只读查询'}).click();await page.getByRole('combobox',{name:'数据来源'}).press('ArrowDown');await page.getByRole('option',{name:'当前目标结果'}).click();release();await expect(page.getByRole('textbox',{name:'只读 SQL 编辑器'})).toHaveValue(/FROM mining_results/);await expect(page.getByText('late old source error',{exact:false})).toHaveCount(0);await expect(page.getByRole('button',{name:'执行只读查询'})).toBeEnabled();await page.unroute('**/query');await page.getByRole('button',{name:'执行只读查询'}).click();await expect(page.getByText('查询成功，0 行')).toBeVisible();
+test('SQL page rejects writes and unknown fields, cancels late query/error/loading after source change', async ({
+  page,
+  request,
+}) => {
+  const project = (
+    await (
+      await request.post('/api/v1/pipeline/projects', {
+        headers: { 'Idempotency-Key': crypto.randomUUID() },
+        data: { template_id: 'C' },
+      })
+    ).json()
+  ).data;
+  const path = '/pipeline/projects/' + project.id + '/database';
+  await page.goto(path + '?scope=source');
+  await expect(
+    page.getByLabel('允许字段与实际类型').getByRole('row').filter({ hasText: 'speed_mps' }),
+  ).toContainText('REAL');
+  await expect(
+    page.getByLabel('允许字段与实际类型').getByRole('row').filter({ hasText: 'start_us' }),
+  ).toContainText('INTEGER');
+  await page.getByRole('button', { name: '执行只读查询' }).click();
+  await expect(page.locator('.el-table__body')).toContainText('synthetic_segment_01');
+  await page
+    .getByRole('textbox', { name: '只读 SQL 编辑器' })
+    .fill('DELETE FROM raw_vehicle_events;');
+  await page.getByRole('button', { name: '执行只读查询' }).click();
+  await expect(page.getByText('SQL_POLICY_REJECTED', { exact: false })).toBeVisible();
+  await page
+    .getByRole('textbox', { name: '只读 SQL 编辑器' })
+    .fill('SELECT missing FROM raw_vehicle_events;');
+  await page.getByRole('button', { name: '执行只读查询' }).click();
+  await expect(page.getByText('no such column: missing', { exact: false })).toBeVisible();
+  let release!: () => void;
+  const held = new Promise<void>((r) => (release = r));
+  await page.route('**/query', async (route) => {
+    await held;
+    try {
+      await route.fulfill({
+        status: 422,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: { message: 'late old source error' } }),
+      });
+    } catch {
+      /* aborted request */
+    }
+  });
+  await page.getByRole('button', { name: '执行只读查询' }).click();
+  await page.getByRole('combobox', { name: '数据来源' }).press('ArrowDown');
+  await page.getByRole('option', { name: '当前目标结果' }).click();
+  release();
+  await expect(page.getByRole('textbox', { name: '只读 SQL 编辑器' })).toHaveValue(
+    /FROM mining_results/,
+  );
+  await expect(page.getByText('late old source error', { exact: false })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '执行只读查询' })).toBeEnabled();
+  await page.unroute('**/query');
+  await page.getByRole('button', { name: '执行只读查询' }).click();
+  await expect(page.getByText('查询成功，0 行')).toBeVisible();
 });
 
-test('SSE disconnect/resume and rapid project changes keep records scoped without replay duplication',async({page,request})=>{
- const create=async(template:string)=>(await (await request.post('/api/v1/pipeline/projects',{headers:{'Idempotency-Key':crypto.randomUUID()},data:{template_id:template}})).json()).data;
- const a=await create('A'),b=await create('B');let first=true;await page.route('**/events?*',async route=>{if(first){first=false;await route.abort();}else await route.continue();});
- await page.goto('/pipeline/projects/'+a.id);await expect(page.getByText('实时连接',{exact:false})).toBeVisible();await page.getByRole('button',{name:'运行只读预检'}).click();await expect(page.getByText('no such column: speed_kph',{exact:false}).first()).toBeVisible();
- await page.getByRole('link',{name:/真实 Pipeline/}).click();await page.getByRole('link',{name:/B · 输出契约错误/}).first().click();await expect(page.getByRole('heading',{name:'B · 输出契约错误'})).toBeVisible();await expect(page.getByText('no such column: speed_kph',{exact:false})).toHaveCount(0);await page.getByRole('button',{name:'运行只读预检'}).click();await expect(page.getByText('输出契约要求',{exact:false}).first()).toBeVisible();
- const response=await request.get('/api/v1/pipeline/projects/'+b.id);const snapshot=(await response.json()).data;await page.reload();await expect(page.locator('.pipeline-logs p')).toHaveCount(snapshot.executions[0].logs.length);await expect(page.locator('.pipeline-diff')).toHaveCount(0);
+test('SSE disconnect/resume and rapid project changes keep records scoped without replay duplication', async ({
+  page,
+  request,
+}) => {
+  const create = async (template: string) =>
+    (
+      await (
+        await request.post('/api/v1/pipeline/projects', {
+          headers: { 'Idempotency-Key': crypto.randomUUID() },
+          data: { template_id: template },
+        })
+      ).json()
+    ).data;
+  const a = await create('A'),
+    b = await create('B');
+  let first = true;
+  await page.route('**/events?*', async (route) => {
+    if (first) {
+      first = false;
+      await route.abort();
+    } else await route.continue();
+  });
+  await page.goto('/pipeline/projects/' + a.id);
+  await expect(page.getByText('实时连接', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: '运行只读预检' }).click();
+  await expect(page.getByText('no such column: speed_kph', { exact: false }).first()).toBeVisible();
+  await page.getByRole('link', { name: /真实 Pipeline/ }).click();
+  await page
+    .getByRole('link', { name: /B · 输出契约错误/ })
+    .first()
+    .click();
+  await expect(page.getByRole('heading', { name: 'B · 输出契约错误' })).toBeVisible();
+  await expect(page.getByText('no such column: speed_kph', { exact: false })).toHaveCount(0);
+  await page.getByRole('button', { name: '运行只读预检' }).click();
+  await expect(page.getByText('输出契约要求', { exact: false }).first()).toBeVisible();
+  const response = await request.get('/api/v1/pipeline/projects/' + b.id);
+  const snapshot = (await response.json()).data;
+  await page.reload();
+  await expect(page.locator('.pipeline-logs p')).toHaveCount(snapshot.executions[0].logs.length);
+  await expect(page.locator('.pipeline-diff')).toHaveCount(0);
 });

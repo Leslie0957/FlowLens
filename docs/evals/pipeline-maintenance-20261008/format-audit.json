@@ -1,0 +1,8 @@
+{
+  "scope": "exact initial Codex capture including uncommitted files: JS/TS and Vue script literals plus normalized property/declaration names before/after Prettier only",
+  "initial_capture": "refs/codex/turn-diffs/captures/1791450997516/b7505d7f-ae90-4ec3-a711-2cd762d8e4d7/base",
+  "parse_preparation": "spaces around the existing Vue i<diffLines.length-1 interpolation operator only",
+  "files": 153,
+  "literal_and_name_entries": 40182,
+  "mismatches": []
+}

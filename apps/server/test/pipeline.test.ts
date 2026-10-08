@@ -1,118 +1,999 @@
-import {it,expect,vi} from 'vitest';
-import {mkdtempSync,rmSync} from 'node:fs';
-import {tmpdir} from 'node:os';
-import {join} from 'node:path';
-import {randomUUID} from 'node:crypto';
-import {spawn} from 'node:child_process';
-import {fileURLToPath} from 'node:url';
-import {DatabaseSync} from 'node:sqlite';
+import { it, expect, vi } from 'vitest';
+import { mkdtempSync, rmSync, readdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { randomUUID } from 'node:crypto';
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { DatabaseSync } from 'node:sqlite';
 import request from 'supertest';
-import {migrate,openDatabase,seed} from '../src/db.js';
-import {PipelineService} from '../src/pipeline.js';
-import {PipelineAgent,pipelineTools} from '../src/pipeline-agent.js';
-import {validSql,createTarget,commitBatch,restoreBatch,targetRows,digestRows,state,snapshotRows} from '../src/pipeline-data.js';
-import {checkSql} from '../src/pipeline-sql.mjs';
-import {createApp} from '../src/http.js';
-import {pipelineSnapshotSchema} from '@flowlens/contracts';
-function setup(){const root=mkdtempSync(join(tmpdir(),'flowlens-pipeline-')),db=openDatabase(join(root,'app.sqlite'));migrate(db);const p=new PipelineService(db,join(root,'projects')),a=new PipelineAgent(p);return {root,db,p,a,async close(){await p.stopAll();await a.stopAll();db.close();rmSync(root,{recursive:true,force:true});}};}
-const run=async(p:PipelineService,id:string)=>p.waitFor(p.start(id,randomUUID()).id);
+import { migrate, openDatabase, seed } from '../src/db.js';
+import { PipelineService } from '../src/pipeline.js';
+import { PipelineAgent, pipelineTools } from '../src/pipeline-agent.js';
+import {
+  validSql,
+  commitBatch,
+  restoreBatch,
+  targetRows,
+  digestRows,
+  state,
+  snapshotRows,
+  migrateTarget,
+} from '../src/pipeline-data.js';
+import { createLegacyTarget } from './fixtures/legacy-target.js';
+import { checkSql } from '../src/pipeline-sql.mjs';
+import { createApp } from '../src/http.js';
+import { pipelineSnapshotSchema } from '@flowlens/contracts';
+function setup() {
+  const root = mkdtempSync(join(tmpdir(), 'flowlens-pipeline-')),
+    db = openDatabase(join(root, 'app.sqlite'));
+  migrate(db);
+  const p = new PipelineService(db, join(root, 'projects')),
+    a = new PipelineAgent(p);
+  return {
+    root,
+    db,
+    p,
+    a,
+    async close() {
+      await p.stopAll();
+      await a.stopAll();
+      db.close();
+      rmSync(root, { recursive: true, force: true });
+    },
+  };
+}
+const run = async (p: PipelineService, id: string) => p.waitFor(p.start(id, randomUUID()).id);
 
-it('actual process exit after target commit/restore reconciles batch links and retries without repeating side effects',async()=>{const s=setup();try{
- const p=s.p.create('C','crash-project'),execution=await run(s.p,p.id);
- const crash=async(mode:string,entityId:string,key:string)=>{const code=await new Promise<number|null>((resolve,reject)=>{const child=spawn(process.execPath,['--import','tsx',fileURLToPath(new URL('./fixtures/pipeline-crash.ts',import.meta.url)),s.root,p.id,entityId,mode,key],{windowsHide:true,env:{...process.env,MODEL_MODE:'MOCK',MODEL_API_KEY:'',FLOWLENS_LIVE_APPROVED:'0'},stdio:'pipe'});let stderr='';child.stderr.on('data',b=>stderr+=String(b));child.once('error',reject);child.once('close',exit=>exit===73?resolve(exit):reject(new Error('Unexpected crash exit '+exit+': '+stderr)));});expect(code).toBe(73);};
- await crash('COMMIT',execution.id,'crash-commit');let before=s.p.snapshot(p.id);expect(before.target.row_count).toBe(4);expect(before.operations[0]).toMatchObject({status:'RUNNING',batch_id:null});const batch=before.batches[0]!;
- const restarted=new PipelineService(s.db,join(s.root,'projects'));restarted.recover();const recovered=restarted.commit(p.id,execution.id,'crash-commit');expect(recovered).toMatchObject({status:'SUCCEEDED',batch_id:batch.id});expect(restarted.snapshot(p.id).target.data_version).toBe(1);expect(restarted.snapshot(p.id).batches).toHaveLength(1);
- await crash('RESTORE',batch.id,'crash-restore');before=s.p.snapshot(p.id);expect(before.target.row_count).toBe(0);expect(before.target.data_version).toBe(2);expect(before.operations[0]).toMatchObject({status:'RUNNING',type:'RESTORE'});
- restarted.recover();expect(restarted.restore(p.id,batch.id,'crash-restore')).toMatchObject({status:'SUCCEEDED'});expect(restarted.snapshot(p.id).target).toEqual(before.target);expect(restarted.snapshot(p.id).batches).toHaveLength(1);restarted.withTarget(p.id,db=>expect(db.prepare('SELECT count(*) n FROM restores').get()?.n).toBe(1));expect(restarted.snapshot(p.id).executions).toHaveLength(1);
- }finally{await s.close();}},15000);
+it('actual process exit after target commit/restore reconciles batch links and retries without repeating side effects', async () => {
+  const s = setup();
+  try {
+    const p = s.p.create('C', 'crash-project'),
+      execution = await run(s.p, p.id);
+    const crash = async (mode: string, entityId: string, key: string) => {
+      const code = await new Promise<number | null>((resolve, reject) => {
+        const child = spawn(
+          process.execPath,
+          [
+            '--import',
+            'tsx',
+            fileURLToPath(new URL('./fixtures/pipeline-crash.ts', import.meta.url)),
+            s.root,
+            p.id,
+            entityId,
+            mode,
+            key,
+          ],
+          {
+            windowsHide: true,
+            env: {
+              ...process.env,
+              MODEL_MODE: 'MOCK',
+              MODEL_API_KEY: '',
+              FLOWLENS_LIVE_APPROVED: '0',
+            },
+            stdio: 'pipe',
+          },
+        );
+        let stderr = '';
+        child.stderr.on('data', (b) => (stderr += String(b)));
+        child.once('error', reject);
+        child.once('close', (exit) =>
+          exit === 73
+            ? resolve(exit)
+            : reject(new Error('Unexpected crash exit ' + exit + ': ' + stderr)),
+        );
+      });
+      expect(code).toBe(73);
+    };
+    await crash('COMMIT', execution.id, 'crash-commit');
+    let before = s.p.snapshot(p.id);
+    expect(before.target.row_count).toBe(4);
+    expect(before.operations[0]).toMatchObject({ status: 'RUNNING', batch_id: null });
+    const batch = before.batches[0]!;
+    const restarted = new PipelineService(s.db, join(s.root, 'projects'));
+    restarted.recover();
+    const recovered = restarted.commit(p.id, execution.id, 'crash-commit');
+    expect(recovered).toMatchObject({ status: 'SUCCEEDED', batch_id: batch.id });
+    expect(restarted.snapshot(p.id).target.data_version).toBe(1);
+    expect(restarted.snapshot(p.id).batches).toHaveLength(1);
+    await crash('RESTORE', batch.id, 'crash-restore');
+    before = s.p.snapshot(p.id);
+    expect(before.target.row_count).toBe(0);
+    expect(before.target.data_version).toBe(2);
+    expect(before.operations[0]).toMatchObject({ status: 'RUNNING', type: 'RESTORE' });
+    restarted.recover();
+    expect(restarted.restore(p.id, batch.id, 'crash-restore')).toMatchObject({
+      status: 'SUCCEEDED',
+    });
+    expect(restarted.snapshot(p.id).target).toEqual(before.target);
+    expect(restarted.snapshot(p.id).batches).toHaveLength(1);
+    restarted.withTarget(p.id, (db) =>
+      expect(db.prepare('SELECT count(*) n FROM restores').get()?.n).toBe(1),
+    );
+    expect(restarted.snapshot(p.id).executions).toHaveLength(1);
+  } finally {
+    await s.close();
+  }
+}, 15000);
 
-it('A/B failures are real SQLite/output errors; Mock tools, approval and isolated verification publish only after passing',async()=>{const s=setup();try{for(const template of ['A','B']){const p=s.p.create(template,randomUUID()),original=p.current_revision_id,e=await run(s.p,p.id);expect(e.status).toBe('FAILED');expect(e.failed_step).toBe(template==='A'?'query':'validate');if(template==='A')expect(e.error_message).toContain('no such column: speed_kph');else {expect(e.exit_code).toBe(0);expect(e.columns).toContain('vehicle_type');}expect(s.p.snapshot(p.id).target.row_count).toBe(0);
- const r=await s.a.waitFor(s.a.create(p.id,e.id,randomUUID(),'MOCK','test-mock').id);expect(r.status).toBe('PENDING_APPROVAL');expect(r.tools.map(t=>t.name)).toEqual(template==='A'?['get_sql','get_schema']:['get_sql','get_output_preview','get_task_contract']);expect(r.evidence).toHaveLength(r.tools.length+1);expect(r.candidate?.diff).toContain('+++ task.sql');expect(s.p.project(p.id).current_revision_id).toBe(original);expect(s.p.snapshot(p.id).executions).toHaveLength(1);
- const approved=s.a.decide(p.id,r.id,'approve','approve-'+r.id);expect(approved.status).toBe('VERIFYING');expect(s.p.project(p.id).current_revision_id).toBe(original);const verified=await s.a.waitFor(r.id);expect(verified.status).toBe('VERIFIED');expect(s.p.execution(verified.verification_execution_id!).verification).toMatchObject({passed:true,rerun_skipped:4});expect(s.p.project(p.id).current_revision_id).toBe(verified.approved_revision_id);expect(s.p.snapshot(p.id).target.row_count).toBe(0);expect(s.a.decide(p.id,r.id,'approve','approve-'+r.id).verification_execution_id).toBe(verified.verification_execution_id);pipelineSnapshotSchema.parse(s.p.snapshot(p.id));}}
- finally{await s.close();}});
+it('A/B failures are real SQLite/output errors; Mock tools and read-only candidate checks publish only after passing', async () => {
+  const s = setup();
+  try {
+    for (const template of ['A', 'B']) {
+      const p = s.p.create(template, randomUUID()),
+        original = p.current_revision_id,
+        e = await run(s.p, p.id);
+      expect(e.status).toBe('FAILED');
+      expect(e.failed_step).toBe(template === 'A' ? 'query' : 'validate');
+      if (template === 'A') expect(e.error_message).toContain('no such column: speed_kph');
+      else {
+        expect(e.exit_code).toBe(0);
+        expect(e.columns).toContain('vehicle_type');
+      }
+      expect(s.p.snapshot(p.id).target.row_count).toBe(0);
+      const r = await s.a.waitFor(s.a.create(p.id, e.id, randomUUID(), 'MOCK', 'test-mock').id);
+      expect(r.status).toBe('PENDING_APPROVAL');
+      expect(r.tools.map((t) => t.name)).toEqual(
+        template === 'A'
+          ? ['get_sql', 'get_schema']
+          : ['get_sql', 'get_output_preview', 'get_task_contract'],
+      );
+      expect(r.evidence).toHaveLength(r.tools.length + 1);
+      expect(r.candidate?.diff).toContain('+++ task.sql');
+      expect(s.p.project(p.id).current_revision_id).toBe(original);
+      expect(s.p.snapshot(p.id).executions).toHaveLength(1);
+      const approved = s.a.decide(p.id, r.id, 'approve', 'approve-' + r.id);
+      expect(approved.status).toBe('VERIFYING');
+      expect(s.p.project(p.id).current_revision_id).toBe(original);
+      const verified = await s.a.waitFor(r.id);
+      expect(verified.status).toBe('VERIFIED');
+      expect(s.p.execution(verified.verification_execution_id!)).toMatchObject({
+        kind: 'CANDIDATE_CHECK',
+        status: 'PRECHECK_PASSED',
+        validation: { passed: true },
+        verification: null,
+      });
+      expect(readdirSync(s.p.path(p.id, ''))).not.toContain(
+        'verify-' + verified.verification_execution_id,
+      );
+      expect(s.p.project(p.id).current_revision_id).toBe(verified.approved_revision_id);
+      expect(s.p.snapshot(p.id).target.row_count).toBe(0);
+      expect(s.a.decide(p.id, r.id, 'approve', 'approve-' + r.id).verification_execution_id).toBe(
+        verified.verification_execution_id,
+      );
+      pipelineSnapshotSchema.parse(s.p.snapshot(p.id));
+    }
+  } finally {
+    await s.close();
+  }
+});
 
-it('real precheck -> approved commit -> zero-change rerun -> latest restore; immutable audits and target receipts survive restart/retries',async()=>{const s=setup();try{seed(s.db);const legacy=s.db.prepare('SELECT count(*) n FROM task_run').get()?.n;const p=s.p.create('C','project'),e=await run(s.p,p.id);expect(e.status).toBe('PRECHECK_PASSED');expect(e.rows).toHaveLength(4);expect(s.p.snapshot(p.id).target.row_count).toBe(0);const op=s.p.commit(p.id,e.id,'commit');expect(op).toMatchObject({status:'SUCCEEDED'});const first=s.p.snapshot(p.id),batch=first.batches[0]!;expect(first.target.row_count).toBe(4);expect(batch.inserted).toBe(4);expect(s.p.commit(p.id,e.id,'commit')).toEqual(op);
- const again=await run(s.p,p.id);expect(again.precheck).toMatchObject({inserted:0,skipped:4});s.p.commit(p.id,again.id,'rerun');expect(s.p.snapshot(p.id).target).toEqual(first.target);expect(s.p.snapshot(p.id).batches[0]!.can_restore).toBe(false);expect(s.p.restore(p.id,batch.id,'restore')).toMatchObject({status:'SUCCEEDED'});const restored=s.p.snapshot(p.id);expect(restored.target.row_count).toBe(0);expect(restored.target.data_version).toBe(2);expect(restored.executions).toHaveLength(2);expect(restored.batches).toHaveLength(2);expect(restored.batches.find(b=>b.id===batch.id)?.status).toBe('RESTORED');
- const restarted=new PipelineService(s.db,join(s.root,'projects'));restarted.recover();expect(restarted.restore(p.id,batch.id,'restore')).toMatchObject({status:'SUCCEEDED'});expect(restarted.snapshot(p.id).target.data_version).toBe(2);expect(restarted.commit(p.id,e.id,'response-lost')).toMatchObject({status:'SUCCEEDED'});expect(restarted.snapshot(p.id).target.row_count).toBe(0);expect(s.db.prepare('SELECT count(*) n FROM task_run').get()?.n).toBe(legacy);
- // A main-db audit interruption reconciles using the target's atomic receipt.
- const interrupted=s.p.list<{id:string;project_id:string;status:string}>('operation',p.id).find(x=>x.id===(op as {id:string}).id)!;interrupted.status='RUNNING';s.p.put('operation',interrupted);restarted.recover();expect(restarted.get<{status:string}>('operation',interrupted.id).status).toBe('SUCCEEDED');
- }finally{await s.close();}});
+it('real precheck -> approved commit -> zero-change rerun -> latest restore; immutable audits and target receipts survive restart/retries', async () => {
+  const s = setup();
+  try {
+    seed(s.db);
+    const legacy = s.db.prepare('SELECT count(*) n FROM task_run').get()?.n;
+    const p = s.p.create('C', 'project'),
+      e = await run(s.p, p.id);
+    expect(e.status).toBe('PRECHECK_PASSED');
+    expect(e.rows).toHaveLength(4);
+    expect(s.p.snapshot(p.id).target.row_count).toBe(0);
+    const op = s.p.commit(p.id, e.id, 'commit');
+    expect(op).toMatchObject({ status: 'SUCCEEDED' });
+    const first = s.p.snapshot(p.id),
+      batch = first.batches[0]!;
+    expect(first.target.row_count).toBe(4);
+    expect(batch.inserted).toBe(4);
+    expect(s.p.commit(p.id, e.id, 'commit')).toEqual(op);
+    const again = await run(s.p, p.id);
+    expect(again.precheck).toMatchObject({ inserted: 0, skipped: 4 });
+    s.p.commit(p.id, again.id, 'rerun');
+    expect(s.p.snapshot(p.id).target).toEqual(first.target);
+    expect(s.p.snapshot(p.id).batches[0]!.can_restore).toBe(false);
+    expect(s.p.restore(p.id, batch.id, 'restore')).toMatchObject({ status: 'SUCCEEDED' });
+    const restored = s.p.snapshot(p.id);
+    expect(restored.target.row_count).toBe(0);
+    expect(restored.target.data_version).toBe(2);
+    expect(restored.executions).toHaveLength(2);
+    expect(restored.batches).toHaveLength(2);
+    expect(restored.batches.find((b) => b.id === batch.id)?.status).toBe('RESTORED');
+    const restarted = new PipelineService(s.db, join(s.root, 'projects'));
+    restarted.recover();
+    expect(restarted.restore(p.id, batch.id, 'restore')).toMatchObject({ status: 'SUCCEEDED' });
+    expect(restarted.snapshot(p.id).target.data_version).toBe(2);
+    expect(restarted.commit(p.id, e.id, 'response-lost')).toMatchObject({ status: 'SUCCEEDED' });
+    expect(restarted.snapshot(p.id).target.row_count).toBe(0);
+    expect(s.db.prepare('SELECT count(*) n FROM task_run').get()?.n).toBe(legacy);
+    // A main-db audit interruption reconciles using the target's atomic receipt.
+    const interrupted = s.p
+      .list<{ id: string; project_id: string; status: string }>('operation', p.id)
+      .find((x) => x.id === (op as { id: string }).id)!;
+    interrupted.status = 'RUNNING';
+    s.p.put('operation', interrupted);
+    restarted.recover();
+    expect(restarted.get<{ status: string }>('operation', interrupted.id).status).toBe('SUCCEEDED');
+  } finally {
+    await s.close();
+  }
+});
 
-it('E: second INSERT fails a real target trigger; explicit rollback retains every preexisting field and leaves no partial batch/snapshot',async()=>{const s=setup();try{const p=s.p.create('C','p');s.p.withTarget(p.id,db=>db.exec("CREATE TRIGGER test_failure BEFORE INSERT ON mining_results WHEN NEW.dat='synthetic_segment_02' BEGIN SELECT RAISE(ABORT,'test actual second row constraint'); END;"));const e=await run(s.p,p.id),before=s.p.snapshot(p.id).target;expect(e.status).toBe('PRECHECK_PASSED');expect(s.p.commit(p.id,e.id,'fail')).toMatchObject({status:'FAILED',error_code:'TRANSACTION_ROLLED_BACK'});expect(s.p.snapshot(p.id).target).toEqual(before);s.p.withTarget(p.id,db=>{expect(db.prepare('SELECT count(*) n FROM snapshots').get()?.n).toBe(0);expect(db.prepare('SELECT count(*) n FROM batches').get()?.n).toBe(0);});}finally{await s.close();}});
+it('E: second INSERT fails a real target trigger; explicit rollback retains every preexisting field and leaves no partial batch/snapshot', async () => {
+  const s = setup();
+  try {
+    const p = s.p.create('C', 'p');
+    s.p.withTarget(p.id, (db) =>
+      db.exec(
+        "CREATE TRIGGER test_failure BEFORE INSERT ON mining_results WHEN NEW.dat='synthetic_segment_02' BEGIN SELECT RAISE(ABORT,'test actual second row constraint'); END;",
+      ),
+    );
+    const e = await run(s.p, p.id),
+      before = s.p.snapshot(p.id).target;
+    expect(e.status).toBe('PRECHECK_PASSED');
+    expect(s.p.commit(p.id, e.id, 'fail')).toMatchObject({
+      status: 'FAILED',
+      error_code: 'TRANSACTION_ROLLED_BACK',
+    });
+    expect(s.p.snapshot(p.id).target).toEqual(before);
+    s.p.withTarget(p.id, (db) => {
+      expect(db.prepare('SELECT count(*) n FROM snapshots').get()?.n).toBe(0);
+      expect(db.prepare('SELECT count(*) n FROM snapshot_metadata').get()?.n).toBe(0);
+      expect(db.prepare('SELECT count(*) n FROM change_events').get()?.n).toBe(0);
+      expect(db.prepare('SELECT count(*) n FROM batches').get()?.n).toBe(0);
+    });
+  } finally {
+    await s.close();
+  }
+});
 
-it('D: executable semantic candidate fails independent oracle and never publishes or writes the project target',async()=>{const s=setup();try{const p=s.p.create('A','p'),e=await run(s.p,p.id),r=await s.a.waitFor(s.a.create(p.id,e.id,'diagnose','MOCK','test').id);const bad=validSql.replace('speed_mps < 1','speed_mps < 20');const sha=(await import('../src/pipeline-data.js')).sha;r.candidate={file_path:'task.sql',sql:bad,hash:sha(bad),diff:`--- task.sql (base)\n+++ task.sql (candidate)\n-${s.p.revision(r.base_revision_id).sql}\n+${bad}`};s.p.put('repair',r);s.a.decide(p.id,r.id,'approve','approve');const failed=await s.a.waitFor(r.id);expect(failed.status).toBe('VERIFICATION_FAILED');expect(s.p.execution(failed.verification_execution_id!).exit_code).toBe(0);expect(s.p.project(p.id).current_revision_id).toBe(p.current_revision_id);expect(s.p.snapshot(p.id).target.row_count).toBe(0);}finally{await s.close();}});
+it('D: executable semantic candidate fails independent oracle and never publishes or writes the project target', async () => {
+  const s = setup();
+  try {
+    const p = s.p.create('A', 'p'),
+      e = await run(s.p, p.id),
+      r = await s.a.waitFor(s.a.create(p.id, e.id, 'diagnose', 'MOCK', 'test').id);
+    const bad = validSql.replace('speed_mps < 1', 'speed_mps < 20');
+    const sha = (await import('../src/pipeline-data.js')).sha;
+    r.candidate = {
+      file_path: 'task.sql',
+      sql: bad,
+      hash: sha(bad),
+      diff: `--- task.sql (base)\n+++ task.sql (candidate)\n-${s.p.revision(r.base_revision_id).sql}\n+${bad}`,
+    };
+    s.p.put('repair', r);
+    s.a.decide(p.id, r.id, 'approve', 'approve');
+    const failed = await s.a.waitFor(r.id);
+    expect(failed.status).toBe('VERIFICATION_FAILED');
+    expect(s.p.execution(failed.verification_execution_id!).exit_code).toBe(0);
+    expect(s.p.project(p.id).current_revision_id).toBe(p.current_revision_id);
+    expect(s.p.snapshot(p.id).target.row_count).toBe(0);
+  } finally {
+    await s.close();
+  }
+});
 
-it('reject/stale/expired/tampered/foreign approvals do not execute candidates; invalid tool args cannot cross scope',async()=>{const s=setup();try{const p=s.p.create('A','p'),other=s.p.create('B','other'),e=await run(s.p,p.id);const make=async()=>s.a.waitFor(s.a.create(p.id,e.id,randomUUID(),'MOCK','test').id);let r=await make();expect(()=>s.a.decide(other.id,r.id,'approve','wrong')).toThrow('REPAIR_SCOPE');await expect(s.a.registry(r).call('get_sql',{projectId:other.id},{runId:e.id,sessionId:r.id,turnId:r.id})).rejects.toThrow('INVALID_ARGUMENTS');s.a.decide(p.id,r.id,'reject','reject');expect(()=>s.a.decide(p.id,r.id,'approve','reject-then-approve')).toThrow('REPAIR_ALREADY_DECIDED');
- r=await make();r.expires_at='2000-01-01T00:00:00Z';s.p.put('repair',r);expect(()=>s.a.decide(p.id,r.id,'approve','expired')).toThrow('REPAIR_EXPIRED');
- r=await make();r.candidate!.sql+=' ';s.p.put('repair',r);expect(()=>s.a.decide(p.id,r.id,'approve','tampered')).toThrow('REPAIR_CANDIDATE_CHANGED');
- r=await make();s.p.save(p.id,p.current_revision_id,validSql,'save');expect(()=>s.a.decide(p.id,r.id,'approve','stale')).toThrow('REPAIR_STALE');expect(s.p.snapshot(p.id).executions).toHaveLength(1);
- }finally{await s.close();}});
+it('reject/stale/expired/tampered/foreign approvals do not execute candidates; invalid tool args cannot cross scope', async () => {
+  const s = setup();
+  try {
+    const p = s.p.create('A', 'p'),
+      other = s.p.create('B', 'other'),
+      e = await run(s.p, p.id);
+    const make = async () => s.a.waitFor(s.a.create(p.id, e.id, randomUUID(), 'MOCK', 'test').id);
+    let r = await make();
+    expect(() => s.a.decide(other.id, r.id, 'approve', 'wrong')).toThrow('REPAIR_SCOPE');
+    await expect(
+      s.a
+        .registry(r)
+        .call('get_sql', { projectId: other.id }, { runId: e.id, sessionId: r.id, turnId: r.id }),
+    ).rejects.toThrow('INVALID_ARGUMENTS');
+    s.a.decide(p.id, r.id, 'reject', 'reject');
+    expect(() => s.a.decide(p.id, r.id, 'approve', 'reject-then-approve')).toThrow(
+      'REPAIR_ALREADY_DECIDED',
+    );
+    r = await make();
+    r.expires_at = '2000-01-01T00:00:00Z';
+    s.p.put('repair', r);
+    expect(() => s.a.decide(p.id, r.id, 'approve', 'expired')).toThrow('REPAIR_EXPIRED');
+    r = await make();
+    r.candidate!.sql += ' ';
+    s.p.put('repair', r);
+    expect(() => s.a.decide(p.id, r.id, 'approve', 'tampered')).toThrow('REPAIR_CANDIDATE_CHANGED');
+    r = await make();
+    s.p.save(p.id, p.current_revision_id, validSql, 'save');
+    expect(() => s.a.decide(p.id, r.id, 'approve', 'stale')).toThrow('REPAIR_STALE');
+    expect(s.p.snapshot(p.id).executions).toHaveLength(1);
+  } finally {
+    await s.close();
+  }
+});
 
-it('precheck is bound to revision, result, target hash/version, expiry and project; active writes are excluded',async()=>{const s=setup();try{const p=s.p.create('C','p'),e=await run(s.p,p.id),other=s.p.create('C','other');expect(()=>s.p.commit(other.id,e.id,'foreign')).toThrow('EXECUTION_SCOPE');s.p.withTarget(p.id,db=>db.prepare('UPDATE data_state SET data_version=1').run());expect(s.p.commit(p.id,e.id,'stale')).toMatchObject({status:'FAILED',error_code:'PRECHECK_TARGET_CHANGED'});const fresh=await run(s.p,p.id);fresh.rows[0]!.car_series='tampered';s.p.put('execution',fresh);expect(s.p.commit(p.id,fresh.id,'changed')).toMatchObject({status:'FAILED',error_code:'PRECHECK_STALE'});
- const active=s.p.start(p.id,'active');expect(()=>s.p.restore(p.id,randomUUID(),'busy')).toThrow('PIPELINE_BUSY');await s.p.waitFor(active.id);expect(s.p.snapshot(p.id).target.row_count).toBe(0);
- }finally{await s.close();}});
+it('precheck is bound to revision, result, target hash/version, expiry and project; active writes are excluded', async () => {
+  const s = setup();
+  try {
+    const p = s.p.create('C', 'p'),
+      e = await run(s.p, p.id),
+      other = s.p.create('C', 'other');
+    expect(() => s.p.commit(other.id, e.id, 'foreign')).toThrow('EXECUTION_SCOPE');
+    s.p.withTarget(p.id, (db) => db.prepare('UPDATE data_state SET data_version=1').run());
+    expect(s.p.commit(p.id, e.id, 'stale')).toMatchObject({
+      status: 'FAILED',
+      error_code: 'PRECHECK_TARGET_CHANGED',
+    });
+    const fresh = await run(s.p, p.id);
+    fresh.rows[0]!.car_series = 'tampered';
+    s.p.put('execution', fresh);
+    expect(s.p.commit(p.id, fresh.id, 'changed')).toMatchObject({
+      status: 'FAILED',
+      error_code: 'PRECHECK_STALE',
+    });
+    const active = s.p.start(p.id, 'active');
+    expect(() => s.p.restore(p.id, randomUUID(), 'busy')).toThrow('PIPELINE_BUSY');
+    await s.p.waitFor(active.id);
+    expect(s.p.snapshot(p.id).target.row_count).toBe(0);
+  } finally {
+    await s.close();
+  }
+});
 
-it('snapshots preserve old rows exactly; newer effective head blocks older restore, no-op batches do not move head; drift/corruption/restore errors roll back',()=>{const root=mkdtempSync(join(tmpdir(),'flowlens-target-')),path=join(root,'target.sqlite');createTarget(path);const db=new DatabaseSync(path);try{const projectId=randomUUID(),revisionId=randomUUID(),existing={task_id:projectId,dat:'old',st:1,et:3,car_series:'OLD',execution_id:randomUUID()};db.prepare('INSERT INTO mining_results VALUES(?,?,?,?,?,?)').run(existing.task_id,existing.dat,existing.st,existing.et,existing.car_series,existing.execution_id);const initial=targetRows(db);const add=(dat:string,rows=[{dat,st:4,et:8,car_series:'NEW'}])=>commitBatch(db,{projectId,revisionId,executionId:randomUUID(),rows,key:randomUUID(),binding:randomUUID(),version:state(db).data_version,targetHash:digestRows(targetRows(db))});const first=add('first',[{dat:'old',st:1,et:3,car_series:'OLD'},{dat:'first',st:4,et:8,car_series:'NEW'}]);expect(first).toMatchObject({inserted:1,skipped:1});const second=add('second');const before=targetRows(db);expect(()=>restoreBatch(db,first.id,'old-head')).toThrow('BATCH_NOT_CURRENT_HEAD');expect(targetRows(db)).toEqual(before);
- add('second');expect(state(db).head_batch_id).toBe(second.id);db.prepare('UPDATE snapshots SET rows_json=? WHERE id=?').run('[]',second.snapshot_id);expect(()=>restoreBatch(db,second.id,'corrupt')).toThrow('SNAPSHOT_CORRUPT');expect(targetRows(db)).toEqual(before);db.prepare('UPDATE snapshots SET rows_json=? WHERE id=?').run(JSON.stringify(before.filter(r=>r.dat!=='second')),second.snapshot_id);
- db.prepare("UPDATE mining_results SET car_series='drift' WHERE dat='second'").run();expect(()=>restoreBatch(db,second.id,'drift')).toThrow('TARGET_DATA_DRIFT');db.prepare("UPDATE mining_results SET car_series='NEW' WHERE dat='second'").run();
- db.exec("CREATE TRIGGER restore_fail BEFORE INSERT ON mining_results WHEN NEW.dat='old' BEGIN SELECT RAISE(ABORT,'restore actual failure'); END;");expect(()=>restoreBatch(db,second.id,'restore-fail')).toThrow('restore actual failure');expect(targetRows(db)).toEqual(before);db.exec('DROP TRIGGER restore_fail');
- const result=restoreBatch(db,second.id,'restore2');expect(restoreBatch(db,second.id,'restore2')).toEqual(result);expect(state(db).head_batch_id).toBe(first.id);restoreBatch(db,first.id,'restore1');expect(targetRows(db)).toEqual(initial);expect(state(db).data_version).toBe(4);expect(snapshotRows(db,first.id).rows).toEqual(initial);
- }finally{db.close();rmSync(root,{recursive:true,force:true});}});
+it('snapshots preserve old rows exactly; newer effective head blocks older restore, no-op batches do not move head; drift/corruption/restore errors roll back', () => {
+  const root = mkdtempSync(join(tmpdir(), 'flowlens-target-')),
+    path = join(root, 'target.sqlite');
+  createLegacyTarget(path);
+  const db = new DatabaseSync(path);
+  try {
+    const projectId = randomUUID(),
+      revisionId = randomUUID(),
+      existing = {
+        task_id: projectId,
+        dat: 'old',
+        st: 1,
+        et: 3,
+        car_series: 'OLD',
+        execution_id: randomUUID(),
+      };
+    db.prepare('INSERT INTO mining_results VALUES(?,?,?,?,?,?)').run(
+      existing.task_id,
+      existing.dat,
+      existing.st,
+      existing.et,
+      existing.car_series,
+      existing.execution_id,
+    );
+    const initial = targetRows(db);
+    migrateTarget(db);
+    const add = (dat: string, rows = [{ dat, st: 4, et: 8, car_series: 'NEW' }]) =>
+      commitBatch(db, {
+        projectId,
+        revisionId,
+        executionId: randomUUID(),
+        rows,
+        key: randomUUID(),
+        binding: randomUUID(),
+        version: state(db).data_version,
+        targetHash: digestRows(targetRows(db)),
+      });
+    const first = add('first', [
+      { dat: 'old', st: 1, et: 3, car_series: 'OLD' },
+      { dat: 'first', st: 4, et: 8, car_series: 'NEW' },
+    ]);
+    expect(first).toMatchObject({ inserted: 1, skipped: 1 });
+    const second = add('second');
+    const before = targetRows(db);
+    expect(() => restoreBatch(db, first.id, 'old-head')).toThrow('BATCH_NOT_CURRENT_HEAD');
+    expect(targetRows(db)).toEqual(before);
+    add('second');
+    expect(state(db).head_batch_id).toBe(second.id);
+    db.prepare('UPDATE snapshot_metadata SET row_count=0 WHERE id=?').run(second.snapshot_id);
+    expect(() => restoreBatch(db, second.id, 'corrupt')).toThrow('SNAPSHOT_CORRUPT');
+    expect(targetRows(db)).toEqual(before);
+    db.prepare('UPDATE snapshot_metadata SET row_count=? WHERE id=?').run(
+      second.before_count,
+      second.snapshot_id,
+    );
+    db.prepare("UPDATE mining_results SET car_series='drift' WHERE dat='second'").run();
+    expect(() => restoreBatch(db, second.id, 'drift')).toThrow('TARGET_DATA_DRIFT');
+    db.prepare("UPDATE mining_results SET car_series='NEW' WHERE dat='second'").run();
+    db.exec(
+      "CREATE TRIGGER restore_fail BEFORE DELETE ON mining_results WHEN OLD.dat='second' BEGIN SELECT RAISE(ABORT,'restore actual failure'); END;",
+    );
+    expect(() => restoreBatch(db, second.id, 'restore-fail')).toThrow('restore actual failure');
+    expect(targetRows(db)).toEqual(before);
+    db.exec('DROP TRIGGER restore_fail');
+    const result = restoreBatch(db, second.id, 'restore2');
+    expect(restoreBatch(db, second.id, 'restore2')).toEqual(result);
+    expect(state(db).head_batch_id).toBe(first.id);
+    restoreBatch(db, first.id, 'restore1');
+    expect(targetRows(db)).toEqual(initial);
+    expect(state(db).data_version).toBe(4);
+    expect(snapshotRows(db, first.id).rows).toEqual(initial);
+  } finally {
+    db.close();
+    rmSync(root, { recursive: true, force: true });
+  }
+});
 
-it('read-only queries inspect actual source/target/pre-snapshot, bounds, invalid columns and syntax without changing data_version',async()=>{const s=setup();try{const p=s.p.create('C','p');const source=await s.p.query(p.id,{scope:'source',sql:'SELECT * FROM raw_vehicle_events ORDER BY event_id;',limit:2});expect(source.rows).toHaveLength(2);expect(source.truncated).toBe(true);expect(source.schema.some(f=>f.name==='speed_mps')).toBe(true);await expect(s.p.query(p.id,{scope:'source',sql:'SELECT unknown FROM raw_vehicle_events;'})).rejects.toThrow('no such column');
- for(const sql of ['DELETE FROM raw_vehicle_events','SELECT * FROM sqlite_master','SELECT * FROM raw_vehicle_events; SELECT 1','SELECT load_extension(1) FROM raw_vehicle_events','SELECT * FROM raw_vehicle_events JOIN mining_results','SELECT * FROM raw_vehicle_events -- comment','WITH x AS (SELECT * FROM raw_vehicle_events) SELECT * FROM x','SELECT * FROM raw_vehicle_events LIMIT 501'])expect(()=>checkSql(sql,'raw_vehicle_events')).toThrow();
- const e=await run(s.p,p.id);s.p.commit(p.id,e.id,'commit');const before=s.p.snapshot(p.id),b=before.batches[0]!;expect((await s.p.query(p.id,{scope:'target',sql:'SELECT COUNT(*) AS n FROM mining_results'})).rows[0]!.n).toBe(4);expect((await s.p.query(p.id,{scope:'snapshot',batch_id:b.id,sql:'SELECT * FROM mining_results'})).rows).toHaveLength(0);expect(s.p.snapshot(p.id).target).toEqual(before.target);
- }finally{await s.close();}});
+it('startup upgrades each old project target once while read-only schema/query connections never migrate it', async () => {
+  const s = setup();
+  let reopened: PipelineService | undefined;
+  try {
+    const project = s.p.create('C', 'legacy-startup');
+    s.p.withTarget(project.id, (db) => {
+      db.exec(
+        'DROP TABLE change_events; DROP TABLE snapshot_metadata; DROP TABLE history_state; DROP TABLE history_baselines; PRAGMA user_version=0',
+      );
+      db.prepare('INSERT INTO mining_results VALUES(?,?,?,?,?,?)').run(
+        project.id,
+        'preserved',
+        1,
+        2,
+        'OLD',
+        randomUUID(),
+      );
+    });
+    s.p.schema(project.id);
+    expect(
+      (await s.p.query(project.id, { scope: 'target', sql: 'SELECT * FROM mining_results' }))
+        .rows[0]?.dat,
+    ).toBe('preserved');
+    s.p.withTarget(
+      project.id,
+      (db) => expect(db.prepare('PRAGMA user_version').get()?.user_version).toBe(0),
+      true,
+    );
+    reopened = new PipelineService(s.db, join(s.root, 'projects'));
+    new PipelineService(s.db, join(s.root, 'projects'));
+    reopened.withTarget(
+      project.id,
+      (db) => {
+        expect(db.prepare('PRAGMA user_version').get()?.user_version).toBe(2);
+        expect(db.prepare('SELECT count(*) n FROM history_baselines').get()?.n).toBe(1);
+        expect(targetRows(db)[0]?.dat).toBe('preserved');
+      },
+      true,
+    );
+    const execution = await run(reopened, project.id);
+    expect(reopened.commit(project.id, execution.id, 'new-after-upgrade').status).toBe('SUCCEEDED');
+    const batch = reopened.snapshot(project.id).batches[0]!;
+    expect(
+      (
+        await reopened.query(project.id, {
+          scope: 'snapshot',
+          batch_id: batch.id,
+          sql: 'SELECT * FROM mining_results',
+        })
+      ).rows[0]?.dat,
+    ).toBe('preserved');
+    expect(reopened.restore(project.id, batch.id, 'undo-after-upgrade').status).toBe('SUCCEEDED');
+    expect(reopened.snapshot(project.id).target.row_count).toBe(1);
+  } finally {
+    await reopened?.stopAll();
+    await s.close();
+  }
+});
 
-it('v9 migration preserves user history and HTTP checks project ownership, body allowlist, idempotency and actual failures',async()=>{const s=setup();try{seed(s.db);s.db.exec('DROP TABLE pipeline_entity; DROP TABLE pipeline_event; PRAGMA user_version=9');const old=s.db.prepare('SELECT * FROM task_run').all();migrate(s.db);migrate(s.db);expect(s.db.prepare('SELECT * FROM task_run').all()).toEqual(old);const app=createApp(s.db,()=>{},undefined,undefined,undefined,s.p,s.a),base='/api/v1/pipeline/projects';const created=await request(app).post(base).set('Idempotency-Key','p').send({template_id:'A'});expect(created.status).toBe(201);const pid=created.body.data.id;expect((await request(app).post(base).set('Idempotency-Key','p').send({template_id:'A'})).body.data.id).toBe(pid);expect((await request(app).post(base).set('Idempotency-Key','p').send({template_id:'B'})).status).toBe(409);const e=(await request(app).post(base+'/'+pid+'/executions').set('Idempotency-Key','e').send({})).body.data;await s.p.waitFor(e.id);expect((await request(app).get(base+'/'+pid)).body.data.executions[0].failed_step).toBe('query');expect((await request(app).post(base+'/'+pid+'/query').send({scope:'source',sql:'SELECT * FROM raw_vehicle_events',path:'anything'})).status).toBe(400);expect((await request(app).post(base+'/'+pid+'/query').send({scope:'target',sql:'DELETE FROM mining_results'})).status).toBe(400);
- const events=s.p.events(pid,0);expect(events.map(e=>Number(e.seq))).toEqual(events.map((_,i)=>i+1));const snapshot=pipelineSnapshotSchema.parse(s.p.snapshot(pid));expect(events.at(-1)?.seq).toBe(snapshot.cursor);
- }finally{await s.close();}});
+it('read-only queries inspect actual source/target/pre-snapshot, bounds, invalid columns and syntax without changing data_version', async () => {
+  const s = setup();
+  try {
+    const p = s.p.create('C', 'p');
+    const source = await s.p.query(p.id, {
+      scope: 'source',
+      sql: 'SELECT * FROM raw_vehicle_events ORDER BY event_id;',
+      limit: 2,
+    });
+    expect(source.rows).toHaveLength(2);
+    expect(source.truncated).toBe(true);
+    expect(source.schema.some((f) => f.name === 'speed_mps')).toBe(true);
+    await expect(
+      s.p.query(p.id, { scope: 'source', sql: 'SELECT unknown FROM raw_vehicle_events;' }),
+    ).rejects.toThrow('no such column');
+    for (const sql of [
+      'DELETE FROM raw_vehicle_events',
+      'SELECT * FROM sqlite_master',
+      'SELECT * FROM raw_vehicle_events; SELECT 1',
+      'SELECT load_extension(1) FROM raw_vehicle_events',
+      'SELECT * FROM raw_vehicle_events JOIN mining_results',
+      'SELECT * FROM raw_vehicle_events -- comment',
+      'WITH x AS (SELECT * FROM raw_vehicle_events) SELECT * FROM x',
+      'SELECT * FROM raw_vehicle_events LIMIT 501',
+    ])
+      expect(() => checkSql(sql, 'raw_vehicle_events')).toThrow();
+    const e = await run(s.p, p.id);
+    s.p.commit(p.id, e.id, 'commit');
+    const before = s.p.snapshot(p.id),
+      b = before.batches[0]!;
+    expect(
+      (await s.p.query(p.id, { scope: 'target', sql: 'SELECT COUNT(*) AS n FROM mining_results' }))
+        .rows[0]!.n,
+    ).toBe(4);
+    expect(
+      (
+        await s.p.query(p.id, {
+          scope: 'snapshot',
+          batch_id: b.id,
+          sql: 'SELECT * FROM mining_results',
+        })
+      ).rows,
+    ).toHaveLength(0);
+    expect(s.p.snapshot(p.id).target).toEqual(before.target);
+  } finally {
+    await s.close();
+  }
+});
 
-it('cancellation/timeouts/restart terminate bounded child execution and retain a final history',async()=>{const s=setup();try{const p=s.p.create('C','p');const execution=s.p.start(p.id,'cancel');s.p.cancel(execution.id);expect((await s.p.waitFor(execution.id)).status).toBe('CANCELLED');const timed=new PipelineService(s.db,join(s.root,'projects'),{timeoutMs:1}),e=timed.start(p.id,'timeout');expect((await timed.waitFor(e.id)).error_code).toBe('QUERY_TIMEOUT');const original=s.p.execution(execution.id);original.status='RUNNING';s.p.put('execution',original);s.p.recover();expect(s.p.execution(original.id).status).toBe('INTERRUPTED');expect(s.p.snapshot(p.id).target.row_count).toBe(0);await vi.waitFor(()=>expect(s.p.busy(p.id)).toBe(false));}finally{await s.close();}});
+it('v9 migration preserves user history and HTTP checks project ownership, body allowlist, idempotency and actual failures', async () => {
+  const s = setup();
+  try {
+    seed(s.db);
+    s.db.exec('DROP TABLE pipeline_entity; DROP TABLE pipeline_event; PRAGMA user_version=9');
+    const old = s.db.prepare('SELECT * FROM task_run').all();
+    migrate(s.db);
+    migrate(s.db);
+    expect(s.db.prepare('SELECT * FROM task_run').all()).toEqual(old);
+    const app = createApp(s.db, () => {}, undefined, undefined, undefined, s.p, s.a),
+      base = '/api/v1/pipeline/projects';
+    const created = await request(app)
+      .post(base)
+      .set('Idempotency-Key', 'p')
+      .send({ template_id: 'A' });
+    expect(created.status).toBe(201);
+    const pid = created.body.data.id;
+    expect(
+      (await request(app).post(base).set('Idempotency-Key', 'p').send({ template_id: 'A' })).body
+        .data.id,
+    ).toBe(pid);
+    expect(
+      (await request(app).post(base).set('Idempotency-Key', 'p').send({ template_id: 'B' })).status,
+    ).toBe(409);
+    const e = (
+      await request(app)
+        .post(base + '/' + pid + '/executions')
+        .set('Idempotency-Key', 'e')
+        .send({})
+    ).body.data;
+    await s.p.waitFor(e.id);
+    expect((await request(app).get(base + '/' + pid)).body.data.executions[0].failed_step).toBe(
+      'query',
+    );
+    expect(
+      (
+        await request(app)
+          .post(base + '/' + pid + '/query')
+          .send({ scope: 'source', sql: 'SELECT * FROM raw_vehicle_events', path: 'anything' })
+      ).status,
+    ).toBe(400);
+    expect(
+      (
+        await request(app)
+          .post(base + '/' + pid + '/query')
+          .send({ scope: 'target', sql: 'DELETE FROM mining_results' })
+      ).status,
+    ).toBe(400);
+    const events = s.p.events(pid, 0);
+    expect(events.map((e) => Number(e.seq))).toEqual(events.map((_, i) => i + 1));
+    const snapshot = pipelineSnapshotSchema.parse(s.p.snapshot(pid));
+    expect(events.at(-1)?.seq).toBe(snapshot.cursor);
+  } finally {
+    await s.close();
+  }
+});
 
-it('non-modification advice stays read-only, fabricated citations and unknown tools are refused, queued diagnosis can cancel without calling a model',async()=>{const s=setup();try{const p=s.p.create('A','p'),e=await run(s.p,p.id);
- for(const mode of ['advice','citations','unknown']){let count=0;const agent=new PipelineAgent(s.p,{gateway:{async complete(messages){if(count++===0)return {text:'',finishReason:'tool_calls',calls:(mode==='unknown'?[{name:'shell',parameters:{}}]:pipelineTools).map((t,i)=>({id:'tool-'+i,name:t.name,arguments:{}}))};const evidence=messages.filter(m=>m.role==='tool').flatMap(m=>(JSON.parse(String(m.content)) as {evidence_ids:string[]}).evidence_ids);return {text:JSON.stringify({diagnosis:'建议人工核对，不修改 SQL',failed_step:'query',action:'MANUAL_REQUIRED',evidence_ids:mode==='citations'?[randomUUID(),randomUUID(),randomUUID()]:evidence,candidate:null}),finishReason:'stop',calls:[]};}}});const r=await agent.waitFor(agent.create(p.id,e.id,randomUUID(),'MOCK','controlled').id);expect(r.status).toBe(mode==='advice'?'NO_CANDIDATE':'FAILED');expect(r.candidate).toBeNull();if(mode==='citations')expect(r.error_code).toBe('REPAIR_EVIDENCE_INVALID');if(mode==='unknown')expect(r.error_code).toBe('TOOL_NOT_ALLOWED');}
- const complete=vi.fn(),cancelAgent=new PipelineAgent(s.p,{gateway:{complete}}),queued=cancelAgent.create(p.id,e.id,'queued','MOCK','test');cancelAgent.cancel(p.id,queued.id);expect((await cancelAgent.waitFor(queued.id)).status).toBe('CANCELLED');expect(complete).not.toHaveBeenCalled();expect(s.p.project(p.id).current_revision_id).toBe(p.current_revision_id);expect(s.p.snapshot(p.id).executions).toHaveLength(1);
- }finally{await s.close();}});
+it('cancellation/timeouts/restart terminate bounded child execution and retain a final history', async () => {
+  const s = setup();
+  try {
+    const p = s.p.create('C', 'p');
+    const execution = s.p.start(p.id, 'cancel');
+    s.p.cancel(execution.id);
+    expect((await s.p.waitFor(execution.id)).status).toBe('CANCELLED');
+    const timed = new PipelineService(s.db, join(s.root, 'projects'), { timeoutMs: 1 }),
+      e = timed.start(p.id, 'timeout');
+    expect((await timed.waitFor(e.id)).error_code).toBe('QUERY_TIMEOUT');
+    const original = s.p.execution(execution.id);
+    original.status = 'RUNNING';
+    s.p.put('execution', original);
+    s.p.recover();
+    expect(s.p.execution(original.id).status).toBe('INTERRUPTED');
+    expect(s.p.snapshot(p.id).target.row_count).toBe(0);
+    await vi.waitFor(() => expect(s.p.busy(p.id)).toBe(false));
+  } finally {
+    await s.close();
+  }
+});
 
-it('invalid answers without tools are corrected once with specific schema feedback and no SQL side effects',async()=>{const s=setup();try{
- const p=s.p.create('A','no-tools'),e=await run(s.p,p.id);let calls=0;
- const agent=new PipelineAgent(s.p,{gateway:{async complete(messages){calls++;if(calls===2){const feedback=JSON.parse(String(messages.at(-1)?.content));expect(feedback.error_code).toBe('REPAIR_RESPONSE_SCHEMA');expect(feedback.missing_tools).toBeUndefined();expect(feedback.instruction).toContain('specific problem');}return {text:'{}',finishReason:'stop',calls:[]};}}});
- const failed=await agent.waitFor(agent.create(p.id,e.id,'no-tools','MOCK','controlled').id);expect(calls).toBe(2);expect(failed).toMatchObject({status:'FAILED',error_code:'REPAIR_RESPONSE_SCHEMA',candidate:null,diagnosis:null});expect(failed.error_message).toContain('字段');expect(failed.response_checks.map(c=>c.code)).toEqual(['REPAIR_RESPONSE_SCHEMA','REPAIR_RESPONSE_SCHEMA']);expect(failed.tools).toHaveLength(0);expect(failed.evidence).toHaveLength(1);expect(s.p.snapshot(p.id).executions).toHaveLength(1);expect(s.p.snapshot(p.id).target.row_count).toBe(0);expect(s.p.project(p.id).current_revision_id).toBe(p.current_revision_id);
- }finally{await s.close();}});
+it('non-modification advice stays read-only, fabricated citations and unknown tools are refused, queued diagnosis can cancel without calling a model', async () => {
+  const s = setup();
+  try {
+    const p = s.p.create('A', 'p'),
+      e = await run(s.p, p.id);
+    for (const mode of ['advice', 'citations', 'unknown']) {
+      let count = 0;
+      const agent = new PipelineAgent(s.p, {
+        gateway: {
+          async complete(messages) {
+            if (count++ === 0)
+              return {
+                text: '',
+                finishReason: 'tool_calls',
+                calls: (mode === 'unknown'
+                  ? [{ name: 'shell', parameters: {} }]
+                  : pipelineTools.slice(0, 1)
+                ).map((t, i) => ({ id: 'tool-' + i, name: t.name, arguments: {} })),
+              };
+            const evidence = messages
+              .filter((m) => m.role === 'tool')
+              .flatMap(
+                (m) => (JSON.parse(String(m.content)) as { evidence_ids: string[] }).evidence_ids,
+              );
+            return {
+              text: JSON.stringify({
+                diagnosis: '建议人工核对，不修改 SQL',
+                failed_step: 'query',
+                action: 'MANUAL_REQUIRED',
+                evidence_ids:
+                  mode === 'citations' ? [randomUUID(), randomUUID(), randomUUID()] : evidence,
+                candidate: null,
+              }),
+              finishReason: 'stop',
+              calls: [],
+            };
+          },
+        },
+      });
+      const r = await agent.waitFor(
+        agent.create(p.id, e.id, randomUUID(), 'MOCK', 'controlled').id,
+      );
+      expect(r.status).toBe(mode === 'advice' ? 'NO_CANDIDATE' : 'FAILED');
+      expect(r.candidate).toBeNull();
+      if (mode === 'citations') expect(r.error_code).toBe('REPAIR_EVIDENCE_INVALID');
+      if (mode === 'unknown') expect(r.error_code).toBe('TOOL_NOT_ALLOWED');
+    }
+    const complete = vi.fn(),
+      cancelAgent = new PipelineAgent(s.p, { gateway: { complete } }),
+      queued = cancelAgent.create(p.id, e.id, 'queued', 'MOCK', 'test');
+    cancelAgent.cancel(p.id, queued.id);
+    expect((await cancelAgent.waitFor(queued.id)).status).toBe('CANCELLED');
+    expect(complete).not.toHaveBeenCalled();
+    expect(s.p.project(p.id).current_revision_id).toBe(p.current_revision_id);
+    expect(s.p.snapshot(p.id).executions).toHaveLength(1);
+  } finally {
+    await s.close();
+  }
+});
 
-it('the correction can lead the model to call actual tools and return supported advice without backend fabricated repair',async()=>{const s=setup();try{
- const p=s.p.create('A','recover-tools'),e=await run(s.p,p.id);let calls=0;
- const agent=new PipelineAgent(s.p,{gateway:{async complete(messages){calls++;if(calls===1)return {text:'{}',finishReason:'stop',calls:[]};if(calls===2)return {text:'',finishReason:'tool_calls',calls:pipelineTools.map((t,i)=>({id:'actual-tool-'+i,name:t.name,arguments:{}}))};const evidence=messages.filter(m=>m.role==='tool').flatMap(m=>(JSON.parse(String(m.content)) as {evidence_ids:string[]}).evidence_ids);return {text:JSON.stringify({diagnosis:'已通过真实工具读取 SQL、结构与日志，建议人工核对。',failed_step:'query',action:'MANUAL_REQUIRED',evidence_ids:evidence,candidate:null}),finishReason:'stop',calls:[]};}}});
- const result=await agent.waitFor(agent.create(p.id,e.id,'recover-tools','MOCK','controlled').id);expect(calls).toBe(3);expect(result.status).toBe('NO_CANDIDATE');expect(result.response_checks).toHaveLength(1);expect(result.response_checks[0]?.code).toBe('REPAIR_RESPONSE_SCHEMA');expect(result.tools).toHaveLength(6);expect(result.evidence).toHaveLength(7);expect(result.error_message).toBeNull();expect(result.candidate).toBeNull();expect(s.p.snapshot(p.id).target.row_count).toBe(0);
- }finally{await s.close();}});
+it('invalid answers without tools are corrected once with specific schema feedback and no SQL side effects', async () => {
+  const s = setup();
+  try {
+    const p = s.p.create('A', 'no-tools'),
+      e = await run(s.p, p.id);
+    let calls = 0;
+    const agent = new PipelineAgent(s.p, {
+      gateway: {
+        async complete(messages) {
+          calls++;
+          if (calls === 2) {
+            const feedback = JSON.parse(String(messages.at(-1)?.content));
+            expect(feedback.error_code).toBe('REPAIR_RESPONSE_SCHEMA');
+            expect(feedback.missing_tools).toBeUndefined();
+            expect(feedback.instruction).toContain('具体问题');
+            expect(feedback.instruction).toContain('简体中文');
+          }
+          return { text: '{}', finishReason: 'stop', calls: [] };
+        },
+      },
+    });
+    const failed = await agent.waitFor(
+      agent.create(p.id, e.id, 'no-tools', 'MOCK', 'controlled').id,
+    );
+    expect(calls).toBe(2);
+    expect(failed).toMatchObject({
+      status: 'FAILED',
+      error_code: 'REPAIR_RESPONSE_SCHEMA',
+      candidate: null,
+      diagnosis: null,
+    });
+    expect(failed.error_message).toContain('字段');
+    expect(failed.response_checks.map((c) => c.code)).toEqual([
+      'REPAIR_RESPONSE_SCHEMA',
+      'REPAIR_RESPONSE_SCHEMA',
+    ]);
+    expect(failed.tools).toHaveLength(0);
+    expect(failed.evidence).toHaveLength(1);
+    expect(s.p.snapshot(p.id).executions).toHaveLength(1);
+    expect(s.p.snapshot(p.id).target.row_count).toBe(0);
+    expect(s.p.project(p.id).current_revision_id).toBe(p.current_revision_id);
+  } finally {
+    await s.close();
+  }
+});
 
-it('invalid JSON and invalid answer fields keep explicit error categories and bounded correction history after real tool evidence',async()=>{const s=setup();try{
- const p=s.p.create('A','reply-format'),e=await run(s.p,p.id);
- for(const [text,code] of [['not-json','REPAIR_RESPONSE_JSON'],['{}','REPAIR_RESPONSE_SCHEMA']]){let calls=0;const agent=new PipelineAgent(s.p,{gateway:{async complete(){if(calls++===0)return {text:'',finishReason:'tool_calls',calls:pipelineTools.map((t,i)=>({id:'tool-'+i,name:t.name,arguments:{}}))};return {text:text!,finishReason:'stop',calls:[]};}}});const result=await agent.waitFor(agent.create(p.id,e.id,randomUUID(),'MOCK','controlled').id);expect(calls).toBe(3);expect(result.error_code).toBe(code);expect(result.error_message).toBeTruthy();expect(result.response_checks.map(c=>c.code)).toEqual([code,code]);expect(result.tools).toHaveLength(6);expect(result.candidate).toBeNull();pipelineSnapshotSchema.parse(s.p.snapshot(p.id));}
- expect(s.p.snapshot(p.id).executions).toHaveLength(1);expect(s.p.snapshot(p.id).target.row_count).toBe(0);
- }finally{await s.close();}});
+it('the correction can lead the model to call actual tools and return supported advice without backend fabricated repair', async () => {
+  const s = setup();
+  try {
+    const p = s.p.create('A', 'recover-tools'),
+      e = await run(s.p, p.id);
+    let calls = 0;
+    const agent = new PipelineAgent(s.p, {
+      gateway: {
+        async complete(messages) {
+          calls++;
+          if (calls === 1) return { text: '{}', finishReason: 'stop', calls: [] };
+          if (calls === 2)
+            return {
+              text: '',
+              finishReason: 'tool_calls',
+              calls: pipelineTools
+                .slice(0, 1)
+                .map((t, i) => ({ id: 'actual-tool-' + i, name: t.name, arguments: {} })),
+            };
+          const evidence = messages
+            .filter((m) => m.role === 'tool')
+            .flatMap(
+              (m) => (JSON.parse(String(m.content)) as { evidence_ids: string[] }).evidence_ids,
+            );
+          return {
+            text: JSON.stringify({
+              diagnosis: '已通过真实工具读取执行状态，建议人工核对。',
+              failed_step: 'query',
+              action: 'MANUAL_REQUIRED',
+              evidence_ids: evidence,
+              candidate: null,
+            }),
+            finishReason: 'stop',
+            calls: [],
+          };
+        },
+      },
+    });
+    const result = await agent.waitFor(
+      agent.create(p.id, e.id, 'recover-tools', 'MOCK', 'controlled').id,
+    );
+    expect(calls).toBe(3);
+    expect(result.status).toBe('NO_CANDIDATE');
+    expect(result.response_checks).toHaveLength(1);
+    expect(result.response_checks[0]?.code).toBe('REPAIR_RESPONSE_SCHEMA');
+    expect(result.tools).toHaveLength(1);
+    expect(result.evidence).toHaveLength(2);
+    expect(result.error_message).toBeNull();
+    expect(result.candidate).toBeNull();
+    expect(s.p.snapshot(p.id).target.row_count).toBe(0);
+  } finally {
+    await s.close();
+  }
+});
 
-it('one explicit combined approval verifies, prechecks, commits once and restores, while old validation-only approval cannot be widened',async()=>{const s=setup();try{
- const p=s.p.create('A','combined'),e=await run(s.p,p.id),r=await s.a.waitFor(s.a.create(p.id,e.id,'diagnose','MOCK','test').id),initial=s.p.snapshot(p.id).target;
- const accepted=s.a.decide(p.id,r.id,'approve','combined-approve',true);expect(accepted.commit_approval).toMatchObject({status:'APPROVED',target_version:initial.data_version,target_hash:initial.hash});expect(s.p.snapshot(p.id).target.row_count).toBe(0);
- const done=await s.a.waitFor(r.id);expect(done.commit_approval?.status).toBe('COMMITTED');const snapshot=s.p.snapshot(p.id);expect(snapshot.executions).toHaveLength(3);expect(snapshot.target.row_count).toBe(4);expect(snapshot.batches).toHaveLength(1);expect(done.commit_approval?.batch_id).toBe(snapshot.batches[0]?.id);expect(s.a.decide(p.id,r.id,'approve','combined-approve',true).commit_approval?.batch_id).toBe(done.commit_approval?.batch_id);expect(s.a.decide(p.id,r.id,'approve','another-approved-request',true).commit_approval?.batch_id).toBe(done.commit_approval?.batch_id);
- expect(()=>s.a.decide(p.id,r.id,'approve','different-scope',false)).toThrow('REPAIR_APPROVAL_SCOPE_CHANGED');s.p.restore(p.id,snapshot.batches[0]!.id,'restore-combined');s.a.decide(p.id,r.id,'approve','after-restore',true);expect(s.p.snapshot(p.id).target.row_count).toBe(0);expect(s.p.snapshot(p.id).executions).toHaveLength(3);
- const legacy=s.p.create('B','validation-only'),failed=await run(s.p,legacy.id),old=await s.a.waitFor(s.a.create(legacy.id,failed.id,'old-diagnose','MOCK','test').id);s.a.decide(legacy.id,old.id,'approve','old-approve');await s.a.waitFor(old.id);expect(s.p.snapshot(legacy.id).target.row_count).toBe(0);expect(()=>s.a.decide(legacy.id,old.id,'approve','widen-old',true)).toThrow('REPAIR_APPROVAL_SCOPE_CHANGED');
- }finally{await s.close();}});
+it('invalid JSON and invalid answer fields keep explicit error categories and bounded correction history after real tool evidence', async () => {
+  const s = setup();
+  try {
+    const p = s.p.create('A', 'reply-format'),
+      e = await run(s.p, p.id);
+    for (const [text, code] of [
+      ['not-json', 'REPAIR_RESPONSE_JSON'],
+      ['{}', 'REPAIR_RESPONSE_SCHEMA'],
+    ]) {
+      let calls = 0;
+      const agent = new PipelineAgent(s.p, {
+        gateway: {
+          async complete() {
+            if (calls++ === 0)
+              return {
+                text: '',
+                finishReason: 'tool_calls',
+                calls: pipelineTools
+                  .slice(0, 1)
+                  .map((t, i) => ({ id: 'tool-' + i, name: t.name, arguments: {} })),
+              };
+            return { text: text!, finishReason: 'stop', calls: [] };
+          },
+        },
+      });
+      const result = await agent.waitFor(
+        agent.create(p.id, e.id, randomUUID(), 'MOCK', 'controlled').id,
+      );
+      expect(calls).toBe(3);
+      expect(result.error_code).toBe(code);
+      expect(result.error_message).toBeTruthy();
+      expect(result.response_checks.map((c) => c.code)).toEqual([code, code]);
+      expect(result.tools).toHaveLength(1);
+      expect(result.candidate).toBeNull();
+      pipelineSnapshotSchema.parse(s.p.snapshot(p.id));
+    }
+    expect(s.p.snapshot(p.id).executions).toHaveLength(1);
+    expect(s.p.snapshot(p.id).target.row_count).toBe(0);
+  } finally {
+    await s.close();
+  }
+});
 
-it('combined approval stops on real verification failure, target changes or a real second-row rollback without partial writes',async()=>{const s=setup();try{
- for(const failure of ['verification','target-change','insert-rollback']){const p=s.p.create('A',failure),e=await run(s.p,p.id),r=await s.a.waitFor(s.a.create(p.id,e.id,randomUUID(),'MOCK','test').id);let restoreSpy:()=>void=()=>{};
-  if(failure==='verification'){const bad=validSql.replace('speed_mps < 1','speed_mps < 20'),sha=(await import('../src/pipeline-data.js')).sha;r.candidate={file_path:'task.sql',sql:bad,hash:sha(bad),diff:`--- task.sql (base)\n+++ task.sql (candidate)\n-${s.p.revision(r.base_revision_id).sql}\n+${bad}`};s.p.put('repair',r);}
-  if(failure==='target-change'){const publish=s.p.publishVerified.bind(s.p),spy=vi.spyOn(s.p,'publishVerified').mockImplementation(value=>{publish(value);s.p.withTarget(p.id,db=>db.prepare('UPDATE data_state SET data_version=1').run());});restoreSpy=()=>spy.mockRestore();}
-  if(failure==='insert-rollback')s.p.withTarget(p.id,db=>db.exec("CREATE TRIGGER combined_failure BEFORE INSERT ON mining_results WHEN NEW.dat='synthetic_segment_02' BEGIN SELECT RAISE(ABORT,'combined actual second row failure'); END;"));
-  try{s.a.decide(p.id,r.id,'approve',randomUUID(),true);const stopped=await s.a.waitFor(r.id);expect(stopped.commit_approval?.status).toBe('FAILED');expect(stopped.commit_approval?.error_code).toBe(failure==='verification'?'OUTPUT_VALIDATION_FAILED':failure==='target-change'?'APPROVAL_TARGET_CHANGED':'TRANSACTION_ROLLED_BACK');const snapshot=s.p.snapshot(p.id);expect(snapshot.target.row_count).toBe(0);expect(snapshot.batches).toHaveLength(0);s.p.withTarget(p.id,db=>expect(db.prepare('SELECT count(*) n FROM snapshots').get()?.n).toBe(0));if(failure==='verification')expect(snapshot.project.current_revision_id).toBe(p.current_revision_id);if(failure==='insert-rollback')expect(snapshot.operations[0]).toMatchObject({status:'FAILED',error_code:'TRANSACTION_ROLLED_BACK'});}finally{restoreSpy();}
- }
- }finally{await s.close();}});
+it('one explicit combined approval checks SQL once, commits that output and restores, while old validation-only approval cannot be widened', async () => {
+  const s = setup();
+  try {
+    const p = s.p.create('A', 'combined'),
+      e = await run(s.p, p.id),
+      r = await s.a.waitFor(s.a.create(p.id, e.id, 'diagnose', 'MOCK', 'test').id),
+      initial = s.p.snapshot(p.id).target;
+    const accepted = s.a.decide(p.id, r.id, 'approve', 'combined-approve', true);
+    expect(accepted.commit_approval).toMatchObject({
+      status: 'PRECHECKING',
+      target_version: initial.data_version,
+      target_hash: initial.hash,
+    });
+    expect(s.p.snapshot(p.id).target.row_count).toBe(0);
+    const done = await s.a.waitFor(r.id);
+    expect(done.commit_approval?.status).toBe('COMMITTED');
+    const snapshot = s.p.snapshot(p.id);
+    expect(snapshot.executions).toHaveLength(2);
+    expect(done.commit_approval?.execution_id).toBe(done.verification_execution_id);
+    expect(snapshot.executions.find((x) => x.id === done.verification_execution_id)).toMatchObject({
+      kind: 'CANDIDATE_CHECK',
+      verification: null,
+    });
+    expect(readdirSync(s.p.path(p.id, ''))).not.toContain(
+      'verify-' + done.verification_execution_id,
+    );
+    expect(snapshot.target.row_count).toBe(4);
+    expect(snapshot.batches).toHaveLength(1);
+    expect(done.commit_approval?.batch_id).toBe(snapshot.batches[0]?.id);
+    expect(
+      s.a.decide(p.id, r.id, 'approve', 'combined-approve', true).commit_approval?.batch_id,
+    ).toBe(done.commit_approval?.batch_id);
+    expect(
+      s.a.decide(p.id, r.id, 'approve', 'another-approved-request', true).commit_approval?.batch_id,
+    ).toBe(done.commit_approval?.batch_id);
+    expect(() => s.a.decide(p.id, r.id, 'approve', 'different-scope', false)).toThrow(
+      'REPAIR_APPROVAL_SCOPE_CHANGED',
+    );
+    s.p.restore(p.id, snapshot.batches[0]!.id, 'restore-combined');
+    s.a.decide(p.id, r.id, 'approve', 'after-restore', true);
+    expect(s.p.snapshot(p.id).target.row_count).toBe(0);
+    expect(s.p.snapshot(p.id).executions).toHaveLength(2);
+    const legacy = s.p.create('B', 'validation-only'),
+      failed = await run(s.p, legacy.id),
+      old = await s.a.waitFor(s.a.create(legacy.id, failed.id, 'old-diagnose', 'MOCK', 'test').id);
+    s.a.decide(legacy.id, old.id, 'approve', 'old-approve');
+    await s.a.waitFor(old.id);
+    expect(s.p.snapshot(legacy.id).target.row_count).toBe(0);
+    expect(() => s.a.decide(legacy.id, old.id, 'approve', 'widen-old', true)).toThrow(
+      'REPAIR_APPROVAL_SCOPE_CHANGED',
+    );
+  } finally {
+    await s.close();
+  }
+});
 
-it('combined approval cancellation prevents commit and restart reconciles only actual receipts without replaying uncommitted approval',async()=>{const s=setup();try{
- const p=s.p.create('A','cancel-flow'),e=await run(s.p,p.id),r=await s.a.waitFor(s.a.create(p.id,e.id,'cancel-diag','MOCK','test').id),start=s.p.start.bind(s.p);const spy=vi.spyOn(s.p,'start').mockImplementation((pid,key,revision,kind)=>{const execution=start(pid,key,revision,kind);if(kind==='PRECHECK')queueMicrotask(()=>s.a.cancel(pid,r.id));return execution;});
- s.a.decide(p.id,r.id,'approve','cancel-approve',true);await s.a.waitFor(r.id);spy.mockRestore();expect(s.p.repair(r.id).commit_approval).toMatchObject({status:'FAILED',error_code:'APPROVAL_CANCELLED'});expect(s.p.snapshot(p.id).target.row_count).toBe(0);
- const interrupted=s.p.repair(r.id);interrupted.commit_approval!.status='PRECHECKING';s.p.put('repair',interrupted);const recovered=new PipelineService(s.db,join(s.root,'projects'));recovered.recover();expect(recovered.repair(r.id).commit_approval?.status).toBe('INTERRUPTED');expect(recovered.snapshot(p.id).target.row_count).toBe(0);expect(recovered.snapshot(p.id).batches).toHaveLength(0);
- const committed=s.p.create('A','receipt-flow'),failed=await run(s.p,committed.id),repair=await s.a.waitFor(s.a.create(committed.id,failed.id,'receipt-diag','MOCK','test').id);s.a.decide(committed.id,repair.id,'approve','receipt-approve',true);const finished=await s.a.waitFor(repair.id),batch=finished.commit_approval!.batch_id;finished.commit_approval!.status='COMMITTING';finished.commit_approval!.batch_id=null;s.p.put('repair',finished);recovered.recover();expect(recovered.repair(finished.id).commit_approval).toMatchObject({status:'COMMITTED',batch_id:batch});expect(recovered.snapshot(committed.id).batches).toHaveLength(1);expect(recovered.snapshot(committed.id).target.row_count).toBe(4);
- }finally{await s.close();}});
+it('combined approval stops on invalid results, changed targets, expired or tampered outputs and a real rollback', async () => {
+  const s = setup();
+  try {
+    for (const failure of [
+      'verification',
+      'target-change',
+      'output-tamper',
+      'expired',
+      'insert-rollback',
+    ]) {
+      const p = s.p.create('A', failure),
+        e = await run(s.p, p.id),
+        r = await s.a.waitFor(s.a.create(p.id, e.id, randomUUID(), 'MOCK', 'test').id);
+      let restoreSpy: () => void = () => {};
+      if (failure === 'verification') {
+        const bad = validSql.replace('speed_mps < 1', 'speed_mps < 20'),
+          sha = (await import('../src/pipeline-data.js')).sha;
+        r.candidate = {
+          file_path: 'task.sql',
+          sql: bad,
+          hash: sha(bad),
+          diff: `--- task.sql (base)\n+++ task.sql (candidate)\n-${s.p.revision(r.base_revision_id).sql}\n+${bad}`,
+        };
+        s.p.put('repair', r);
+      }
+      if (failure === 'target-change') {
+        const publish = s.p.publishVerified.bind(s.p),
+          spy = vi.spyOn(s.p, 'publishVerified').mockImplementation((value) => {
+            publish(value);
+            s.p.withTarget(p.id, (db) => db.prepare('UPDATE data_state SET data_version=1').run());
+          });
+        restoreSpy = () => spy.mockRestore();
+      }
+      if (failure === 'output-tamper' || failure === 'expired') {
+        const publish = s.p.publishVerified.bind(s.p),
+          spy = vi.spyOn(s.p, 'publishVerified').mockImplementation((value) => {
+            publish(value);
+            const checked = s.p.execution(value.verification_execution_id!);
+            if (failure === 'output-tamper')
+              checked.rows[0]!.car_series = 'tampered after precheck';
+            else checked.precheck!.expires_at = new Date(0).toISOString();
+            s.p.put('execution', checked);
+          });
+        restoreSpy = () => spy.mockRestore();
+      }
+      if (failure === 'insert-rollback')
+        s.p.withTarget(p.id, (db) =>
+          db.exec(
+            "CREATE TRIGGER combined_failure BEFORE INSERT ON mining_results WHEN NEW.dat='synthetic_segment_02' BEGIN SELECT RAISE(ABORT,'combined actual second row failure'); END;",
+          ),
+        );
+      try {
+        s.a.decide(p.id, r.id, 'approve', randomUUID(), true);
+        const stopped = await s.a.waitFor(r.id);
+        expect(stopped.commit_approval?.status).toBe('FAILED');
+        expect(stopped.commit_approval?.error_code).toBe(
+          failure === 'verification'
+            ? 'OUTPUT_VALIDATION_FAILED'
+            : failure === 'target-change'
+              ? 'APPROVAL_TARGET_CHANGED'
+              : failure === 'output-tamper'
+                ? 'PRECHECK_STALE'
+                : failure === 'expired'
+                  ? 'PRECHECK_EXPIRED'
+                  : 'TRANSACTION_ROLLED_BACK',
+        );
+        const snapshot = s.p.snapshot(p.id);
+        expect(snapshot.target.row_count).toBe(0);
+        expect(snapshot.batches).toHaveLength(0);
+        s.p.withTarget(p.id, (db) =>
+          expect(db.prepare('SELECT count(*) n FROM snapshots').get()?.n).toBe(0),
+        );
+        if (failure === 'verification')
+          expect(snapshot.project.current_revision_id).toBe(p.current_revision_id);
+        if (failure === 'insert-rollback')
+          expect(snapshot.operations[0]).toMatchObject({
+            status: 'FAILED',
+            error_code: 'TRANSACTION_ROLLED_BACK',
+          });
+      } finally {
+        restoreSpy();
+      }
+    }
+  } finally {
+    await s.close();
+  }
+});
+
+it('combined approval cancellation prevents commit and restart reconciles only actual receipts without replaying uncommitted approval', async () => {
+  const s = setup();
+  try {
+    const p = s.p.create('A', 'cancel-flow'),
+      e = await run(s.p, p.id),
+      r = await s.a.waitFor(s.a.create(p.id, e.id, 'cancel-diag', 'MOCK', 'test').id),
+      start = s.p.start.bind(s.p);
+    const spy = vi.spyOn(s.p, 'start').mockImplementation((pid, key, revision, kind) => {
+      const execution = start(pid, key, revision, kind);
+      if (kind === 'CANDIDATE_CHECK') queueMicrotask(() => s.a.cancel(pid, r.id));
+      return execution;
+    });
+    s.a.decide(p.id, r.id, 'approve', 'cancel-approve', true);
+    await s.a.waitFor(r.id);
+    spy.mockRestore();
+    expect(s.p.repair(r.id).commit_approval).toMatchObject({
+      status: 'FAILED',
+      error_code: 'APPROVAL_CANCELLED',
+    });
+    expect(s.p.snapshot(p.id).target.row_count).toBe(0);
+    const interrupted = s.p.repair(r.id);
+    interrupted.commit_approval!.status = 'PRECHECKING';
+    s.p.put('repair', interrupted);
+    const recovered = new PipelineService(s.db, join(s.root, 'projects'));
+    recovered.recover();
+    expect(recovered.repair(r.id).commit_approval?.status).toBe('INTERRUPTED');
+    expect(recovered.snapshot(p.id).target.row_count).toBe(0);
+    expect(recovered.snapshot(p.id).batches).toHaveLength(0);
+    const committed = s.p.create('A', 'receipt-flow'),
+      failed = await run(s.p, committed.id),
+      repair = await s.a.waitFor(
+        s.a.create(committed.id, failed.id, 'receipt-diag', 'MOCK', 'test').id,
+      );
+    s.a.decide(committed.id, repair.id, 'approve', 'receipt-approve', true);
+    const finished = await s.a.waitFor(repair.id),
+      batch = finished.commit_approval!.batch_id;
+    finished.commit_approval!.status = 'COMMITTING';
+    finished.commit_approval!.batch_id = null;
+    s.p.put('repair', finished);
+    recovered.recover();
+    expect(recovered.repair(finished.id).commit_approval).toMatchObject({
+      status: 'COMMITTED',
+      batch_id: batch,
+    });
+    expect(recovered.snapshot(committed.id).batches).toHaveLength(1);
+    expect(recovered.snapshot(committed.id).target.row_count).toBe(4);
+  } finally {
+    await s.close();
+  }
+});

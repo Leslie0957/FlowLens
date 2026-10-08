@@ -1,15 +1,51 @@
 {
-  "scenario_id":"S04","version":"1","display_name":"上游读取超时","description":"读取阶段超时；后续阶段未执行","task_id":"order_daily",
-  "params":{"business_date":"2026-09-25","source":"demo_upstream"},
-  "timeline":[
-    {"offset_ms":0,"step":"read","step_status":"RUNNING","run_status":"RUNNING","logs":[{"level":"INFO","message":"Starting read step"}]},
-    {"offset_ms":6000,"step":"read","step_status":"FAILED","run_status":"FAILED","error_code":"UPSTREAM_TIMEOUT","error_message":"ReadTimeout: upstream request exceeded 5s","logs":[{"level":"ERROR","message":"ReadTimeout: upstream request exceeded 5s"}]}
+  "scenario_id": "S04",
+  "version": "1",
+  "display_name": "上游读取超时",
+  "description": "读取阶段超时；后续阶段未执行",
+  "task_id": "order_daily",
+  "params": { "business_date": "2026-09-25", "source": "demo_upstream" },
+  "timeline": [
+    {
+      "offset_ms": 0,
+      "step": "read",
+      "step_status": "RUNNING",
+      "run_status": "RUNNING",
+      "logs": [{ "level": "INFO", "message": "Starting read step" }]
+    },
+    {
+      "offset_ms": 6000,
+      "step": "read",
+      "step_status": "FAILED",
+      "run_status": "FAILED",
+      "error_code": "UPSTREAM_TIMEOUT",
+      "error_message": "ReadTimeout: upstream request exceeded 5s",
+      "logs": [{ "level": "ERROR", "message": "ReadTimeout: upstream request exceeded 5s" }]
+    }
   ],
-  "retry_timeline":[
-    {"offset_ms":0,"step":"read","step_status":"RUNNING","run_status":"RUNNING","logs":[]},
-    {"offset_ms":1500,"step":"read","step_status":"SUCCEEDED","logs":[{"level":"INFO","message":"Read completed (simulated recovery)"}]},
-    {"offset_ms":3000,"step":"validate","step_status":"SUCCEEDED","logs":[]},
-    {"offset_ms":4500,"step":"load","step_status":"SUCCEEDED","logs":[]},
-    {"offset_ms":6000,"step":"aggregate","step_status":"SUCCEEDED","run_status":"SUCCEEDED","logs":[{"level":"INFO","message":"Report generated (simulated recovery)"}],"summary":{"rows":1000,"data_source":"FIXTURE"}}
+  "retry_timeline": [
+    {
+      "offset_ms": 0,
+      "step": "read",
+      "step_status": "RUNNING",
+      "run_status": "RUNNING",
+      "logs": []
+    },
+    {
+      "offset_ms": 1500,
+      "step": "read",
+      "step_status": "SUCCEEDED",
+      "logs": [{ "level": "INFO", "message": "Read completed (simulated recovery)" }]
+    },
+    { "offset_ms": 3000, "step": "validate", "step_status": "SUCCEEDED", "logs": [] },
+    { "offset_ms": 4500, "step": "load", "step_status": "SUCCEEDED", "logs": [] },
+    {
+      "offset_ms": 6000,
+      "step": "aggregate",
+      "step_status": "SUCCEEDED",
+      "run_status": "SUCCEEDED",
+      "logs": [{ "level": "INFO", "message": "Report generated (simulated recovery)" }],
+      "summary": { "rows": 1000, "data_source": "FIXTURE" }
+    }
   ]
 }
