@@ -1,6 +1,6 @@
 # FlowLens 待办
 
-四项改造均已完成并逐项验证。原要求见 [四项待办修改计划](pipeline-maintenance-plan.md)，最终命令、证据、兼容性及限制见 [四项改造验收记录](pipeline-maintenance-acceptance.md)。当前未提交改动保留，未提交新的 Git commit。
+四项改造均已完成并逐项验证，已有工作已保留并推送 GitHub。原要求见 [四项待办修改计划](pipeline-maintenance-plan.md)，最终命令、证据、兼容性及限制见 [四项改造验收记录](pipeline-maintenance-acceptance.md)。后续取证纠错与 Windows 长测试时限修正见 [修复记录](pipeline-observation-fix-acceptance.md)；业务与测试代码 `9d75d33` 的 [完整远端检查](https://github.com/Leslie0957/FlowLens/actions/runs/37777370529)全部通过。
 
 ## 全项目代码格式整理
 

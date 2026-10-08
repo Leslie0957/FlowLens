@@ -1,6 +1,34 @@
 # HTTP 与 SSE 契约
 
-2026-10-01。基础路径 `/api/v1`，默认本机 API 4173；代码权威为 packages/contracts/src/index.ts 与 apps/server/src/http.ts。
+当前车辆接口更新于 2026-10-08。基础路径 `/api/v1`，开发 API 默认本机 4173；独立演示 API 默认 4180。车辆接口代码为 `apps/server/src/pipeline-http.ts`，共享契约为 `packages/contracts/src/pipeline.ts`。
+
+## 当前车辆 Pipeline
+
+以下路径均以 `/api/v1/pipeline` 开头。成功返回 `{data:...}`，失败返回带 `code`、`message`、`request_id` 的错误。参数使用严格 Zod 校验，项目 / 执行 / 诊断 / 批次归属由后端核对；新增未声明字段不能扩展权限。
+
+| 方法 | 路径                                                          | 用途                                                               |
+| ---- | ------------------------------------------------------------- | ------------------------------------------------------------------ |
+| GET  | `/templates`、`/projects`                                     | 场景模板与项目列表。                                               |
+| POST | `/projects`                                                   | 用 `template_id: A / B / C` 创建项目。                             |
+| GET  | `/projects/:projectId`、`/projects/:projectId/schema`         | 持久状态快照与实际源 / 目标结构。                                  |
+| POST | `/projects/:projectId/revisions`                              | 基于 `base_revision_id` 保存不可变 SQL 新版本。                    |
+| POST | `/projects/:projectId/executions`                             | 当前 SQL 只读执行、校验与预检，返回 202。                          |
+| POST | `/projects/:projectId/executions/:executionId/cancel`         | 取消绑定项目的实际执行。                                           |
+| POST | `/projects/:projectId/executions/:executionId/commit`         | 人工批准该次已通过预检的输出入库。                                 |
+| POST | `/projects/:projectId/executions/:executionId/repairs`        | 启动绑定失败执行的 Agent 诊断，返回 202。                          |
+| POST | `/projects/:projectId/repairs/:repairId/approve`              | 批准具体候选；`commit_on_success: true` 同时批准校验成功后的入库。 |
+| POST | `/projects/:projectId/repairs/:repairId/reject`、`.../cancel` | 拒绝候选或取消诊断 / 后续流程。                                    |
+| POST | `/projects/:projectId/batches/:batchId/restore`               | 仅撤销最新有效批次实际新增数据，保留当前 SQL。                     |
+| POST | `/projects/:projectId/query`                                  | 查询源库、当前目标或指定批次入库前数据；只读查询不写入。           |
+| GET  | `/projects/:projectId/events?after_seq=...`                   | 订阅持久项目事件，从排他游标之后重放。                             |
+
+创建项目、保存版本、执行、入库、诊断、批准 / 拒绝及撤销要求 `Idempotency-Key`；取消和只读查询按其路由处理。批准体外的业务范围仍由服务端记录校验，客户端不能指定任意 SQL 执行命令或恢复 SQL。
+
+SSE 包含 `id: seq`、`event: type` 和 JSON `data`，每 15 秒心跳。前端先应用契约校验后的快照，再推进游标；断流重连时去重，并通过状态核对补齐漏收。SSE 同步执行与工具事实，车辆诊断正文不是模型 token 实时流。完整状态、证据、预算与权限说明见 [当前架构](architecture.md)。
+
+## 早期接口与事件记录
+
+以下为 2026-10-01 起的 P0 / M5 / M6 文档，相关旧入口保留。代码权威为 `packages/contracts/src/index.ts` 与 `apps/server/src/http.ts`；勿将旧 FIXTURE 模拟审批作为当前车辆入库权限。
 
 ## HTTP
 
