@@ -1,0 +1,47 @@
+
+ RUN  v3.2.4 D:/Downloaad/FlowLens/apps/server
+
+(node:28268) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34024) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30248) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ test/model-gateway-protocol.test.ts (3 tests) 10ms
+ ✓ test/pipeline.test.ts (19 tests) 25915ms
+   ✓ actual process exit after target commit/restore reconciles batch links and retries without repeating side effects  809ms
+   ✓ A/B failures are real SQLite/output errors; Mock tools and read-only candidate checks publish only after passing  2103ms
+   ✓ D: executable semantic candidate fails independent oracle and never publishes or writes the project target  1105ms
+   ✓ reject/stale/expired/tampered/foreign approvals do not execute candidates; invalid tool args cannot cross scope  3617ms
+   ✓ precheck is bound to revision, result, target hash/version, expiry and project; active writes are excluded  391ms
+   ✓ startup upgrades each old project target once while read-only schema/query connections never migrate it  337ms
+   ✓ read-only queries inspect actual source/target/pre-snapshot, bounds, invalid columns and syntax without changing data_version  424ms
+   ✓ non-modification advice stays read-only, fabricated citations and unknown tools are refused, queued diagnosis can cancel without calling a model  2616ms
+   ✓ invalid answers without tools are corrected once with specific schema feedback and no SQL side effects  956ms
+   ✓ the correction can lead the model to call actual tools and return supported advice without backend fabricated repair  973ms
+   ✓ invalid JSON and invalid answer fields keep explicit error categories and bounded correction history after real tool evidence  1822ms
+   ✓ one explicit combined approval checks SQL once, commits that output and restores, while old validation-only approval cannot be widened  2241ms
+   ✓ combined approval stops on invalid results, changed targets, expired or tampered outputs and a real rollback  5386ms
+   ✓ combined approval cancellation prevents commit and restart reconciles only actual receipts without replaying uncommitted approval  2153ms
+ ✓ test/pipeline-adaptive.test.ts (17 tests) 42662ms
+   ✓ actual feedback determines two different routes; every batched call reaches the next request and approved candidates verify, commit and restore  2129ms
+   ✓ model reads recent logs then independently requests an earlier page and cites its persisted range  988ms
+   ✓ changing limits and filters on observed log rows does not reset progress; first empty observation allows subsequent bundles  1892ms
+   ✓ first-read bundles receive exact deferred feedback; model selects one source, observes it, then may batch later reads  1880ms
+   ✓ initial evidence alone supports conservative advice; one SQL tool plus initial failure supports a candidate  1750ms
+   ✓ missing SQL, duplicate/foreign/version-invalid citations, wrong failure stage and NO_CHANGE receive precise bounded feedback  6663ms
+   ✓ invalid arguments are returned by call ID and can be corrected, while unauthorized tools and changed scope stop  2650ms
+   ✓ repeated observations and alternating old observations stall despite fresh call and evidence UUIDs  1903ms
+   ✓ the reported B trajectory feeds repeats back and allows exactly one answer correction without consuming the stall budget  3034ms
+   ✓ more than eight requests with new actual observations completes; request 101 never occurs at the default cap  6132ms
+   ✓ tool, context and request limits preserve evidence and never publish a candidate  3384ms
+   ✓ cancel and timeout race late model responses without publishing; restart and old budgets remain explicit  3985ms
+   ✓ LIVE per-session allowance still reserves the shared paid budget before every actual request  943ms
+   ✓ session limits are copied once and elapsed time cannot be bypassed by an immediate response  918ms
+   ✓ failed calls count toward the tool ceiling, and repeated reads can still finish before the stall threshold  1852ms
+   ✓ public investigation notes retain actual evidence dependencies and live phases; unsupported notes remain raw only  2550ms
+
+ Test Files  3 passed (3)
+      Tests  39 passed (39)
+   Start at  20:01:13
+   Duration  43.41s (transform 376ms, setup 0ms, collect 1.11s, tests 68.59s, environment 0ms, prepare 452ms)

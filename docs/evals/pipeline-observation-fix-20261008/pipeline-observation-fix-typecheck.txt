@@ -1,0 +1,4 @@
+$ pnpm --filter @flowlens/contracts build && pnpm --filter @flowlens/server typecheck && pnpm --filter @flowlens/web typecheck
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json --noEmit
+$ vue-tsc --noEmit

@@ -1,0 +1,12 @@
+
+ RUN  v3.2.4 D:/Downloaad/FlowLens/apps/server
+
+(node:34016) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ test/pipeline-adaptive.test.ts (17 tests | 16 skipped) 3014ms
+   ✓ the reported B trajectory feeds repeats back and allows exactly one answer correction without consuming the stall budget  3012ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 16 skipped (17)
+   Start at  20:05:50
+   Duration  3.70s (transform 178ms, setup 0ms, collect 357ms, tests 3.01s, environment 0ms, prepare 114ms)

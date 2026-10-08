@@ -576,6 +576,107 @@ it('repeated observations and alternating old observations stall despite fresh c
   }
 });
 
+it('the reported B trajectory feeds repeats back and allows exactly one answer correction without consuming the stall budget', async () => {
+  const s = setup();
+  const traces: unknown[] = [];
+  try {
+    const { project, e } = await s.failure('B');
+    for (const outcome of ['valid', 'malformed', 'foreign-citation']) {
+      let requests = 0;
+      const sent: Messages[] = [];
+      const a = s.agent({
+        gateway: {
+          async complete(m, _signal, _onDelta, _onFirstDelta, options) {
+            sent.push(structuredClone(m));
+            requests++;
+            if (requests === 1) return requestTools('get_sql', 'get_output_preview');
+            if (requests === 2) {
+              expect(
+                results(m).every(
+                  (result) => result.error_code === 'REPAIR_FIRST_OBSERVATION_REQUIRED',
+                ),
+              ).toBe(true);
+              return requestTools('get_sql');
+            }
+            if (requests === 3) return requestTools('get_task_contract', 'get_schema');
+            if (requests === 4 || requests === 5) return requestTools('get_output_preview');
+            if (requests === 6 || requests === 7) {
+              const feedback = JSON.parse(String(m.at(-1)!.content));
+              const name = requests === 6 ? 'get_output_preview' : 'get_task_contract';
+              const original = results(m).find(
+                (result) =>
+                  result.output &&
+                  (name === 'get_output_preview' ? result.output.validation : result.output.rule),
+              );
+              expect(feedback).toMatchObject({
+                feedback_type: 'REPEATED_OBSERVATION',
+                consecutive_no_progress_rounds: requests - 5,
+                repeated_reads: [{ name, reuse_evidence_ids: original.evidence_ids }],
+              });
+              if (requests === 6) return requestTools('get_task_contract');
+            }
+            const sql = results(m).find((result) => result.output?.sql);
+            const output = results(m).find((result) => result.output?.validation);
+            const response = answer(m, {
+              diagnosis:
+                '输出列 vehicle_type 与契约要求的 car_series 不符，候选仅移除错误别名，待人工批准后验证。',
+              action: 'SQL_PATCH',
+              evidence_ids:
+                requests === 8 && outcome === 'foreign-citation'
+                  ? [randomUUID(), ...sql.evidence_ids]
+                  : [...sql.evidence_ids, ...output.evidence_ids],
+              candidate: {
+                file_path: 'task.sql',
+                base_hash: sql.output.base_hash,
+                new_content: sql.output.sql.replace('car_series AS vehicle_type', 'car_series'),
+              },
+            });
+            if (requests === 7 || outcome === 'malformed')
+              return {
+                ...response,
+                text: '已具备充分证据，提交最小列别名修复。\n\n' + response.text,
+              };
+            expect(requests).toBe(8);
+            expect(options).toEqual({ toolChoice: 'none', jsonMode: true });
+            expect(JSON.parse(String(m.at(-1)!.content)).error_code).toBe('REPAIR_RESPONSE_JSON');
+            return response;
+          },
+        },
+      });
+      const repair = await a.waitFor(
+        a.create(project.id, e.id, randomUUID(), 'MOCK', 'reported-B').id,
+      );
+      expect(repair.model_requests).toBe(8);
+      expect(repair.tools).toHaveLength(8);
+      expect(repair.tools.filter((tool) => tool.status === 'COMPLETED')).toHaveLength(6);
+      expect(repair.response_checks[0]?.code).toBe('REPAIR_RESPONSE_JSON');
+      if (outcome === 'valid') {
+        expect(repair.status).toBe('PENDING_APPROVAL');
+        expect(repair.response_checks).toHaveLength(1);
+        expect(repair.candidate?.sql).not.toContain('vehicle_type');
+      } else {
+        expect(repair.status).toBe('FAILED');
+        expect(repair.error_code).toBe(
+          outcome === 'malformed' ? 'REPAIR_RESPONSE_JSON' : 'REPAIR_EVIDENCE_INVALID',
+        );
+        expect(repair.response_checks).toHaveLength(2);
+        expect(repair.candidate).toBeNull();
+      }
+      expect(s.pipeline.project(project.id).current_revision_id).toBe(project.current_revision_id);
+      expect(s.pipeline.snapshot(project.id).executions).toHaveLength(1);
+      expect(s.pipeline.snapshot(project.id).target.row_count).toBe(0);
+      traces.push({ outcome, repair, sent_messages: sent });
+    }
+    if (process.env.FLOWLENS_OBSERVATION_TRACE_DIR) {
+      const evidence = resolve(process.env.FLOWLENS_OBSERVATION_TRACE_DIR);
+      mkdirSync(evidence, { recursive: true });
+      writeFileSync(join(evidence, 'reported-B-replay.json'), JSON.stringify(traces, null, 2));
+    }
+  } finally {
+    await s.close();
+  }
+});
+
 it('more than eight requests with new actual observations completes; request 101 never occurs at the default cap', async () => {
   const s = setup();
   try {

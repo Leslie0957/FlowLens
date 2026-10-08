@@ -4,12 +4,14 @@ import { ProbeError } from './model-error.js';
 import { toolDescriptions } from './diagnosis-tools.js';
 import type { ToolDescription } from './tool-registry.js';
 
+export type ModelRequestOptions = { toolChoice?: 'auto' | 'none'; jsonMode?: boolean };
 export interface ModelGateway {
   complete(
     messages: Record<string, unknown>[],
     signal: AbortSignal,
     onDelta?: (text: string) => void,
     onFirstDelta?: () => void,
+    options?: ModelRequestOptions,
   ): Promise<Completion>;
 }
 export function deepSeekGateway(config: {
@@ -23,7 +25,7 @@ export function deepSeekGateway(config: {
   const root = config.baseUrl.replace(/\/$/, '');
   if (root !== 'https://api.deepseek.com') throw new ProbeError('INVALID_CONFIG');
   return {
-    async complete(messages, signal, onDelta, onFirstDelta) {
+    async complete(messages, signal, onDelta, onFirstDelta, options) {
       let response: Response;
       try {
         response = await fetch(root + '/chat/completions', {
@@ -37,8 +39,10 @@ export function deepSeekGateway(config: {
               type: 'function',
               function: t,
             })),
-            tool_choice: 'auto',
-            ...(config.jsonMode === false ? {} : { response_format: { type: 'json_object' } }),
+            tool_choice: options?.toolChoice ?? 'auto',
+            ...((options?.jsonMode ?? config.jsonMode) === false
+              ? {}
+              : { response_format: { type: 'json_object' } }),
             thinking: { type: 'disabled' },
             max_tokens: config.maxOutputTokens,
             stream: true,

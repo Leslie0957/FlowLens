@@ -33,6 +33,18 @@ const answerSchema = z.strictObject({
     })
     .nullable(),
 });
+function containsCompleteAnswer(text: string) {
+  // Recognize a complete proposed answer only to constrain its correction.
+  // Never accept embedded JSON: the actual reply still must pass full parsing.
+  const start = text.indexOf('{'),
+    end = text.lastIndexOf('}');
+  if (start < 0 || end < start) return false;
+  try {
+    return answerSchema.safeParse(JSON.parse(text.slice(start, end + 1))).success;
+  } catch {
+    return false;
+  }
+}
 const system = [
   '你负责诊断本地车辆 SQL 流水线的真实执行故障，输入为合成数据。提出必要的候选修改，或说明无法修复的原因及缺少的信息。',
   '所有面向用户的文字必须使用简体中文，包括每轮公开调查说明、已有证据概述、信息缺口、下一步目的、最终诊断和纠错说明。即使使用普通文本而非 JSON 调查说明，也必须用简体中文。工具名、字段名、SQL、错误原文、证据 ID 与协议键保持原样，不翻译标识符，不输出英文说明段落。',
@@ -387,8 +399,9 @@ export class PipelineAgent {
             }));
       let toolCount = 0,
         corrected = false,
+        strictAnswerCorrection = false,
         stalls = 0;
-      const observations = new Set<string>();
+      const observations = new Map<string, string[]>();
       let hasSuccessfulObservation = false;
       const progress = (added: boolean) => {
         stalls = added ? 0 : stalls + 1;
@@ -407,7 +420,15 @@ export class PipelineAgent {
         r.model_requests++;
         r.diagnosis_phase = 'MODEL_DECIDING';
         this.pipeline.put('repair', r);
-        const response = await bounded(() => gateway.complete(messages, controller.signal));
+        const response = await bounded(() =>
+          gateway.complete(
+            messages,
+            controller.signal,
+            undefined,
+            undefined,
+            strictAnswerCorrection ? { toolChoice: 'none', jsonMode: true } : undefined,
+          ),
+        );
         ensureActive();
         r.usage.prompt_tokens += response.usage?.promptTokens ?? 0;
         r.usage.completion_tokens += response.usage?.completionTokens ?? 0;
@@ -435,6 +456,7 @@ export class PipelineAgent {
         });
         this.pipeline.put('repair', r);
         if (response.calls.length) {
+          if (strictAnswerCorrection) throw new LocalError('PROTOCOL_ERROR', 502);
           if (toolCount + response.calls.length > limits.max_tool_calls)
             throw new LocalError('REPAIR_TOOL_LIMIT', 409);
           // Keep every native call and reply by ID. A bundle before any observed
@@ -452,6 +474,8 @@ export class PipelineAgent {
           r.diagnosis_phase = 'TOOLS_RUNNING';
           this.pipeline.put('repair', r);
           let added = false;
+          const repeatedReads: { call_id: string; name: string; reuse_evidence_ids: string[] }[] =
+            [];
           for (const call of response.calls) {
             ensureActive();
             toolCount++;
@@ -480,11 +504,6 @@ export class PipelineAgent {
               ensureActive();
               tool.result = result;
               tool.status = 'COMPLETED';
-              messages.push({
-                role: 'tool',
-                tool_call_id: call.id,
-                content: JSON.stringify(result),
-              });
               const observation = sha(
                 canonical({
                   name: call.name,
@@ -504,14 +523,30 @@ export class PipelineAgent {
                       ),
                     )
                   : [observation];
+              // Empty pages are an observation once, regardless of the filter
+              // that produced them. They never make later empty reads progress.
+              if (!signatures.length) signatures.push('empty_logs');
+              if (signatures.every((signature) => observations.has(signature)))
+                repeatedReads.push({
+                  call_id: call.id,
+                  name: call.name,
+                  reuse_evidence_ids: [
+                    ...new Set(signatures.flatMap((signature) => observations.get(signature)!)),
+                  ].slice(0, 32),
+                });
               if (!hasSuccessfulObservation) added = true;
               hasSuccessfulObservation = true;
               for (const signature of signatures) {
                 if (!observations.has(signature)) {
-                  observations.add(signature);
+                  observations.set(signature, result.evidence_ids);
                   added = true;
                 }
               }
+              messages.push({
+                role: 'tool',
+                tool_call_id: call.id,
+                content: JSON.stringify(result),
+              });
             } catch (e) {
               tool.status = 'FAILED';
               tool.error_code = errorCode(e);
@@ -532,6 +567,18 @@ export class PipelineAgent {
             }
           }
           progress(added);
+          if (repeatedReads.length)
+            messages.push({
+              role: 'user',
+              content: JSON.stringify({
+                feedback_type: 'REPEATED_OBSERVATION',
+                repeated_reads: repeatedReads,
+                consecutive_no_progress_rounds: stalls,
+                remaining_no_progress_rounds: limits.max_stall_rounds - stalls,
+                instruction:
+                  '上述读取没有新增观测，请复用已收到的真实证据 ID。已有证据足以支持结论时，现在提交最终 JSON，不附加前后说明；仍有缺口时，指出具体缺少的信息并选择能获得新观测的读取。不要仅为获取新证据编号而重复调用。',
+              }),
+            });
           continue;
         }
         if (response.finishReason !== 'stop') throw new LocalError('PROTOCOL_ERROR', 502);
@@ -612,6 +659,10 @@ export class PipelineAgent {
           this.pipeline.put('repair', r);
           if (corrected) throw e;
           corrected = true;
+          strictAnswerCorrection =
+            errorCode(e) === 'REPAIR_RESPONSE_JSON' &&
+            hasSuccessfulObservation &&
+            containsCompleteAnswer(response.text);
           messages.push(
             { role: 'assistant', content: response.text },
             {
@@ -619,13 +670,15 @@ export class PipelineAgent {
               content: JSON.stringify({
                 error_code: errorCode(e),
                 message: repairErrorMessage(e),
-                instruction:
-                  '仅针对这项具体问题纠正一次，确有需要时才选择其他已注册工具。说明与诊断继续使用简体中文，不得编造证据或工具结果；尚未执行任何修复。',
+                instruction: strictAnswerCorrection
+                  ? '仅纠正这项最终回复格式问题，不再调用工具。只输出一个完整 JSON 对象，不附加前后说明；复用已收到的真实证据，诊断仍用简体中文，不得编造或跳过引用校验；尚未执行任何修复。'
+                  : '仅针对这项具体问题纠正一次，确有需要时才选择其他已注册工具。说明与诊断继续使用简体中文，不得编造证据或工具结果；尚未执行任何修复。',
                 available_evidence: r.evidence.map((e) => ({ id: e.id, type: e.type })),
               }),
             },
           );
-          progress(false);
+          // A submitted answer is not a tool-reading round. Its one bounded
+          // correction must not be consumed by earlier repeated observations.
         }
       }
       throw new LocalError('MODEL_REQUEST_LIMIT', 429);

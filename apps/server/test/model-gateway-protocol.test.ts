@@ -89,3 +89,38 @@ it('tool-like text is retained as text and never converted to executable tool ca
     vi.unstubAllGlobals();
   }
 });
+
+it('an answer-format correction disables tools and enables JSON for that request only', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi
+      .fn()
+      .mockImplementation(async () =>
+        stream([{ choices: [{ delta: { content: '{}' }, finish_reason: 'stop' }] }]),
+      ),
+  );
+  try {
+    const gateway = deepSeekGateway({
+      apiKey: 'test-only',
+      model: 'test',
+      baseUrl: 'https://api.deepseek.com',
+      maxOutputTokens: 2048,
+      jsonMode: false,
+    });
+    const signal = new AbortController().signal;
+    await gateway.complete([], signal, undefined, undefined, {
+      toolChoice: 'none',
+      jsonMode: true,
+    });
+    await gateway.complete([], signal);
+    const [correction, normal] = vi
+      .mocked(fetch)
+      .mock.calls.map((call) => JSON.parse(String(call[1]?.body)));
+    expect(correction.tool_choice).toBe('none');
+    expect(correction.response_format).toEqual({ type: 'json_object' });
+    expect(normal.tool_choice).toBe('auto');
+    expect(normal).not.toHaveProperty('response_format');
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});

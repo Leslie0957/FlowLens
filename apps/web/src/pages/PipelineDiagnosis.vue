@@ -243,7 +243,7 @@ const approvalReason = computed(() =>
             本轮未返回可展示的调查说明；实际调用与返回如下。
           </p>
           <p v-if="round.state === '首轮批量读取已暂缓'" class="pipeline-muted">
-            平台要求先获取一份观测再决定下一步；本轮未实际读取，已将暂缓原因反馈给模型。
+            本次诊断尚未收到工具结果，模型首轮同时请求了多项读取；本轮未实际读取，平台已要求它先选择一项。收到结果后允许同轮读取独立信息。
           </p>
           <p v-if="(round.turn?.calls.length ?? round.tools.length) > 1" class="pipeline-muted">
             本次模型请求同轮选择了 {{ round.turn?.calls.length ?? round.tools.length }} 个工具。
@@ -255,9 +255,11 @@ const approvalReason = computed(() =>
                   >{{ toolLabel(tool.name) }}<code>{{ tool.name }}</code
                   ><small v-if="tool.request">第 {{ tool.request }} 次模型请求</small
                   ><small>{{
-                    tool.transport === 'MCP'
-                      ? 'MCP · ' + tool.tool_server
-                      : '旧工具调用 · 未记录传输'
+                    tool.error_code === 'REPAIR_FIRST_OBSERVATION_REQUIRED'
+                      ? '平台暂缓 · 未执行工具'
+                      : tool.transport === 'MCP'
+                        ? 'MCP · ' + tool.tool_server
+                        : '旧工具调用 · 未记录传输'
                   }}</small
                   ><small v-if="repeatedReads.has(tool.id)" class="pipeline-repeated-read"
                     >重复读取</small

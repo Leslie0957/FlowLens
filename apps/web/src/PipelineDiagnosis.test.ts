@@ -582,6 +582,7 @@ it('shows plain model explanations from restored history, escapes markup, marks 
   expect(wrapper.find('img').exists()).toBe(false);
   expect(wrapper.text()).not.toContain('本轮未记录调查说明');
   expect(wrapper.text()).toContain('本轮未实际读取');
+  expect(wrapper.text()).toContain('平台暂缓 · 未执行工具');
   expect(wrapper.text()).toContain('平台调度反馈：REPAIR_FIRST_OBSERVATION_REQUIRED');
   expect(wrapper.text()).toContain('返回内容与第 2 轮一致');
   expect(wrapper.text()).not.toContain('工具错误：REPAIR_FIRST_OBSERVATION_REQUIRED');
