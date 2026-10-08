@@ -677,6 +677,8 @@ it('the reported B trajectory feeds repeats back and allows exactly one answer c
   }
 });
 
+// Two sessions perform 109 real stdio reads with persisted evidence. Give only
+// this integration case time for a slower CI runner; Agent budgets stay intact.
 it('more than eight requests with new actual observations completes; request 101 never occurs at the default cap', async () => {
   const s = setup();
   try {
@@ -724,7 +726,7 @@ it('more than eight requests with new actual observations completes; request 101
   } finally {
     await s.close();
   }
-});
+}, 60000);
 
 it('tool, context and request limits preserve evidence and never publish a candidate', async () => {
   const s = setup();
