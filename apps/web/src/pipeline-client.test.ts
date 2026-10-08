@@ -19,3 +19,30 @@ it('deduplicates replay, refreshes gaps, and maintains a project scoped event cu
  cursor=4;emit(4);await vi.waitFor(()=>expect(state.snapshot.value?.cursor).toBe(4));expect(reads).toBeGreaterThan(count);app.unmount();
 });
 it('retains mutation keys for uncertain responses, separates bodies/projects and renews only after confirmed responses',()=>{const first=mutationKey(a+'/executions',{});expect(mutationKey(a+'/executions',{}).key).toBe(first.key);expect(mutationKey(b+'/executions',{}).key).not.toBe(first.key);expect(mutationKey(a+'/revisions',{sql:'one'}).key).not.toBe(mutationKey(a+'/revisions',{sql:'two'}).key);first.done();expect(mutationKey(a+'/executions',{}).key).not.toBe(first.key);});
+
+const execution=(status:string)=>({id:rid,project_id:a,revision_id:rid,revision_hash:hash,input_hash:hash,kind:'PRECHECK',status,created_at:'now',finished_at:status==='RUNNING'?null:'now',logs:[],columns:[],rows:[],error_code:status==='FAILED'?'SQL_QUERY_FAILED':null,error_message:status==='FAILED'?'no such column: speed_kph':null,failed_step:status==='FAILED'?'query':null,exit_code:status==='FAILED'?2:null,validation:null,precheck:null,verification:null});
+const activeSnapshot=(done:boolean)=>({...snapshot(a,done?2:1),executions:[execution(done?'FAILED':'RUNNING')]});
+function silentStream(signal?:AbortSignal){return new Response(new ReadableStream({start(c){signal?.addEventListener('abort',()=>c.close(),{once:true});}}),{headers:{'Content-Type':'text/event-stream'}});}
+
+it('reconciles an active execution when SSE stays connected but sends no completion notification, and stops on unmount',async()=>{
+ let done=false,reads=0;const requests:RequestInit[]=[];
+ vi.stubGlobal('fetch',vi.fn((url:string,options:RequestInit={})=>{if(url.includes('/events?'))return Promise.resolve(silentStream(options.signal??undefined));reads++;requests.push(options);return Promise.resolve(new Response(JSON.stringify({data:activeSnapshot(done)})));}));
+ let state!:ReturnType<typeof usePipelineSnapshot>;const app=createApp(defineComponent({setup(){state=usePipelineSnapshot(ref(a),{reconcileMs:25});return ()=>null;}}));app.mount(document.createElement('div'));
+ try{await vi.waitFor(()=>expect(state.connection.value).toBe('实时连接'));expect(state.snapshot.value?.executions[0]?.status).toBe('RUNNING');done=true;await vi.waitFor(()=>expect(state.snapshot.value?.executions[0]?.status).toBe('FAILED'));expect(requests.every(r=>r.cache==='no-store'&&!r.method)).toBe(true);}finally{app.unmount();}
+ const stopped=reads;await new Promise(resolve=>setTimeout(resolve,80));expect(reads).toBe(stopped);
+});
+
+it('reconnects after a failed snapshot from the last applied cursor, then reads the replayed completion',async()=>{
+ let reads=0,success=false;const streams:ReadableStreamDefaultController<Uint8Array>[]=[],urls:string[]=[];
+ vi.stubGlobal('fetch',vi.fn((url:string,options:RequestInit={})=>{if(url.includes('/events?')){urls.push(url);return Promise.resolve(new Response(new ReadableStream({start(c){streams.push(c);options.signal?.addEventListener('abort',()=>{try{c.close();}catch{/* already ended */}},{once:true});}})));}reads++;return Promise.resolve(reads===1||success?new Response(JSON.stringify({data:activeSnapshot(success)})):new Response(JSON.stringify({error:{message:'temporary snapshot failure'}}),{status:503}));}));
+ let state!:ReturnType<typeof usePipelineSnapshot>;const app=createApp(defineComponent({setup(){state=usePipelineSnapshot(ref(a),{reconcileMs:10000});return ()=>null;}}));app.mount(document.createElement('div'));
+ const emit=(stream:ReadableStreamDefaultController<Uint8Array>)=>stream.enqueue(new TextEncoder().encode('data: '+JSON.stringify({project_id:a,seq:2,type:'execution.changed',entity_id:rid,created_at:'now'})+'\n\n'));
+ try{await vi.waitFor(()=>expect(streams).toHaveLength(1));emit(streams[0]!);await vi.waitFor(()=>expect(state.error.value).toContain('temporary snapshot failure'));streams[0]!.close();await vi.waitFor(()=>expect(streams).toHaveLength(2),{timeout:3000});expect(urls[1]).toContain('after_seq=1');success=true;emit(streams[1]!);await vi.waitFor(()=>expect(state.snapshot.value?.executions[0]?.status).toBe('FAILED'));expect(state.error.value).toBe('');}finally{app.unmount();}
+});
+
+it('times out a stalled state request and retries without starting a new execution',async()=>{
+ let reads=0,hungSignal:AbortSignal|undefined;
+ vi.stubGlobal('fetch',vi.fn((url:string,options:RequestInit={})=>{if(url.includes('/events?'))return Promise.resolve(silentStream(options.signal??undefined));reads++;if(reads===2){hungSignal=options.signal??undefined;return new Promise<Response>((_resolve,reject)=>options.signal?.addEventListener('abort',()=>reject(new Error('state request timeout')),{once:true}));}return Promise.resolve(new Response(JSON.stringify({data:activeSnapshot(reads>2)})));}));
+ let state!:ReturnType<typeof usePipelineSnapshot>;const app=createApp(defineComponent({setup(){state=usePipelineSnapshot(ref(a),{reconcileMs:25,requestTimeoutMs:80});return ()=>null;}}));app.mount(document.createElement('div'));
+ try{await vi.waitFor(()=>expect(state.snapshot.value?.executions[0]?.status).toBe('FAILED'));expect(hungSignal?.aborted).toBe(true);expect(reads).toBe(3);}finally{app.unmount();}
+});

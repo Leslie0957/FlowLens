@@ -1,6 +1,6 @@
 # FlowLens
 
-基于 Vue 3 和 TypeScript 的数据任务 Agent 诊断工作台。主入口 `/pipeline` 使用自行生成的车辆事件：编辑 SQL → 真实 SQLite 查询与独立校验 → Agent 工具取证与 Diff → 人工批准隔离验证 → 只读预检 → 批准事务入库 → SQL 查询复查 → 撤销最新有效批次。当前为 Windows 本地单用户 Demo，车辆链路标记 SYNTHETIC，不连接公司环境。
+基于 Vue 3 和 TypeScript 的数据任务 Agent 诊断工作台。主入口 `/pipeline` 使用自行生成的车辆事件：编辑 SQL → 真实 SQLite 查询与独立校验 → Agent 工具取证与 Diff → 人工一次批准修复并入库 → 后端隔离验证、只读预检、事务入库 → 自动打开结果复查 → 必要时撤销最新有效批次。当前为 Windows 本地单用户 Demo，车辆链路标记 SYNTHETIC，不连接公司环境。
 
 旧 `/runs` FIXTURE 模拟任务、诊断历史和 `/local` 订单实验继续保留，入口折叠在侧栏“早期实验与历史”中；这些历史诊断属于早期模拟链路。车辆 Pipeline 的执行、诊断、版本与入库记录在各项目工作台查看。真实车辆执行与模型来源 LIVE/MOCK 分别显示，不把旧模拟时间线当作真实执行证据。
 
@@ -8,12 +8,13 @@
 
 - 每个项目独立只读源库和目标库；10 条合成事件含速度/时长边界与对照，Demo 规则为速度 < 1 m/s、持续 ≥ 3 秒，独立验证期望 4 行及完整字段值。
 - A 列错误由 SQLite 实际报错；B 查询成功后因输出别名缺 `car_series` 校验失败；C 正常预检及重复入库实际跳过重复业务键。
+- Pipeline Agent 根据初始真实失败和上一轮工具返回自主选择下一步，可同轮请求多个工具，无固定六工具清单。SQL 候选必须引用基础 SQL 和实际失败证据；仅凭初始错误给出保守人工建议也可结束。工具轨迹保存轮次/call ID、真实返回和失败，最终回复最多纠正一次，原始回复与具体校验原因保留。旧历史兼容，来源校验不代表自动证明自然语言因果结论。
 - SQL 新版本不可变，只有 `task.sql` 可编辑。Agent 复用现有模型网关、共享 LIVE 预算与 ToolRegistry，读取本次 SQL、实际 Schema、日志、输出和固定规则；服务端核对引用并计算 Diff。
-- “批准修复并验证”创建独立候选版本和隔离目标库，实际提交与重跑验证通过才发布；失败保留当前版本及全部失败历史。该按钮不会向项目目标库入库。
-- “批准本次入库”绑定执行、SQL/input/output hash、目标版本和 10 分钟有效期。参数化写入、完整前快照、批次凭证、数据版本推进在目标库同一事务提交；失败显式回滚。
+- “批准修复并入库”一次授权当前候选与校验通过后的业务写入，授权绑定批准时目标版本和数据摘要。后端持久记录授权，隔离验证通过才发布SQL，然后实际运行只读预检，通过且目标未变化才事务入库；失败/取消/目标变化均停止。成功后直接进入结果页，无第二次批准。旧的仅验证审批保持原权限；不会从历史记录追加写入。服务重启用目标提交凭证确认已完成批次，没有凭证的中断授权不自动重放写入。
+- 正常SQL或旧的仅验证审批仍可在预检卡片“批准本次入库”，这是单独的数据写入入口。所有入库均绑定执行、SQL/input/output hash、目标版本和10分钟预检有效期。参数化写入、完整前快照、批次凭证、数据版本推进同事务提交；失败显式回滚。成功后自动进入批次结果复查页，实际查询目标数据；可完成复查或撤销最新有效批次，恢复后结果自动更新。“完成”仅结束复查，事务已在批准时提交。提交响应丢失时先核对真实凭证，不凭前端状态假定成功。
 - “撤销本次入库”恢复固定业务表的完整前数据，保留诊断、版本和审批历史。只允许最新尚未撤销且有实际新增的批次；零新增重跑不移动数据头。恢复版本单调增长，损坏快照/旧头/数据漂移/活动操作会拒绝恢复。目标凭证用于重启与响应丢失后的事实核对。
 - `/pipeline/projects/:projectId/database` 独立只读查询源表、当前目标表和选定入库前快照，支持字段、WHERE、ORDER BY、LIMIT、COUNT；单条小语法 + 表白名单 + 只读 SQLite，禁写入/系统表/跨库/多语句。默认200、最多500行，子进程10秒超时及256 KiB输出限制。源数据固定小规模，查询不推进业务数据版本。
-- 持久 SSE 游标、同读事务快照、重连/去重/缺口同步；项目切换隔离、执行选择 URL、取消与迟到请求保护。浏览器 sessionStorage 保存不确定响应的幂等键，重复批准仍由后端执行/批次唯一凭证保护。
+- 持久 SSE 游标、同读事务快照、重连/去重/缺口同步；游标只在快照成功应用后推进。活动任务每秒只读核对状态，空闲时每5秒核对；状态读取5秒超时后重试，避免事件漏收或请求失败后停在“处理中”。项目切换/卸载清理核对与连接，执行选择 URL、取消与迟到请求保护。浏览器 sessionStorage 保存不确定响应的幂等键，重复批准仍由后端执行/批次唯一凭证保护。
 
 2026-10-07 的实际验收、失败修正与限制见 [Pipeline 验收记录](docs/pipeline-acceptance.md)，演示见 [五分钟操作稿](docs/pipeline-demo-script.md)。LIVE A/B 脚本及 A 浏览器实测共6次 DeepSeek 请求、9712 usage tokens，每例6个实际只读工具，均经过隔离验证、入库、查询与撤销。这些测试使用隔离数据和自动化批准，人工验收等待用户进行。[A/B报告](docs/evals/pipeline-live-20261007.json)、[LIVE浏览器报告](docs/evals/pipeline-live-browser-20261007.json) 与 [录屏](docs/demos/pipeline-live-browser-20261007.webm) 可核对。
 
@@ -75,7 +76,7 @@ M6.3 在当前版本的失败执行下，先阅读“Agent 有限修复循环”
 
 验证构建产物时，先停止 dev，再执行 `pnpm build`、`pnpm start`；另开终端执行 `pnpm preview`，仍打开 5173。start 运行后端 dist，preview 提供前端 dist 并代理 API；Vite preview 用于本地演示，不是公网部署。端口可分别用 APP_PORT、FLOWLENS_API_TARGET 和 `pnpm preview --port 5177` 调整。迁移/seed 可重复执行，不覆盖已有运行和会话。
 
-如需 LIVE，在仓库根目录从 [.env.example](.env.example) 创建被 Git 忽略的 `.env.local`，自行填写 `MODEL_API_KEY`，并设置 `MODEL_MODE=LIVE`、`FLOWLENS_LIVE_APPROVED=1` 与 `FLOWLENS_LIVE_MAX_REQUESTS`，随后重启服务。总请求上限可以是正整数；明确授权持续使用时可设为 `unlimited`，不再因累计超过 12 次停止对话。每轮仍限制 12 次模型请求、8 次工具调用和 120 秒，默认每次输出最多 2048 tokens。密钥仅由后端读取；旧诊断任务数据为 FIXTURE，本地修复使用 SYNTHETIC 合成输入。全局 LIVE 有限调用计数目前仅在进程内有效，重启会重置；M6.3 单个循环的轮次/请求数持久化，重启将活动循环标为中断，不自动继续。旧诊断的模型用量在 `model.completed.usage` 日志中记录，本地修复会话保存请求数与 usage，不将 token 数写成实际金额。
+如需 LIVE，在仓库根目录从 [.env.example](.env.example) 创建被 Git 忽略的 `.env.local`，自行填写 `MODEL_API_KEY`，并设置 `MODEL_MODE=LIVE`、`FLOWLENS_LIVE_APPROVED=1` 与 `FLOWLENS_LIVE_MAX_REQUESTS`，随后重启服务。总请求上限可以是正整数；明确授权持续使用时可设为 `unlimited`，不再因累计超过 12 次停止对话。旧 FIXTURE/订单链路的单轮上限保持原配置；车辆 Pipeline 诊断默认最多 100 次模型请求、200 次实际工具调用、900000 ms、连续 3 轮无新增观测及 262144 字节消息上下文。用 `FLOWLENS_PIPELINE_DIAG_MAX_REQUESTS`、`MAX_TOOL_CALLS`、`TIMEOUT_MS`、`MAX_STALL_ROUNDS`、`MAX_CONTEXT_BYTES`（后四项均加同一 `FLOWLENS_PIPELINE_DIAG_` 前缀）配置为正整数；每个新会话保存有效快照，旧记录未知上限不按新默认推断。重复观测按工具名/规范化参数/来源版本/实际输出识别，不因新 UUID 重置。达到上限明确停止，工具失败计入次数，默认每次输出最多 2048 tokens。密钥仅由后端读取；旧诊断任务数据为 FIXTURE，本地修复使用 SYNTHETIC 合成输入。全局 LIVE 有限调用计数目前仅在进程内有效，重启会重置；M6.3 单个循环的轮次/请求数持久化，重启将活动循环标为中断，不自动继续。旧诊断的模型用量在 `model.completed.usage` 日志中记录，本地修复会话保存请求数与 usage，不将 token 数写成实际金额。
 
 ## 检查与定位
 
@@ -91,6 +92,8 @@ pnpm check:pipeline:start       # build 后运行；隔离库 + MOCK 验证 star
 已配置并授权 LIVE 时，可运行 `pnpm eval:pipeline:live` 或 `pnpm eval:pipeline:live:browser`：**会实际调用付费模型**。前者在独立库以脚本测试批准验证 A/B；后者以浏览器点击验证 A 的完整操作并录屏。每次进程总上限为现有预算与8次取较小值，不改 `.env.local`。完整 SQL、工具与结果保存为报告；测试批准不能标成用户人工审批验收。普通 `pnpm test`、Playwright 与 `check:pipeline:start` 都使用 MOCK，不产生模型费用。
 
 `test:e2e` 使用本机 Chrome、独立临时 SQLite 和测试端口，不修改开发库。实际 M4 命令与环境证据见 [P0 验收报告](docs/p0-acceptance.md)；M3 已于 2026-10-01 获用户人工确认。服务端输出不含密钥、完整 Prompt 和工具正文的 JSON 结构化日志，可用 request_id、session_id、turn_id 关联问题；logs/、data/、.env.local 不纳入仓库。
+
+新的自主取证机制与两条真实工具路线见 [验收记录](docs/pipeline-agent-adaptive-acceptance.md)。普通测试使用受控网关/MOCK，不以此宣称 LIVE 推理质量；LIVE 评测默认共享上限 8，可通过 `FLOWLENS_PIPELINE_EVAL_LIVE_MAX_REQUESTS` 显式配置隔离评测上限，仍不得超过既有付费授权。
 
 ## 六问评测与 CI
 

@@ -1,0 +1,29 @@
+{
+  "status": "PASSED",
+  "mode": "offline deterministic gateway; actual ToolRegistry and SQLite",
+  "checked": [
+    {
+      "fixture": "A",
+      "repair_id": "365852c7-1f59-4652-afec-cd4c2941e93d",
+      "call_ids": [
+        "329937a0-50e3-48d0-803a-7916ce01ef63",
+        "56ade216-9231-486a-8809-51b6a4e72e9a"
+      ],
+      "next_request_contains_exact_actual_result": true,
+      "candidate_hash_valid": true,
+      "verified_committed_restored": true
+    },
+    {
+      "fixture": "B",
+      "repair_id": "f2375c14-d273-44a4-887d-2b3fca8a3226",
+      "call_ids": [
+        "90f98737-54a5-4327-89c3-405d3e97d1e8",
+        "ee6b4b74-986e-45bd-9cad-e3db2fb8dcca",
+        "72c50089-e748-46fe-9ecf-d5c16a5a8ee9"
+      ],
+      "next_request_contains_exact_actual_result": true,
+      "candidate_hash_valid": true,
+      "verified_committed_restored": true
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-08",
+  "timezone": "Asia/Shanghai",
+  "mode": "MOCK and deterministic test gateway; real tools and isolated SQLite",
+  "paid_live_requests": 0,
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm lint",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test",
+      "exit_code": 0,
+      "server": {
+        "files": 23,
+        "passed": 142
+      },
+      "web": {
+        "files": 13,
+        "passed": 39
+      }
+    },
+    {
+      "command": "pnpm build",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm test:e2e -- tests/e2e/pipeline.spec.ts tests/e2e/pipeline-diagnosis.spec.ts tests/e2e/pipeline-result.spec.ts tests/e2e/pipeline-sync.spec.ts tests/e2e/pipeline-presentation.spec.ts tests/e2e/pipeline-table.spec.ts",
+      "exit_code": 0,
+      "stats": {
+        "startTime": "2026-10-08T07:06:25.306Z",
+        "duration": 45316.981999999996,
+        "expected": 12,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "command": "pnpm check:pipeline:start",
+      "exit_code": 0,
+      "report": "build-start-report.json"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "trajectories": [
+    {
+      "fixture": "A",
+      "repair_id": "365852c7-1f59-4652-afec-cd4c2941e93d",
+      "requests": 3,
+      "tools": [
+        {
+          "request": 1,
+          "name": "get_sql",
+          "call_id": "329937a0-50e3-48d0-803a-7916ce01ef63",
+          "evidence_ids": [
+            "b36d393e-9422-438d-8c9b-ed0e6e1e3dcf"
+          ]
+        },
+        {
+          "request": 2,
+          "name": "get_schema",
+          "call_id": "56ade216-9231-486a-8809-51b6a4e72e9a",
+          "evidence_ids": [
+            "2c24ac12-99c8-48d6-9b58-37de684c3808"
+          ]
+        }
+      ],
+      "commit": "COMMITTED",
+      "restore": "RESTORED",
+      "raw": "feedback-trajectories.json"
+    },
+    {
+      "fixture": "B",
+      "repair_id": "f2375c14-d273-44a4-887d-2b3fca8a3226",
+      "requests": 3,
+      "tools": [
+        {
+          "request": 1,
+          "name": "get_output_preview",
+          "call_id": "90f98737-54a5-4327-89c3-405d3e97d1e8",
+          "evidence_ids": [
+            "7a1f034a-a3dd-4ff9-b7a6-8aad2d7e10b5"
+          ]
+        },
+        {
+          "request": 2,
+          "name": "get_sql",
+          "call_id": "ee6b4b74-986e-45bd-9cad-e3db2fb8dcca",
+          "evidence_ids": [
+            "187a9602-5b3d-4ee6-9c5f-322cd284997d"
+          ]
+        },
+        {
+          "request": 2,
+          "name": "get_task_contract",
+          "call_id": "72c50089-e748-46fe-9ecf-d5c16a5a8ee9",
+          "evidence_ids": [
+            "2592c26a-d0aa-4533-beb6-b95e23f661db"
+          ]
+        }
+      ],
+      "commit": "COMMITTED",
+      "restore": "RESTORED",
+      "raw": "feedback-trajectories.json"
+    }
+  ],
+  "limits": "Each session keeps a configuration snapshot; process paid LIVE reserve remains independent. No new LIVE quality claim.",
+  "baseline": "Existing uncommitted approvals/result-page/sync/database changes retained. No reset, commit, user database access or .env.local edits.",
+  "trace_verification": {
+    "status": "PASSED",
+    "report": "trace-verification.json",
+    "checks": [
+      "all announced call IDs have exactly one return in every later request",
+      "return body equals persisted actual tool.result",
+      "referenced evidence exists",
+      "candidate content hash matches",
+      "actual verified/committed/restored receipts"
+    ]
+  }
+}

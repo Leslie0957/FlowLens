@@ -12,7 +12,7 @@ afterEach(()=>{vi.useRealTimers();vi.restoreAllMocks();});
 
 it('progressively presents a validated live result, delays Diff, and does not replay on duplicate snapshots or verification status changes',async()=>{
  vi.useFakeTimers();const wrapper=mount(PipelineDiagnosis,{...options,props:{repair:base,busy:false,animate:true}});
- expect(wrapper.find('.pipeline-diagnosis-text').exists()).toBe(false);expect(wrapper.text()).toContain('正在读取');
+ expect(wrapper.find('.pipeline-diagnosis-text').exists()).toBe(false);expect(wrapper.text()).toContain('正在取证');
  await wrapper.setProps({repair:final});expect(wrapper.get('.pipeline-diagnosis-answer').attributes('aria-busy')).toBe('true');expect(wrapper.text()).not.toContain(diagnosis);expect(wrapper.find('.pipeline-diff').exists()).toBe(false);
  await vi.advanceTimersByTimeAsync(120);const prefix=wrapper.get('.pipeline-diagnosis-text').text().replace(/▍$/,'');expect(prefix.length).toBeGreaterThan(0);expect(prefix.length).toBeLessThan(diagnosis.length);expect(diagnosis.startsWith(prefix)).toBe(true);
  await wrapper.setProps({repair:{...final,status:'VERIFYING',model_requests:2}});expect(wrapper.get('.pipeline-diagnosis-text').text().replace(/▍$/,'')).toBe(prefix);
@@ -22,7 +22,7 @@ it('progressively presents a validated live result, delays Diff, and does not re
 it('restored history is immediate and a replacement diagnosis or failure never retains old text or progress',async()=>{
  vi.useFakeTimers();const wrapper=mount(PipelineDiagnosis,{...options,props:{repair:final,busy:false}});expect(wrapper.get('.pipeline-diagnosis-text').text()).toBe(diagnosis);expect(vi.getTimerCount()).toBe(0);
  const next={...base,id:'10000000-0000-4000-8000-000000000002'};await wrapper.setProps({repair:next,animate:true});expect(wrapper.text()).not.toContain(diagnosis);expect(wrapper.find('.pipeline-diff').exists()).toBe(false);
- await wrapper.setProps({repair:{...next,status:'FAILED',error_code:'REPAIR_EVIDENCE_INVALID'}});expect(wrapper.text()).toContain('未生成通过校验');expect(wrapper.text()).not.toContain('正在读取');expect(wrapper.find('.pipeline-diagnosis-text').exists()).toBe(false);wrapper.unmount();
+ await wrapper.setProps({repair:{...next,status:'FAILED',error_code:'REPAIR_EVIDENCE_INVALID'}});expect(wrapper.text()).toContain('未生成通过校验');expect(wrapper.text()).not.toContain('正在取证');expect(wrapper.find('.pipeline-diagnosis-text').exists()).toBe(false);wrapper.unmount();
 });
 
 it('unmount stops an unfinished presentation and historical reselection never replays it',async()=>{
@@ -48,4 +48,33 @@ it('stale or expired candidates retain their evidence but cannot be approved fro
  const approve=()=>wrapper.get('.pipeline-actions button').element as HTMLButtonElement;expect(approve().disabled).toBe(false);
  await wrapper.setProps({now:2000});expect(wrapper.text()).toContain('候选已过期');expect(approve().disabled).toBe(true);expect(wrapper.find('.pipeline-diff').exists()).toBe(true);
  await wrapper.setProps({now:1000,currentRevisionId:'30000000-0000-4000-8000-000000000003'});expect(wrapper.text()).toContain('当前 SQL 版本已变化');expect(approve().disabled).toBe(true);wrapper.unmount();
+});
+
+it('failed diagnoses show an explicit error and correction history instead of waiting for nonexistent tools; old records stay readable',async()=>{
+ const wrapper=mount(PipelineDiagnosis,{...options,props:{repair:{...base,status:'FAILED',error_code:'REPAIR_TOOLS_REQUIRED',error_message:'模型尚未完成工具取证，不能接受没有真实证据的诊断。',response_checks:[{request:1,code:'REPAIR_TOOLS_REQUIRED',message:'缺少 get_schema 工具取证'}]},busy:false}});
+ expect(wrapper.text()).toContain('模型尚未完成工具取证');expect(wrapper.text()).toContain('本次没有执行诊断工具');expect(wrapper.text()).not.toContain('等待模型发起');expect(wrapper.text()).toContain('第 1 次模型请求');expect(wrapper.text()).toContain('get_schema');
+ const old=pipelineRepairSchema.parse({...base,status:'FAILED',error_code:'INTERNAL_ERROR',error_message:undefined,response_checks:undefined});expect(old.error_message).toBeNull();expect(old.response_checks).toEqual([]);await wrapper.setProps({repair:old});expect(wrapper.text()).toContain('旧记录未保存具体校验原因');wrapper.unmount();
+});
+
+it('combined approval explains its write scope, and a verified SQL with failed commit shows failure without another repair approval',async()=>{
+ const wrapper=mount(PipelineDiagnosis,{...options,props:{repair:final,busy:false}});expect(wrapper.text()).toContain('一次批准同时授权');expect(wrapper.get('.pipeline-actions button').text()).toBe('批准修复并入库');await wrapper.get('.pipeline-actions button').trigger('click');expect(wrapper.emitted('decide')).toEqual([[id,'approve']]);
+ await wrapper.setProps({repair:{...final,status:'VERIFIED',verification_execution_id:id,commit_approval:{approved_at:'now',target_version:0,target_hash:hash,status:'FAILED',execution_id:id,operation_id:null,batch_id:null,error_code:'APPROVAL_TARGET_CHANGED',error_message:'批准后目标数据已变化，原授权停止；请重新预检并批准。'}}});expect(wrapper.text()).toContain('入库未完成');expect(wrapper.text()).toContain('APPROVAL_TARGET_CHANGED');expect(wrapper.find('.pipeline-badges .pipeline-status').classes()).toContain('danger');expect(wrapper.find('.pipeline-actions button').exists()).toBe(false);wrapper.unmount();
+});
+
+it('incremental traces retain repeated tools, failed calls and request numbers without a fixed checklist',async()=>{
+ const tool={id,name:'get_sql',status:'COMPLETED',args:{},result:{output:{sql:'SELECT 1'},evidence_ids:[]},error_code:null,request:1};
+ const wrapper=mount(PipelineDiagnosis,{...options,props:{repair:{...base,tools:[tool]},busy:false}});
+ expect(wrapper.text()).toContain('已完成 1 次调用');expect(wrapper.text()).toContain('第 1 次模型请求');expect(wrapper.get('.answer-progress').text()).not.toContain('取证已完成');
+ await wrapper.setProps({repair:{...base,tools:[tool,{...tool,id:'other',request:2,status:'FAILED',error_code:'INVALID_ARGUMENTS'}]}});
+ expect(wrapper.findAll('.pipeline-tools details')).toHaveLength(2);expect(wrapper.text()).toContain('第 2 次模型请求');expect(wrapper.text()).toContain('INVALID_ARGUMENTS');expect(wrapper.text()).toContain('已完成 1 次调用');
+ await wrapper.setProps({repair:{...base,status:'FAILED',error_code:'REPAIR_NO_PROGRESS',error_message:'连续多轮没有新增工具观测，诊断已停止。'}});
+ expect(wrapper.text()).toContain('没有新增工具观测');expect(wrapper.find('.pipeline-actions').exists()).toBe(false);expect(wrapper.text()).not.toContain('正在取证');wrapper.unmount();
+});
+
+it('initial failure is shown as persisted execution evidence and old records never inherit current budgets',async()=>{
+ const evidence={id,type:'INITIAL_FAILURE',source_id:id,source_version:hash,excerpt:'{"error_message":"actual SQLite failure"}'};
+ const wrapper=mount(PipelineDiagnosis,{global:{stubs:{...options.global.stubs,ElDialog:{props:['title','modelValue'],template:'<div v-if="modelValue"><h4>{{title}}</h4><slot/></div>'}}},props:{repair:{...base,status:'NO_CANDIDATE',diagnosis:'请补充外部任务意图 '+id,action:'MANUAL_REQUIRED',evidence:[evidence],evidence_ids:[id]},busy:false}});
+ expect(wrapper.text()).toContain('初始失败观测');expect(wrapper.text()).toContain('旧记录未保存诊断上限');expect(wrapper.text()).not.toContain('尚未取得真实证据');
+ await wrapper.get('.pipeline-evidence-links button').trigger('click');expect(wrapper.text()).toContain('持久化的失败执行（初始观测，未调用工具）');expect(wrapper.text()).toContain('actual SQLite failure');
+ await wrapper.setProps({repair:{...base,diagnosis_limits:{max_requests:7,max_tool_calls:9,timeout_ms:1000,max_stall_rounds:2,max_context_bytes:4000}}});expect(wrapper.text()).toContain('模型请求 7 次');expect(wrapper.text()).toContain('上下文 4000 字节');wrapper.unmount();
 });
