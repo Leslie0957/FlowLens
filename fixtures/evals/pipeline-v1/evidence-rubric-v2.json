@@ -1,0 +1,31 @@
+{
+  "version": "pipeline-evidence-v2",
+  "supersedes": "pipeline-evidence-v1 (case expected.evidence_groups)",
+  "case_answers_and_data_changed": false,
+  "meaning": "Minimum source coverage for a bounded conclusion, not proof of semantic sufficiency or correct diagnosis. No mandatory tool order or call count.",
+  "groups_by_stage": {
+    "query": [
+      ["get_sql"],
+      ["get_schema"],
+      ["INITIAL_FAILURE", "get_execution", "get_logs", "get_output_preview"]
+    ],
+    "validate": [
+      ["get_sql"],
+      ["get_schema", "get_task_contract"],
+      ["INITIAL_FAILURE", "get_execution", "get_logs", "get_output_preview"]
+    ],
+    "precheck": [["INITIAL_FAILURE", "get_execution", "get_logs", "get_output_preview"]]
+  },
+  "reasoning": {
+    "query": "SQL and actual Schema support the missing-column conclusion; actual failure must also be cited.",
+    "validate": "Failure plus SQL plus contract (also included in Schema) supports a bounded projection or predicate mismatch. An output preview is not always necessary.",
+    "precheck": "A cited BUSINESS_KEY_CONFLICT supports conservative manual handoff without new tools. Claims about exact target differences, provenance or prior validation require additional actual evidence. SQL_PATCH remains wrong for D07."
+  },
+  "human_review_requirements": [
+    "A legal ID only proves source ownership; evaluate whether its actual contents support each material claim.",
+    "Exact actual row counts or row values need matching output/log evidence; code inspection alone is insufficient for those claims.",
+    "Do not infer source emptiness, target provenance or correct overwrite direction from a generic validation/conflict error.",
+    "Assess root cause, bounded uncertainty, evidence sufficiency, action correctness and candidate correctness separately.",
+    "A missing optional tool is not a failure; an unsupported factual assertion is. Keep unreviewed semantics null."
+  ]
+}

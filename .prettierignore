@@ -3,6 +3,8 @@ node_modules/
 dist/
 coverage/
 docs/evals/
+docs/FlowLens自用面经.md
+docs/FlowLens项目技术文档_知识库.md
 docs/demos/
 logs/
 data/

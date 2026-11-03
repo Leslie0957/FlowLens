@@ -33,6 +33,12 @@ const scenarios = [
     description: '预检、批准入库、重复跳过，再查询与只撤销数据。',
     tag: '数据闭环',
   },
+  {
+    id: 'D07',
+    title: '目标数据冲突',
+    description: '独立目标库预置一条合成记录，真实执行后检查同键不同内容的冲突。',
+    tag: '诊断决策',
+  },
 ];
 const filtered = computed(() =>
   projects.value.filter((p) =>

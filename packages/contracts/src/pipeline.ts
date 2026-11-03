@@ -125,6 +125,8 @@ export const pipelineRepairSchema = z.object({
   status: z.string(),
   provider_mode: z.enum(['MOCK', 'LIVE']),
   model: z.string(),
+  prompt_version: z.string().optional(),
+  prompt_sha256: hash.optional(),
   created_at: z.string(),
   expires_at: z.string().nullable(),
   tools: z.array(pipelineToolSchema),

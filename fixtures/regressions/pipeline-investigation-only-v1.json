@@ -1,0 +1,23 @@
+{
+  "version": "pipeline-investigation-only-v1",
+  "origin": {
+    "kind": "recorded LIVE response replay; not a new model evaluation",
+    "case": "H02",
+    "report": "logs/pipeline/controlled/live-52Ldz0/report.json",
+    "report_sha256": "2fc286e94d8db4ff4b02f2c15066111487b18108e231769654d04b9b2f2017e1",
+    "model": "deepseek-flash",
+    "normalization": "Only the original execution-specific evidence UUID is replaced with {{INITIAL_FAILURE_EVIDENCE_ID}}; response wording and native-call absence are preserved."
+  },
+  "responses": [
+    {
+      "text": "{\"investigation\":{\"question\":\"输出校验失败的具体原因是什么？SQL 输出与契约要求的哪一项不符？\",\"reason\":\"当前仅有 validate 阶段的 OUTPUT_VALIDATION_FAILED 泛化错误码，缺少 SQL 内容、输出要求与校验结论。先读取实际输出字段、行数据与独立校验结果，能最直接定位不符项。\",\"evidence_ids\":[\"{{INITIAL_FAILURE_EVIDENCE_ID}}\"]}}",
+      "finishReason": "stop",
+      "calls": []
+    },
+    {
+      "text": "{\"investigation\":{\"question\":\"输出校验失败的具体原因是什么？SQL 输出与契约要求的哪一项不符？\",\"reason\":\"目前只有 validate 阶段的泛化错误码，缺少实际输出内容与校验结论。先读取实际输出字段、行数据及独立校验结果，可最直接定位不符项；尚未请求任何工具或读取任何结果。\",\"evidence_ids\":[\"{{INITIAL_FAILURE_EVIDENCE_ID}}\"]}}",
+      "finishReason": "stop",
+      "calls": []
+    }
+  ]
+}

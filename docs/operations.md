@@ -58,6 +58,8 @@ LIVE 会实际请求付费模型，页面展示实际来源。仅在明确接受
 
 ## 测试与评测
 
+当前 Pipeline 的结构化案例、独立候选校验和评分边界见[Agent 评估说明](pipeline-agent-evaluation.md)，新受控 LIVE 入口与预算见[执行器说明](pipeline-controlled-evaluation.md)。保留集必须显式选定案例并单独授权，默认不执行。已有[首次保留集结果](pipeline-holdout-first-live-result.md)及[修复后开发集回归](pipeline-protocol-recovery-live-regression.md)，不要把后文早期 P0/M5 评测或 MOCK 结果当作当前 Agent 准确率。
+
 Playwright 依赖通过 `pnpm exec playwright install chrome ffmpeg` 安装；E2E、`check:pipeline:start`、P0 / M5 MOCK 评测使用独立数据库和端口，保留开发库。完整离线检查命令如下：
 
 ```powershell

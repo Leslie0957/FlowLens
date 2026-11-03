@@ -1,0 +1,89 @@
+{
+  "recorded_at": "2026-10-29",
+  "scope": "Pipeline phase 1 evaluation infrastructure; no production implementation or Prompt changes",
+  "live_executed": false,
+  "diagnosis_accuracy": null,
+  "human_semantic_reviews_completed": 0,
+  "dataset": {
+    "directory": "fixtures/evals/pipeline-v1",
+    "dev_agent_cases": 7,
+    "holdout_agent_cases": 3,
+    "candidate_only_probes": 1,
+    "holdout_policy": "MOCK infrastructure verification only; not blind LIVE validation or an estimate of generalization accuracy"
+  },
+  "prompt_sha256": "be6d5b00abeb9c8dc1212caf3132df595293eb02dd289388f89c047cc228268e",
+  "verification": {
+    "targeted_regression": {
+      "command": "pnpm --filter @flowlens/server exec vitest run test/pipeline-eval.test.ts test/pipeline.test.ts test/pipeline-adaptive.test.ts test/pipeline-mcp.test.ts test/pipeline-incremental.test.ts test/pipeline-logs.test.ts --silent --reporter=default --reporter=json --outputFile=../../logs/pipeline/effect/phase1-regression-tests.json",
+      "passed": 58,
+      "failed": 0,
+      "new_evaluator_tests": 4,
+      "raw_report": "logs/pipeline/effect/phase1-regression-tests.json",
+      "raw_report_sha256": "6a0005e7bd6dbd94520563c94a90cd909a67204c149a7862c540c6c656716d10"
+    },
+    "lint": { "command": "pnpm --filter @flowlens/server lint", "exit_code": 0 },
+    "syntax_checks": {
+      "command_template": "node --check <script>",
+      "scripts": ["scripts/pipeline-eval-core.mjs", "scripts/eval-pipeline.mjs", "scripts/review-pipeline-eval.mjs"],
+      "all_exit_codes": 0
+    },
+    "review_cli": {
+      "report": "logs/pipeline/effect/builtin-hhdWau/report.json",
+      "exit_code": 0,
+      "pending": 7,
+      "reviewed": 0
+    }
+  },
+  "controlled_mock": {
+    "execution": "runEvaluation({split:'all', policy:'controlled'}) inside the real-MCP integration test",
+    "raw_report": "logs/pipeline/effect/controlled-DQWNqH/report.json",
+    "raw_report_sha256": "d710fed4943138217be0f8be4278eec3eb745145b9a6e316f4d22a401f8fb1ea",
+    "real_failed_entries": 10,
+    "mechanical_checks_passed": 10,
+    "candidates": 9,
+    "fixed_candidates_passed": 9,
+    "holdout_candidates_passed": 9,
+    "manual_required_cases": ["D07"],
+    "target_mutations": 0,
+    "note": "Scripted protocol control, not a measure of current Agent reasoning or LIVE accuracy"
+  },
+  "builtin_mock": {
+    "command": "pnpm --filter @flowlens/server exec tsx ../../scripts/eval-pipeline.mjs --mock --split=dev",
+    "exit_code": 1,
+    "raw_report": "logs/pipeline/effect/builtin-hhdWau/report.json",
+    "raw_report_sha256": "dbee1403e065e19461d3d78c513e0d36c30b7fab8f2705d3123731a1de0f5823",
+    "real_failed_entries": 7,
+    "mechanical_checks_passed": 2,
+    "citations_legal": 7,
+    "allowed_actions": 6,
+    "fixed_candidates_passed": 7,
+    "holdout_candidates_passed": 7,
+    "platform_verifications_passed": 6,
+    "failures": {
+      "D03": ["MISSING_REQUIRED_SOURCES"],
+      "D04": ["MISSING_REQUIRED_SOURCES"],
+      "D05": ["MISSING_REQUIRED_SOURCES"],
+      "D06": ["MISSING_REQUIRED_SOURCES"],
+      "D07": ["WRONG_ACTION", "MISSING_REQUIRED_SOURCES", "PLATFORM_VERIFICATION_FAILED"]
+    },
+    "first_preserved_baseline": {
+      "raw_report": "logs/pipeline/effect/builtin-cxIE1U/report.json",
+      "raw_report_sha256": "5db9d015b20e40e861642fbbe4b63161ae7296abb0cbdc70aaf9f4d64100e2fa"
+    },
+    "interpretation": "No root-cause accuracy inferred. Source coverage is a predefined rubric, not automatic semantic sufficiency. D07 source SQL passes but target precheck still rejects it. Changing Prompt cannot alter this scripted built-in MOCK policy."
+  },
+  "generalization_probe": {
+    "id": "G01",
+    "real_fixed_entry": "PRECHECK_PASSED",
+    "fixed_passed": true,
+    "holdout_passed": false,
+    "agent_called": false,
+    "counted_in_diagnosis": false
+  },
+  "unresolved": [
+    "LIVE reliability and root-cause semantic review remain unmeasured",
+    "Per-tool duration is unavailable in existing persistent records and is reported as null",
+    "No real result-mapping stage; source-empty attribution and target provenance require separate fixture/observation design",
+    "Raw local artifacts are retained in ignored logs and temporary database directories; this summary is not a substitute for them"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "date_local": "2026-10-30",
+  "scope": "Explicit first/effect evaluation budget profiles; offline implementation only",
+  "new_live_api_requests": 0,
+  "new_holdout_agent_runs": 0,
+  "default_profile": "first",
+  "effect_profile": {
+    "requests_per_case": 20,
+    "requests_total": 80,
+    "output_tokens": 2048,
+    "tools_per_case": 30,
+    "request_ms": 60000,
+    "case_ms": 300000,
+    "run_ms": 1200000,
+    "max_stall_rounds": 3
+  },
+  "unchanged": ["production Agent", "production Prompt", "MCP tools", "SQL policy", "model", "frozen case labels/data", "evidence-rubric-v2", "historical reports", "no automatic HTTP retry"],
+  "offline_verification": {
+    "command": "pnpm --filter @flowlens/server exec vitest run test/pipeline-controlled.test.ts --silent --reporter=default --reporter=json --outputFile=../../logs/pipeline/effect/budget-profile-tests.json",
+    "passed": 17,
+    "failed": 0,
+    "raw_report": "logs/pipeline/effect/budget-profile-tests.json",
+    "raw_report_sha256": "71f7ff71ff75762803205c0bac509e043dc92e870dbcf173872082c0637418c3",
+    "lint_exit_code": 0,
+    "first_six_observations": "MODEL_REQUEST_LIMIT at 6 requests",
+    "effect_same_observations": "Seventh request produces a valid MANUAL_REQUIRED final answer under identical Prompt and scoring",
+    "effect_repeated_observations": "REPAIR_NO_PROGRESS at 4 requests, before the 20-request ceiling",
+    "public_plan_command": "pnpm --filter @flowlens/server exec tsx ../../scripts/eval-pipeline-controlled.mjs --profile=effect --cases=D07",
+    "public_plan_mode": "PLAN_ONLY",
+    "limitation": "Deterministic protocol controls; not a prediction or measurement of LIVE diagnosis ability"
+  },
+  "next_live_proposal_not_executed": {
+    "cases": ["D07"],
+    "attempts": 1,
+    "profile": "effect",
+    "actual_case_request_ceiling": 20,
+    "output_token_config_ceiling": 40960,
+    "monetary_estimate": null,
+    "approval_id_proposed": "d07-effect-live-001",
+    "authorization_status": "Waiting for explicit authorization for this new paid trial"
+  },
+  "comparison_limits": [
+    "Profiles change multiple resource ceilings, so a changed outcome cannot be causally attributed solely to request count",
+    "Model stochasticity remains; one rerun is not a reliable success rate",
+    "Final-field-derived errors on incomplete results are unchanged to avoid silently changing scoring during the budget comparison"
+  ]
+}

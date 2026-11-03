@@ -1,0 +1,57 @@
+{
+  "version": "pipeline-robustness-v1",
+  "contract": "speed_mps < 1; end_us-start_us >= 3000000; exact dat/st/et/car_series multiset",
+  "speed_classes": [
+    [0, true],
+    [0.2, true],
+    [0.8, true],
+    [0.9994, true],
+    [0.9995, true],
+    [0.9996, true],
+    [0.9999, true],
+    [0.999999, true],
+    [1, false],
+    [1.000001, false],
+    [2, false],
+    [8, false]
+  ],
+  "duration_classes": [
+    [0, false],
+    [1, false],
+    [2999999, false],
+    [3000000, true],
+    [3000001, true],
+    [9000000, true],
+    [9000001, true]
+  ],
+  "mini_sets": [
+    {
+      "id": "zero-results",
+      "events": [
+        [1, 3000000, false],
+        [2, 9000001, false],
+        [0.2, 2999999, false]
+      ]
+    },
+    {
+      "id": "one-result",
+      "events": [
+        [0.999999, 3000000, true],
+        [1, 3000001, false],
+        [0, 2999999, false]
+      ]
+    },
+    {
+      "id": "shared-sample",
+      "events": [
+        [0.2, 3000000, true],
+        [0.8, 3000001, true],
+        [0, 9000001, true],
+        [0.9999, 4000000, true],
+        [0.1, 9000000, true],
+        [1, 9000001, false]
+      ]
+    }
+  ],
+  "note": "Membership labels are reviewed equivalence classes; a separate integer-duration reference recomputes them. No SQL-string-specific rejection. Finite samples are not a semantic proof."
+}

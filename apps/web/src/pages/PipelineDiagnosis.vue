@@ -150,6 +150,10 @@ const approvalReason = computed(() =>
     </div>
     <details class="pipeline-technical">
       <summary>本次诊断上限</summary>
+      <p v-if="repair.prompt_version">
+        诊断策略：{{ repair.prompt_version }} · <span class="mono">{{ repair.prompt_sha256 }}</span>
+      </p>
+      <p v-else>此历史记录未保存诊断策略版本，不按当前版本推断。</p>
       <p v-if="repair.diagnosis_limits">
         模型请求 {{ repair.diagnosis_limits.max_requests }} 次 · 工具调用
         {{ repair.diagnosis_limits.max_tool_calls }} 次 · 总时限

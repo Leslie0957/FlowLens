@@ -1,6 +1,6 @@
 # FlowLens 文档导航
 
-当前展示主线为车辆 Pipeline：真实 SQL 执行 → MCP 多轮取证 → 修复候选 → 人工批准 → 校验入库 → 查询 / 数据撤销。更新时间：2026-10-08。
+当前展示主线为车辆 Pipeline：真实 SQL 执行 → MCP 多轮取证 → 修复候选或人工交接 → 人工批准 → 校验入库 → 查询 / 数据撤销。更新时间：2026-11-03。
 
 ## 先看这些
 
@@ -14,6 +14,11 @@
 | [工程问题与面试素材](engineering-cases.md) | 实际失败、定位、取舍与回归依据。                  |
 
 ## 当前车辆链路的实现与证据
+
+- [Agent 评估体系](pipeline-agent-evaluation.md)：10 个真实故障案例、独立参考规则和候选 SQL 验证。
+- [受控 LIVE 执行器](pipeline-controlled-evaluation.md)：显式案例、预算、隔离、停止及版本用量追溯。
+- [首次保留集 LIVE](pipeline-holdout-first-live-result.md)：H01/H03 自动检查通过，H02 协议失败。
+- [协议失败回放与修复](pipeline-investigation-recovery.md) · [修复后开发集 LIVE 回归](pipeline-protocol-recovery-live-regression.md)：真实失败、定向反馈、离线验证及本轮未触发纠错分支的边界。
 
 - [流水线初期验收](pipeline-acceptance.md)：历史 LIVE 样本与当时的流程。
 - [自主取证验收](pipeline-agent-adaptive-acceptance.md)：按工具反馈选择后续读取。

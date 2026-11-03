@@ -57,6 +57,31 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+it('shows the saved Prompt version for new diagnoses without relabelling legacy records', () => {
+  const wrapper = mount(PipelineDiagnosis, {
+    ...options,
+    props: {
+      repair: pipelineRepairSchema.parse({
+        ...base,
+        prompt_version: 'grounded-actions-v1',
+        prompt_sha256: hash,
+      }),
+      busy: false,
+      animate: false,
+    },
+  });
+  expect(wrapper.text()).toContain('诊断策略：grounded-actions-v1');
+  expect(wrapper.text()).toContain(hash);
+  wrapper.unmount();
+  const legacy = mount(PipelineDiagnosis, {
+    ...options,
+    props: { repair: base, busy: false, animate: false },
+  });
+  expect(legacy.text()).toContain('此历史记录未保存诊断策略版本');
+  expect(legacy.text()).not.toContain('诊断策略：grounded-actions-v1');
+  legacy.unmount();
+});
+
 it('renders actual MCP page arguments, results and cited read range after persisted history is reloaded', async () => {
   const repair = pipelineRepairSchema.parse({
     ...final,

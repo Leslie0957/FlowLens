@@ -1,0 +1,88 @@
+{
+  "recorded_at": "2026-10-29",
+  "scope": "Candidate robustness and controlled LIVE executor implementation, offline verification only",
+  "real_model_api_requests": 0,
+  "holdout_agent_runs": 0,
+  "human_semantic_reviews": 0,
+  "diagnosis_accuracy": null,
+  "production_agent_prompt_mcp_sql_policy_modified": false,
+  "historical_reports_modified": false,
+  "frozen_sha256": {
+    "fixtures/evals/pipeline-v1/dev.json": "620d2d5ec7c6fe495929beccba2476c517c4d05d4da934a53003b2b65a2ae1fd",
+    "fixtures/evals/pipeline-v1/holdout.json": "0c72c3353f3aa2b8bdd0a57f57f03ad60a68d469cfa092c9e543010397a4b92d",
+    "fixtures/evals/pipeline-v1/data.json": "c10d87a9a213bffc720abd06d65882e1a4ff43b768601a5b9e9040bc4a73aec8"
+  },
+  "robustness": {
+    "version": "pipeline-robustness-v1",
+    "datasets": [
+      {"id":"boundary-grid", "source_rows":84, "expected_rows":32},
+      {"id":"reordered-grid", "source_rows":84, "expected_rows":32},
+      {"id":"zero-results", "source_rows":3, "expected_rows":0},
+      {"id":"one-result", "source_rows":3, "expected_rows":1},
+      {"id":"shared-sample", "source_rows":6, "expected_rows":5}
+    ],
+    "raw_report": "logs/pipeline/robustness/offline-uignpt/report.json",
+    "raw_report_sha256": "91c6eac2e9667be5544135d3db1e0c66862926192fbab85a8d24eb6e3b06ff5f",
+    "command": "pnpm --filter @flowlens/server exec tsx ../../scripts/eval-pipeline-robustness.mjs",
+    "correct_or_equivalent_candidates": 2,
+    "incorrect_candidates": 9,
+    "expectations_matched": 11,
+    "additional_old_blind_spot_confirmed": {
+      "predicate": "AND end_us - start_us < 9000000",
+      "fixed_passed": true,
+      "holdout_passed": true,
+      "robustness_passed": false
+    },
+    "limitation": "Finite independent equivalence-class samples, not proof of general SQL semantic correctness"
+  },
+  "offline_tests": {
+    "command": "pnpm --filter @flowlens/server exec vitest run test/pipeline-controlled.test.ts test/pipeline-eval.test.ts test/pipeline-eval-review.test.ts -t '^(?!.*all ten cases)' --silent --reporter=default --reporter=json --outputFile=../../logs/pipeline/effect/phase3-final-offline-tests.json",
+    "new_tests": 14,
+    "total_passed": 22,
+    "failed": 0,
+    "skipped": 1,
+    "skipped_reason": "Old all-ten-case Agent integration would execute holdout Agent cases",
+    "raw_report": "logs/pipeline/effect/phase3-final-offline-tests.json",
+    "raw_report_sha256": "34dccc165079650604d601b232274e3e6b88979e56bbf6c279b23f49f2984128",
+    "lint_exit_code": 0,
+    "format_check_exit_code": 0,
+    "coverage": ["explicit new authorization and one-use approval", "case ID rejection", "per-case/global budgets", "Agent step bound", "HTTP/body/timeout handling", "partial SSE retention", "external cancellation", "no holdout Agent", "separate databases and configured-DB sentinel", "source/version snapshots", "production request-body parity and explicit 1024 output cap", "robust SQL checks"]
+  },
+  "public_cli_simulation": {
+    "command": "pnpm --filter @flowlens/server exec tsx ../../scripts/eval-pipeline-controlled.mjs --simulate '--cases=D01,D02,D04,D07'",
+    "mode": "SIMULATED_LIVE",
+    "status": "CHECKS_PASSED",
+    "raw_report": "logs/pipeline/controlled/simulation-jHutG4/report.json",
+    "raw_report_sha256": "296d6928d8680a579884ffbc1d2eadb921766f5470f521f0b5d6e5c9abd6a639",
+    "simulated_requests": 16,
+    "actual_live_api_attempts": 0,
+    "per_case_simulated_requests": {"D01":4,"D02":4,"D04":4,"D07":4},
+    "sql_candidates_pass_fixed_holdout_robustness": ["D01", "D02", "D04"],
+    "manual_handoff_without_candidate": ["D07"],
+    "all_target_data_unchanged": true,
+    "not_a_live_accuracy_or_cost_measurement": true,
+    "first_cli_attempt": "Unquoted comma list was rewritten by PowerShell and rejected before execution; quoted command passed. No API call occurred."
+  },
+  "first_live_limits_not_executed": {
+    "case_ids": ["D01", "D02", "D04", "D07"],
+    "requests_per_case": 6,
+    "requests_total": 24,
+    "output_tokens": 1024,
+    "tools_per_case": 8,
+    "request_ms": 30000,
+    "case_ms": 90000,
+    "run_ms": 360000,
+    "network_retries": 0,
+    "holdout_agent_runs": 0,
+    "output_token_config_ceiling": 24576,
+    "monetary_estimate": null,
+    "authorization": "Not granted this turn; requires explicit human approval, --execute-live, FLOWLENS_EVAL_LIVE_APPROVED=1 and a new one-use approval ID"
+  },
+  "remaining_limits": [
+    "Real model behavior, online authentication and provider availability remain untested",
+    "Requested aliases may not identify immutable provider revisions; absent information remains unknown",
+    "Unknown stream usage may be billed; reported usage is only a subtotal, not a monetary cap",
+    "Raw trace retention under hard process kill or disk failure is best-effort",
+    "Cleanup may finish after execution cancellation; no new model dispatch is allowed after deadline"
+  ]
+}

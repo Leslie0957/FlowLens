@@ -14,6 +14,8 @@ jobs:
       MODEL_API_KEY: ''
       FLOWLENS_LIVE_APPROVED: '0'
       FLOWLENS_LIVE_MAX_REQUESTS: '0'
+      FLOWLENS_EVAL_LIVE_APPROVED: '0'
+      FLOWLENS_EVAL_HOLDOUT_APPROVED: '0'
     steps:
       - uses: actions/checkout@v7
         with:

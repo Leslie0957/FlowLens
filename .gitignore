@@ -21,6 +21,8 @@ logs/
 *.sqlite3-*
 
 # Local historical and internship reference material (not project deliverables)
+docs/FlowLens自用面经.md
+docs/FlowLens项目技术文档_知识库.md
 docs/AI_Pipeline_Ops_Agent_项目展示计划.md
 docs/adr/组会分享/
 docs/adr/e2e_adverse_driving_behavior_*.md

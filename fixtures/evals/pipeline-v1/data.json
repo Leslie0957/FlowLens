@@ -1,0 +1,57 @@
+{
+  "version": "pipeline-reference-data-v1",
+  "schema": ["event_id", "dat", "start_us", "end_us", "speed_mps", "car_series"],
+  "fixed": {
+    "expected_ids": [1, 2, 6, 8],
+    "rows": [
+      [1, "synthetic_segment_01", 1700000000000000, 1700000004000000, 0.2, "DEMO_ALPHA"],
+      [2, "synthetic_segment_02", 1700000010000000, 1700000013000000, 0.8, "DEMO_BETA"],
+      [3, "synthetic_segment_03", 1700000020000000, 1700000026000000, 1, "DEMO_ALPHA"],
+      [4, "synthetic_segment_04", 1700000030000000, 1700000035000000, 8, "DEMO_BETA"],
+      [5, "synthetic_segment_05", 1700000040000000, 1700000042999999, 0.1, "DEMO_ALPHA"],
+      [6, "synthetic_segment_06", 1700000050000000, 1700000057000000, 0, "DEMO_BETA"],
+      [7, "synthetic_segment_07", 1700000060000000, 1700000061000000, 0.9, "DEMO_ALPHA"],
+      [8, "synthetic_segment_08", 1700000070000000, 1700000073000001, 0.99, "DEMO_BETA"],
+      [9, "synthetic_segment_09", 1700000080000000, 1700000088000000, 2, "DEMO_ALPHA"],
+      [10, "synthetic_segment_10", 1700000090000000, 1700000090000000, 0.4, "DEMO_BETA"]
+    ]
+  },
+  "holdout": {
+    "policy": "仅在诊断完成后由评估器读取；不作为工具数据或模型输入。",
+    "expected_ids": [101, 104, 108, 110],
+    "rows": [
+      [101, "holdout_a", 1800000000000000, 1800000003000000, 0.999, "SERIES_X"],
+      [102, "holdout_b", 1800000010000000, 1800000016000000, 1, "SERIES_Y"],
+      [103, "holdout_c", 1800000020000000, 1800000022999999, 0.2, "SERIES_X"],
+      [104, "holdout_d", 1800000030000000, 1800000038000001, 0, "SERIES_Z"],
+      [105, "holdout_e", 1800000040000000, 1800000045000000, 8, "SERIES_X"],
+      [106, "holdout_f", 1800000050000000, 1800000050000000, 0.5, "SERIES_Y"],
+      [107, "holdout_g", 1800000060000000, 1800000066000000, 1.001, "SERIES_Z"],
+      [108, "holdout_h", 1800000070000000, 1800000073000001, 0.2, "SERIES_X"],
+      [109, "holdout_i", 1800000080000000, 1800000082999999, 0.9999, "SERIES_Y"],
+      [110, "holdout_j", 1800000090000000, 1800000094000000, 0.999, "SERIES_Z"]
+    ]
+  },
+  "generalization_probe": {
+    "id": "G01",
+    "category": "candidate_validation_only",
+    "name": "按固定事件 ID 硬编码的候选",
+    "sql": "SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE event_id = 1 OR event_id = 2 OR event_id = 6 OR event_id = 8;",
+    "expected": { "fixed_passed": true, "holdout_passed": false },
+    "diagnosis_entry": "固定数据通过，不调用 Agent，不计入诊断准确率"
+  },
+  "unsupported": [
+    {
+      "name": "结果处理字段映射错误",
+      "reason": "当前不存在对应处理配置或阶段；不能伪造日志。需要业务实现及受限配置观测。"
+    },
+    {
+      "name": "确认目标冲突的历史根因",
+      "reason": "现有 MCP 无具体目标行及来源查询；D07 只能确认冲突并保守交接。"
+    },
+    {
+      "name": "真实源字段为空的完整归因",
+      "reason": "需要隔离输入夹具和按需源行观测设计；本轮 D04 仅复现 SQL 表达式为空，不能冒称源为空。"
+    }
+  ]
+}

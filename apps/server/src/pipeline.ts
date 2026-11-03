@@ -224,8 +224,24 @@ export class PipelineService {
       rid = randomUUID();
     mkdirSync(this.path(id, ''));
     createSource(this.path(id, 'source.sqlite'));
-    createTarget(this.path(id, 'target.sqlite'));
-    const inputHash = sha(JSON.stringify(readSource(this.path(id, 'source.sqlite')).rows));
+    const source = readSource(this.path(id, 'source.sqlite'));
+    const initialRows = [];
+    if (templateId === 'D07') {
+      const event = source.rows.find(
+        (r) => Number(r.speed_mps) < 1 && Number(r.end_us) - Number(r.start_us) >= 3000000,
+      );
+      if (!event) throw new LocalError('DEMO_SOURCE_SEED_MISSING');
+      initialRows.push({
+        task_id: id,
+        dat: event.dat!,
+        st: event.start_us!,
+        et: event.end_us!,
+        car_series: 'EXISTING_DIFFERENT_SERIES',
+        execution_id: randomUUID(),
+      });
+    }
+    createTarget(this.path(id, 'target.sqlite'), initialRows);
+    const inputHash = sha(JSON.stringify(source.rows));
     const project = {
       id,
       name: template.name,

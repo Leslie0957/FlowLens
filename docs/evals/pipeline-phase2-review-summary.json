@@ -1,0 +1,82 @@
+{
+  "recorded_at": "2026-10-29",
+  "scope": "Scoring fairness review and LIVE design only; no paid API calls",
+  "live_requests": 0,
+  "live_implementation_status": "NOT_IMPLEMENTED_WAITING_FOR_CONFIRMATION",
+  "production_modules_modified": false,
+  "frozen_case_answers_and_data_modified": false,
+  "scoring_version": "pipeline-evidence-v2",
+  "changes": [
+    "Minimum fact-source coverage replaces mandatory output-preview calls; semantic sufficiency and diagnosis remain separately unreviewed",
+    "D07 SQL_PATCH remains wrong; platform conflict rejection and observed data preservation are recorded independently",
+    "Per-request gateway errors and partial request journals persist",
+    "Partial human review cannot be presented as whole-run LIVE accuracy",
+    "PLAN_ONLY explicitly displays active and legacy evidence rules"
+  ],
+  "frozen_sha256": {
+    "fixtures/evals/pipeline-v1/dev.json": "620d2d5ec7c6fe495929beccba2476c517c4d05d4da934a53003b2b65a2ae1fd",
+    "fixtures/evals/pipeline-v1/holdout.json": "0c72c3353f3aa2b8bdd0a57f57f03ad60a68d469cfa092c9e543010397a4b92d",
+    "fixtures/evals/pipeline-v1/data.json": "c10d87a9a213bffc720abd06d65882e1a4ff43b768601a5b9e9040bc4a73aec8"
+  },
+  "verification": {
+    "test_report": "logs/pipeline/effect/phase2-final-tests.json",
+    "test_report_sha256": "93b6fc82daddeb2c6b06389b0476ad1129a83ffceded655aab3f7169e7ff456f",
+    "passed": 8,
+    "failed": 0,
+    "skipped": 1,
+    "skip_reason": "Old all-ten Agent integration test intentionally excluded to avoid rerunning holdout Agent cases",
+    "lint_exit_code": 0,
+    "format_check_exit_code": 0,
+    "core_and_review_syntax_checks_exit_code": 0,
+    "live_cli": "Still rejects LIVE execution even with an approval-shaped environment"
+  },
+  "development_builtin_mock": {
+    "raw_report": "logs/pipeline/effect/builtin-KMuRUM/report.json",
+    "raw_report_sha256": "eefda6b6f0195d3355aa8ecbb9668ef73fcf02f999362a5f93a9ff42b460a029",
+    "mechanical_checks_passed": 6,
+    "agent_cases": 7,
+    "legal_citations": 7,
+    "minimum_source_coverage": 7,
+    "actions_matching_reference": 6,
+    "diagnosis_accuracy": null,
+    "human_reviewed": 0,
+    "D07": {
+      "agent_action_allowed": false,
+      "candidate_error_code": "BUSINESS_KEY_CONFLICT",
+      "platform_business_conflict_blocked": true,
+      "observed_data_preserved": true,
+      "failures": ["WRONG_ACTION", "CANDIDATE_REJECTED_BY_PLATFORM"]
+    },
+    "interpretation": "The change from historical v1 2/7 is a rubric change, not model improvement or root-cause accuracy. Historical v1 artifacts were not overwritten."
+  },
+  "independence_audit": {
+    "exact_duplicate_case_sql": 0,
+    "near_duplicate_families": ["D01/H01 missing column", "D05/H02 speed predicate", "D06/H03 duration predicate"],
+    "normal_mock_requests_marker_scanned": 22,
+    "exact_cause_label_or_holdout_a_markers_in_non_assistant_messages": 0,
+    "marker_scan_limitation": "Supplementary check, not a proof of all leakage absence; source dataflow was also inspected. Public contract and production validation counts remain legitimate visible tool signals.",
+    "nine_sql_faults_fail_both_datasets": true,
+    "G01_fixed_passed": true,
+    "G01_holdout_passed": false,
+    "known_blind_spots_pass_both": ["speed_mps < 0.9995", "additional LIMIT 4"],
+    "holdout_agent_called_this_phase": false,
+    "prompt_tuning_this_phase": false
+  },
+  "proposed_first_live_run_not_authorized": {
+    "case_ids": ["D01", "D02", "D04", "D07"],
+    "attempts_per_case": 1,
+    "max_requests_per_case": 6,
+    "max_requests_total": 24,
+    "max_output_tokens_per_request": 1024,
+    "max_tools_per_case": 8,
+    "request_timeout_ms": 30000,
+    "case_timeout_ms": 90000,
+    "run_timeout_ms": 360000,
+    "message_context_bytes": 32768,
+    "serialized_request_body_bytes": 65536,
+    "automatic_retries": 0,
+    "holdout_cases": [],
+    "monetary_cap": null,
+    "note": "Finite request/output limits are not an exact total monetary cap. Actual model revision and incomplete usage may be unavailable; never fabricate them."
+  }
+}

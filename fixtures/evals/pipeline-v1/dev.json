@@ -1,0 +1,128 @@
+{
+  "version": "pipeline-dev-v1",
+  "split": "dev",
+  "cases": [
+    {
+      "id": "D01",
+      "name": "A：速度列不存在",
+      "origin": "Pipeline A",
+      "sql": "SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_kph < 1 AND end_us - start_us >= 3000000;",
+      "expected": {
+        "stage": "query",
+        "code": "SQL_QUERY_FAILED",
+        "cause": "SQL 引用了不存在的 speed_kph；不得无证据更改单位或业务规则",
+        "actions": ["SQL_PATCH"],
+        "evidence_groups": [["get_sql"], ["get_schema"]]
+      }
+    },
+    {
+      "id": "D02",
+      "name": "B：车系输出别名错误",
+      "origin": "Pipeline B / todo 同症状场景",
+      "sql": "SELECT dat, start_us AS st, end_us AS et, car_series AS vehicle_type FROM raw_vehicle_events WHERE speed_mps < 1 AND end_us - start_us >= 3000000;",
+      "expected": {
+        "stage": "validate",
+        "code": "OUTPUT_VALIDATION_FAILED",
+        "cause": "源列存在，但 SQL 将 car_series 输出为 vehicle_type",
+        "actions": ["SQL_PATCH"],
+        "evidence_groups": [
+          ["get_sql"],
+          ["get_output_preview"],
+          ["get_schema", "get_task_contract"]
+        ]
+      }
+    },
+    {
+      "id": "D03",
+      "name": "遗漏车系输出字段",
+      "origin": "todo:77",
+      "sql": "SELECT dat, start_us AS st, end_us AS et FROM raw_vehicle_events WHERE speed_mps < 1 AND end_us - start_us >= 3000000;",
+      "expected": {
+        "stage": "validate",
+        "code": "OUTPUT_VALIDATION_FAILED",
+        "cause": "SQL 投影遗漏 car_series；不能当作源表缺列或输入为空",
+        "actions": ["SQL_PATCH"],
+        "evidence_groups": [
+          ["get_sql"],
+          ["get_output_preview"],
+          ["get_schema", "get_task_contract"]
+        ]
+      }
+    },
+    {
+      "id": "D04",
+      "name": "车系列被空字符串表达式覆盖",
+      "origin": "todo 同症状场景的 SQL 变体",
+      "sql": "SELECT dat, start_us AS st, end_us AS et, '' AS car_series FROM raw_vehicle_events WHERE speed_mps < 1 AND end_us - start_us >= 3000000;",
+      "expected": {
+        "stage": "validate",
+        "code": "OUTPUT_VALIDATION_FAILED",
+        "cause": "SQL 输出空字符串而非源 car_series；不能归因为真实源数据为空",
+        "actions": ["SQL_PATCH"],
+        "evidence_groups": [
+          ["get_sql"],
+          ["get_output_preview"],
+          ["get_schema", "get_task_contract"]
+        ]
+      }
+    },
+    {
+      "id": "D05",
+      "name": "D：速度筛选被放宽",
+      "origin": "Pipeline D",
+      "sql": "SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_mps < 20 AND end_us - start_us >= 3000000;",
+      "expected": {
+        "stage": "validate",
+        "code": "OUTPUT_VALIDATION_FAILED",
+        "cause": "速度条件不符合 <1 m/s 规则，SQL 成功但选入额外事件",
+        "actions": ["SQL_PATCH"],
+        "evidence_groups": [
+          ["get_sql"],
+          ["get_output_preview"],
+          ["get_schema", "get_task_contract"]
+        ]
+      }
+    },
+    {
+      "id": "D06",
+      "name": "时长边界误用严格大于",
+      "origin": "现有三秒边界 / todo:108",
+      "sql": "SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_mps < 1 AND end_us - start_us > 3000000;",
+      "expected": {
+        "stage": "validate",
+        "code": "OUTPUT_VALIDATION_FAILED",
+        "cause": ">3000000 排除了恰好三秒的合法事件，应满足 >=3000000",
+        "actions": ["SQL_PATCH"],
+        "evidence_groups": [
+          ["get_sql"],
+          ["get_output_preview"],
+          ["get_schema", "get_task_contract"]
+        ]
+      }
+    },
+    {
+      "id": "D07",
+      "name": "同键不同内容：原因不足，应人工处理",
+      "origin": "todo:76/85/87；复用真实预检冲突",
+      "setup": "target_conflict",
+      "sql": "SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_mps < 1 AND end_us - start_us >= 3000000;",
+      "expected": {
+        "stage": "precheck",
+        "code": "BUSINESS_KEY_CONFLICT",
+        "cause": "预检确认同键内容冲突；现有工具不能确认目标行来源、哪一侧正确或能否安全覆盖，需人工核对",
+        "actions": ["MANUAL_REQUIRED"],
+        "evidence_groups": [
+          ["get_output_preview"],
+          ["get_sql"],
+          ["get_schema", "get_task_contract"]
+        ],
+        "forbidden": [
+          "改 SQL 排除冲突行",
+          "声称目标数据已修复",
+          "断言冲突来自某次写入或可直接重试",
+          "删除或覆盖既有目标行"
+        ]
+      }
+    }
+  ]
+}

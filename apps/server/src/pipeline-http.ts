@@ -25,7 +25,7 @@ export function pipelineRouter(p: PipelineService, a: PipelineAgent) {
   );
   router.get('/projects', (_req, res) => res.json({ data: p.list('project') }));
   router.post('/projects', (req, res) => {
-    const b = z.strictObject({ template_id: z.enum(['A', 'B', 'C']) }).parse(req.body);
+    const b = z.strictObject({ template_id: z.enum(['A', 'B', 'C', 'D07']) }).parse(req.body);
     res.status(201).json({ data: p.create(b.template_id, key(req)) });
   });
   router.get('/projects/:projectId', (req, res) =>

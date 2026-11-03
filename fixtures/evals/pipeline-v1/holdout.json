@@ -1,0 +1,54 @@
+{
+  "version": "pipeline-holdout-v1",
+  "split": "holdout",
+  "policy": "冻结后仅最终复核；一旦据此调参，本版本转为开发集，另建新保留集。不是本轮已经测得的泛化准确率。",
+  "cases": [
+    {
+      "id": "H01",
+      "name": "时间列不存在",
+      "origin": "A 的不同字段保留变体",
+      "sql": "SELECT dat, start_ms AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_mps < 1 AND end_us - start_us >= 3000000;",
+      "expected": {
+        "stage": "query",
+        "code": "SQL_QUERY_FAILED",
+        "cause": "SQL 引用了不存在的 start_ms；实际结构提供 start_us",
+        "actions": ["SQL_PATCH"],
+        "evidence_groups": [["get_sql"], ["get_schema"]]
+      }
+    },
+    {
+      "id": "H02",
+      "name": "速度阈值误含等号",
+      "origin": "速度边界保留变体",
+      "sql": "SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_mps <= 1 AND end_us - start_us >= 3000000;",
+      "expected": {
+        "stage": "validate",
+        "code": "OUTPUT_VALIDATION_FAILED",
+        "cause": "<=1 错误包含速度恰好为 1 的事件，规则要求 <1",
+        "actions": ["SQL_PATCH"],
+        "evidence_groups": [
+          ["get_sql"],
+          ["get_output_preview"],
+          ["get_schema", "get_task_contract"]
+        ]
+      }
+    },
+    {
+      "id": "H03",
+      "name": "微秒时长误用秒阈值",
+      "origin": "todo 单位错误保留变体",
+      "sql": "SELECT dat, start_us AS st, end_us AS et, car_series FROM raw_vehicle_events WHERE speed_mps < 1 AND end_us - start_us >= 3;",
+      "expected": {
+        "stage": "validate",
+        "code": "OUTPUT_VALIDATION_FAILED",
+        "cause": "时间差单位为微秒，阈值 3 错误包含不足三秒事件，应为 3000000",
+        "actions": ["SQL_PATCH"],
+        "evidence_groups": [
+          ["get_sql"],
+          ["get_output_preview"],
+          ["get_schema", "get_task_contract"]
+        ]
+      }
+    }
+  ]
+}

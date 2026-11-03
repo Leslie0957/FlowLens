@@ -214,10 +214,22 @@ const nextStep = computed(() => {
         text: '先查看取证内容、诊断结论与 SQL Diff。批准后执行候选 SQL、校验结果并预检，通过后真实入库。',
         target: 'pipeline-agent',
       };
+    if (
+      s.repairs.some(
+        (r) =>
+          r.execution_id === e.id && r.status === 'NO_CANDIDATE' && r.action === 'MANUAL_REQUIRED',
+      )
+    )
+      return {
+        stage: 2,
+        title: '需要人工核对，未修改数据',
+        text: '查看诊断中的已知事实与信息缺口，并在 SQL 查询页复查源数据和目标结果。当前没有可批准的修复候选。',
+        target: 'pipeline-agent',
+      };
     return {
       stage: 2,
-      title: '查询或校验失败，进入 Agent 取证',
-      text: '查看失败阶段与原始日志，让 Agent 获取证据并提出仅修改 task.sql 的候选。',
+      title: '执行失败，进入 Agent 取证',
+      text: '查看失败阶段与原始日志，让 Agent 核对证据，提出有依据的 SQL 修复或说明需要人工处理的信息缺口。',
       target: 'pipeline-execution',
     };
   }

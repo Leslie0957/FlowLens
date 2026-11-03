@@ -1,6 +1,6 @@
 # HTTP 与 SSE 契约
 
-当前车辆接口更新于 2026-10-08。基础路径 `/api/v1`，开发 API 默认本机 4173；独立演示 API 默认 4180。车辆接口代码为 `apps/server/src/pipeline-http.ts`，共享契约为 `packages/contracts/src/pipeline.ts`。
+当前车辆接口更新于 2026-11-03。基础路径 `/api/v1`，开发 API 默认本机 4173；独立演示 API 默认 4180。车辆接口代码为 `apps/server/src/pipeline-http.ts`，共享契约为 `packages/contracts/src/pipeline.ts`。
 
 ## 当前车辆 Pipeline
 
@@ -9,7 +9,7 @@
 | 方法 | 路径                                                          | 用途                                                               |
 | ---- | ------------------------------------------------------------- | ------------------------------------------------------------------ |
 | GET  | `/templates`、`/projects`                                     | 场景模板与项目列表。                                               |
-| POST | `/projects`                                                   | 用 `template_id: A / B / C` 创建项目。                             |
+| POST | `/projects`                                                   | 用 `template_id: A / B / C / D07` 创建项目。                       |
 | GET  | `/projects/:projectId`、`/projects/:projectId/schema`         | 持久状态快照与实际源 / 目标结构。                                  |
 | POST | `/projects/:projectId/revisions`                              | 基于 `base_revision_id` 保存不可变 SQL 新版本。                    |
 | POST | `/projects/:projectId/executions`                             | 当前 SQL 只读执行、校验与预检，返回 202。                          |
@@ -21,6 +21,8 @@
 | POST | `/projects/:projectId/batches/:batchId/restore`               | 仅撤销最新有效批次实际新增数据，保留当前 SQL。                     |
 | POST | `/projects/:projectId/query`                                  | 查询源库、当前目标或指定批次入库前数据；只读查询不写入。           |
 | GET  | `/projects/:projectId/events?after_seq=...`                   | 订阅持久项目事件，从排他游标之后重放。                             |
+
+D07 仅在新项目的独立目标库创建一条同键不同内容的合成基线记录，供真实预检发现冲突；创建请求不能指定任意初始数据。诊断快照可带 `prompt_version`、`prompt_sha256`，记录当前默认策略；旧记录或注入网关没有这些可选字段时，不推断其版本。非修改动作没有候选 SQL，也不产生修复批准权限。
 
 创建项目、保存版本、执行、入库、诊断、批准 / 拒绝及撤销要求 `Idempotency-Key`；取消和只读查询按其路由处理。批准体外的业务范围仍由服务端记录校验，客户端不能指定任意 SQL 执行命令或恢复 SQL。
 

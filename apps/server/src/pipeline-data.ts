@@ -25,6 +25,7 @@ export const templates = [
     sql: validSql.replace('car_series FROM', 'car_series AS vehicle_type FROM'),
   },
   { id: 'C', name: 'C · 正常与幂等重跑', sql: validSql },
+  { id: 'D07', name: 'D07 · 目标数据冲突', sql: validSql },
 ];
 export const contract = {
   rule: 'speed_mps < 1 且 end_us - start_us >= 3000000；仅为 Demo 规则',
@@ -145,7 +146,7 @@ export function oracle(source: PipelineRow[], rows: PipelineRow[], columns: stri
         : 'SQL 可运行，但输出与独立业务规则不一致（含重复/漏行/错误字段值）',
   };
 }
-export function createTarget(path: string) {
+export function createTarget(path: string, initialRows: PipelineRow[] = []) {
   const db = new DatabaseSync(path);
   try {
     db.exec(`PRAGMA journal_mode=WAL;
@@ -155,6 +156,15 @@ export function createTarget(path: string) {
   CREATE TABLE snapshots(id TEXT PRIMARY KEY,schema_version INTEGER NOT NULL,row_count INTEGER NOT NULL,hash TEXT NOT NULL,rows_json TEXT NOT NULL,created_at TEXT NOT NULL);
   CREATE TABLE batches(id TEXT PRIMARY KEY,execution_id TEXT NOT NULL UNIQUE,request_key TEXT NOT NULL UNIQUE,binding_hash TEXT NOT NULL,json TEXT NOT NULL);
   CREATE TABLE restores(id TEXT PRIMARY KEY,batch_id TEXT NOT NULL UNIQUE,request_key TEXT NOT NULL UNIQUE,json TEXT NOT NULL);`);
+    // Initial synthetic records belong to the new database baseline, before
+    // any execution or history event. Never seed an existing project.
+    transaction(db, () => {
+      const insert = db.prepare('INSERT INTO mining_results VALUES (?,?,?,?,?,?)');
+      for (const raw of initialRows) {
+        const r = businessSchema.parse(raw);
+        insert.run(r.task_id, r.dat, r.st, r.et, r.car_series, r.execution_id);
+      }
+    });
     migrateTarget(db);
   } finally {
     db.close();

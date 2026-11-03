@@ -39,6 +39,12 @@ export function pipelineMock(): ModelGateway {
         );
       const sql = results.get('get_sql').output;
       const output = results.get('get_output_preview')?.output;
+      if (!output && initial.failure.failed_step === 'precheck')
+        return call(
+          ['get_output_preview'],
+          '实际输出校验与入库预检分别有什么结果？',
+          '不能仅凭冲突错误推断 SQL 有误，需要读取本次真实校验和预检信息。',
+        );
       if (!output && /vehicle_type/.test(sql.sql))
         return call(
           ['get_output_preview'],
@@ -57,17 +63,21 @@ export function pipelineMock(): ModelGateway {
           '源码中的字段是否存在于实际源表？',
           '上一轮获得报错 SQL，需要实际表结构核对字段。',
         );
+      const conflict = Number(output?.precheck?.conflicts ?? 0) > 0;
       return {
         text: JSON.stringify({
-          diagnosis:
-            'MOCK 离线演示：根据上一轮实际资料选择后续取证，提出候选；正确性仍需独立验证。',
+          diagnosis: conflict
+            ? 'MOCK 离线演示：实际输出通过校验，目标预检存在同键不同内容冲突。现有资料不足以确认目标记录来源和应保留哪侧内容，请人工核对；不修改 SQL，不覆盖或删除数据。'
+            : 'MOCK 离线演示：根据上一轮实际资料选择后续取证，提出候选；正确性仍需独立验证。',
           failed_step: initial.failure.failed_step,
-          action: 'SQL_PATCH',
+          action: conflict ? 'MANUAL_REQUIRED' : 'SQL_PATCH',
           evidence_ids: [
             initial.failure.evidence_id,
             ...[...results.values()].flatMap((r) => r.evidence_ids),
           ],
-          candidate: { file_path: 'task.sql', base_hash: sql.base_hash, new_content: validSql },
+          candidate: conflict
+            ? null
+            : { file_path: 'task.sql', base_hash: sql.base_hash, new_content: validSql },
         }),
         finishReason: 'stop',
         calls: [],
