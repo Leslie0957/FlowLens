@@ -1,4 +1,4 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, type ReporterDescription } from '@playwright/test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -41,6 +41,13 @@ process.on('exit', () => {
     /* Windows may release SQLite after process exit; temp files are isolated */
   }
 });
+const reporters: ReporterDescription[] = [
+  ['list'],
+  ['json', { outputFile: `logs/m5/e2e-${new Date().toISOString().replace(/[:.]/g, '-')}.json` }],
+];
+// Keep CI failures readable in public Checks annotations as well as job logs.
+// This only reports the existing assertion failures; it adds no retries.
+if (process.env.CI) reporters.push(['github']);
 export default defineConfig({
   testDir: 'tests/e2e',
   timeout: 30000,
@@ -74,9 +81,6 @@ export default defineConfig({
       env: { FLOWLENS_API_TARGET: 'http://127.0.0.1:4174' },
     },
   ],
-  reporter: [
-    ['list'],
-    ['json', { outputFile: `logs/m5/e2e-${new Date().toISOString().replace(/[:.]/g, '-')}.json` }],
-  ],
+  reporter: reporters,
   workers: 1,
 });
