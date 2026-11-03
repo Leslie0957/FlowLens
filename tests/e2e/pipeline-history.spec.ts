@@ -66,11 +66,49 @@ test('actual rounds and evidence survive refresh; history distinguishes failure,
   await page.getByRole('button', { name: '查看此 SQL 版本的原始修复诊断' }).click();
   await expect(context).toContainText('原始失败的诊断');
   await expect(context).toContainText(failure.id.slice(0, 8));
+  await page.getByText('本次诊断上限', { exact: true }).click();
   for (const width of [360, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1),
-    ).toBe(true);
+    const measure = () =>
+      page.evaluate(() => ({
+        viewport: window.innerWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        scrollX: window.scrollX,
+        offenders: [...document.querySelectorAll<HTMLElement>('body *')]
+          .filter(
+            (element) =>
+              element.getClientRects().length &&
+              element.getBoundingClientRect().right > window.innerWidth + 1,
+          )
+          .map((element) => ({
+            tag: element.tagName,
+            class: element.className,
+            text: element.textContent?.trim().slice(0, 100),
+            left: element.getBoundingClientRect().left,
+            right: element.getBoundingClientRect().right,
+            overflowX: getComputedStyle(element).overflowX,
+          }))
+          .slice(0, 16),
+      }));
+    // Browser viewport changes and component ResizeObservers need not finish
+    // together. Keep the original one-pixel bound, but assert the settled UI.
+    let layout = await measure();
+    try {
+      await expect
+        .poll(
+          async () => {
+            layout = await measure();
+            return layout.scrollWidth - layout.viewport;
+          },
+          { message: `History page must fit the ${width}px viewport` },
+        )
+        .toBeLessThanOrEqual(1);
+    } catch (cause) {
+      throw new Error(
+        `Horizontal overflow after viewport update: ${JSON.stringify(layout, null, 2)}`,
+        { cause },
+      );
+    }
   }
   mkdirSync(resolve('docs/demos'), { recursive: true });
   await page.evaluate(() => window.scrollTo(0, 0));
