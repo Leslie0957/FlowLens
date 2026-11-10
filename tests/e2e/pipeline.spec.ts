@@ -86,9 +86,12 @@ test('real vehicle A repair, human UI approval, precheck/commit/rerun/query/snap
         tool.transport === 'MCP' && tool.status === 'COMPLETED',
     ),
   ).toBe(true);
-  mkdirSync(resolve('docs/demos'), { recursive: true });
+  mkdirSync(resolve('logs/pipeline/screenshots'), { recursive: true });
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: 'docs/demos/pipeline-mock-diff.png', fullPage: true });
+  await page.screenshot({
+    path: 'logs/pipeline/screenshots/pipeline-mock-diff.png',
+    fullPage: true,
+  });
   await page.reload();
   await expect(page.getByRole('button', { name: '批准修复并入库' })).toBeVisible();
   await expect(page.locator('.pipeline-tools').first()).toContainText(
@@ -129,7 +132,10 @@ test('real vehicle A repair, human UI approval, precheck/commit/rerun/query/snap
   await page.getByRole('button', { name: '执行只读查询' }).click();
   await expect(page.locator('.el-table__body')).toContainText('4');
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: 'docs/demos/pipeline-query-target.png', fullPage: true });
+  await page.screenshot({
+    path: 'logs/pipeline/screenshots/pipeline-query-target.png',
+    fullPage: true,
+  });
   await page.getByRole('link', { name: '← 执行工作台' }).click();
   const queryPage = await page.context().newPage();
   await queryPage.goto(projectPath + '/database?scope=target');
@@ -165,9 +171,12 @@ test('real vehicle A repair, human UI approval, precheck/commit/rerun/query/snap
   await expect(page.getByRole('textbox', { name: 'task.sql 编辑器' })).toHaveValue(
     committed.revision.sql,
   );
-  mkdirSync(resolve('docs/demos'), { recursive: true });
+  mkdirSync(resolve('logs/pipeline/screenshots'), { recursive: true });
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: 'docs/demos/pipeline-mock-workbench.png', fullPage: true });
+  await page.screenshot({
+    path: 'logs/pipeline/screenshots/pipeline-mock-workbench.png',
+    fullPage: true,
+  });
   for (const width of [360, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     expect(

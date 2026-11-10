@@ -1,4 +1,4 @@
-// Product adaptation of FlowLens M0 DeepSeek gateway; see docs/adr/0001-m0-technical-validation.md.
+// Product adaptation of the DeepSeek gateway validated in the M0 probe.
 import { decodeChatStream, type Completion } from './model-stream.js';
 import { ProbeError } from './model-error.js';
 import { toolDescriptions } from './diagnosis-tools.js';

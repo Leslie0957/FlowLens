@@ -110,9 +110,12 @@ test('actual rounds and evidence survive refresh; history distinguishes failure,
       );
     }
   }
-  mkdirSync(resolve('docs/demos'), { recursive: true });
+  mkdirSync(resolve('logs/pipeline/screenshots'), { recursive: true });
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: 'docs/demos/pipeline-feedback-history.png', fullPage: true });
+  await page.screenshot({
+    path: 'logs/pipeline/screenshots/pipeline-feedback-history.png',
+    fullPage: true,
+  });
 });
 
 test('plain public assistant explanations survive restore without requiring a structured investigation note', async ({

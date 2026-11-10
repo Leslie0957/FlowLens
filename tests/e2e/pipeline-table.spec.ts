@@ -101,8 +101,8 @@ test('actual output and SQL query tables align headers while scrolling, reopenin
     ).toBe(true);
   }
   await page.setViewportSize({ width: 1440, height: 1100 });
-  mkdirSync('docs/demos', { recursive: true });
+  mkdirSync('logs/pipeline/screenshots', { recursive: true });
   await page
     .locator('.pipeline-query-result')
-    .screenshot({ path: 'docs/demos/pipeline-query-result-20261008.png' });
+    .screenshot({ path: 'logs/pipeline/screenshots/pipeline-query-result-20261008.png' });
 });

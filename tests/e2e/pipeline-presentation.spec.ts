@@ -12,8 +12,11 @@ test('Pipeline is primary and archived experiments remain reachable and fit narr
   await expect(page.getByRole('radiogroup', { name: '车辆任务模板' })).toBeVisible();
   await page.getByRole('radio', { name: 'B · 输出契约错误' }).check();
   await expect(page.getByRole('radio', { name: 'B · 输出契约错误' })).toBeChecked();
-  mkdirSync('docs/demos', { recursive: true });
-  await page.screenshot({ path: 'docs/demos/pipeline-overview-20261008.png', fullPage: true });
+  mkdirSync('logs/pipeline/screenshots', { recursive: true });
+  await page.screenshot({
+    path: 'logs/pipeline/screenshots/pipeline-overview-20261008.png',
+    fullPage: true,
+  });
   await archive.locator('summary').focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('link', { name: '本地执行实验' })).toBeVisible();
@@ -33,7 +36,7 @@ test('evidence opens real bound facts and one repair approval reaches committed 
   page,
   request,
 }) => {
-  mkdirSync('docs/demos', { recursive: true });
+  mkdirSync('logs/pipeline/screenshots', { recursive: true });
   const project = (
     await (
       await request.post('/api/v1/pipeline/projects', {
@@ -66,7 +69,10 @@ test('evidence opens real bound facts and one repair approval reaches committed 
   await page.locator('.pipeline-tools summary').first().click();
   await expect(page.locator('.pipeline-tools details').first()).toContainText(state.revision.sql);
   await page.locator('.pipeline-tools summary').first().click();
-  await page.screenshot({ path: 'docs/demos/pipeline-workflow-20261008.png', fullPage: true });
+  await page.screenshot({
+    path: 'logs/pipeline/screenshots/pipeline-workflow-20261008.png',
+    fullPage: true,
+  });
   for (const width of [360, 768, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
     expect(

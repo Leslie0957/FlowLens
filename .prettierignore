@@ -2,10 +2,7 @@ node_modules/
 .pnpm-store/
 dist/
 coverage/
-docs/evals/
-docs/FlowLens自用面经.md
-docs/FlowLens项目技术文档_知识库.md
-docs/demos/
+/docs/
 logs/
 data/
 test-results/

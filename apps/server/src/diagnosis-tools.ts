@@ -40,7 +40,10 @@ const docs = definitions.map((d) => ({
   ...d,
   version: '1',
   updated_at: '2026-09-26',
-  text: readFileSync(new URL('../../../docs/runbooks/' + d.id + '.md', import.meta.url), 'utf8'),
+  text: readFileSync(
+    new URL('../../../fixtures/runbooks/' + d.id + '.md', import.meta.url),
+    'utf8',
+  ),
 }));
 const defaultRetriever: RunbookRetriever = {
   search(query, category, limit) {

@@ -230,7 +230,7 @@ if (args.some((x) => !['--execute-live', '--mock', '--m5'].includes(x)) || (live
       if (e.type === 'RUNBOOK') {
         try {
           source_valid = readFileSync(
-            join(root, 'docs/runbooks', e.source_id + '.md'),
+            join(root, 'fixtures/runbooks', e.source_id + '.md'),
             'utf8',
           ).startsWith(e.excerpt);
         } catch {
